@@ -1,0 +1,25 @@
+/*
+ * NodeID.h
+ *
+ *  Created on: Apr 24, 2014
+ *      Author: cmaier
+ */
+
+#ifndef NODEID_H_
+#define NODEID_H_
+
+#include "ASTNodeBase.h"
+#include <string>
+#include <iostream>
+
+class NodeID: public ASTNodeBase {
+private:
+	std::string id_;
+
+public:
+	NodeID(std::string id) : id_(id) {}
+	virtual ~NodeID();
+	virtual std::string toString() {return id_;}
+};
+
+#endif /* NODEID_H_ */
