@@ -15,12 +15,39 @@ tokens
   IT_FACT_DECL;
   IT_PROGRAM;
   IT_ASSIGN;
-  IT_ADD_ADDASSIGN;
+  IT_ADD_ASSIGN;
   IT_REMOVE_ASSIGN;
   IT_PLUS;
   IT_MINUS;
   IT_TUPLE;
   IT_VAR;
+  IT_PASS_SENS;
+  IT_VAR_LIST;
+  IT_BLOCK;
+  IT_ACTION_DECL;
+  IT_SIGNAL;
+  IT_SENSING;
+  IT_ASSIGN_ALL;
+  IT_IF_ASSIGN;
+  IT_NOT;
+  IT_AND;
+  IT_OR;
+  IT_IMPLIES;
+  IT_ALL;
+  IT_EXISTS;
+  IT_IN;
+  IT_EFFECT;
+  IT_FORMULA;
+  IT_PROC_DECL;
+  IT_SEARCH;
+  IT_PICK;
+  IT_ACTION_EXEC;
+  IT_VALUE_LIST;
+  IT_CONDITIONAL;
+  IT_FORALL;
+  IT_WHILE;
+  IT_CHOOSE;
+  IT_TEST;
 } 
 
 @header {
@@ -30,7 +57,7 @@ tokens
 program	:	(declaration | statement)+ -> ^(IT_PROGRAM declaration* statement*)
 	;
 	
-block	:	statement+
+block	:	statement+ -> ^(IT_BLOCK statement+)
 	;
 	
 declaration
@@ -60,8 +87,16 @@ var	:	TOKEN_VAR_DECL_START ID -> ^(IT_VAR ID)
 value	:	INT|STRING|var
 	;
 	
-valexpr	:	value ((TOKEN_PLUS | TOKEN_MINUS) value)*
+valexpr	:	value (expr_op^ value)* 
 	;
+
+//not sure which version is better, depends on how to transform it into a treegrammar
+//valexpr	:	(a=value->$a) 
+//		  (
+//		    expr_op b=value
+//		    -> ^(expr_op $valexpr $b) 
+//		  )* 
+//	;
 
 tuple	:	TOKEN_LT (
 		  tuple_val (TOKEN_COMMA tuple_val)* -> ^(IT_TUPLE tuple_val+)
@@ -77,7 +112,7 @@ set	:	TOKEN_SET_START tuple (TOKEN_COMMA tuple)* TOKEN_SET_END -> ^(IT_TUPLE_SET
 	|	ID
 	;
 	
-setexpr	:	set (expr_op set)* -> ^(set ^(expr_op set)*) 
+setexpr	:	set (expr_op^ set)* 
 	;
 	
 expr_op:	TOKEN_PLUS -> IT_PLUS 
@@ -85,7 +120,9 @@ expr_op:	TOKEN_PLUS -> IT_PLUS
        ;
 	
 fluent_decl
-	:	TOKEN_FLUENT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL -> ^(IT_FLUENT_DECL ID domain+) 
+	:	TOKEN_FLUENT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL 
+	
+		-> ^(IT_FLUENT_DECL ID domain+) 
 	;
 	
 domain: 	TOKEN_DOMAIN_INT -> TOKEN_DOMAIN_INT
@@ -95,28 +132,39 @@ domain: 	TOKEN_DOMAIN_INT -> TOKEN_DOMAIN_INT
 		 
 
 fact_decl
-	:	TOKEN_FACT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL -> ^(IT_FACT_DECL ID domain+) 
+	:	TOKEN_FACT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL 
+	
+		-> ^(IT_FACT_DECL ID domain+) 
 	;
 
 action_decl
-	:	 TOKEN_ACTION ID (TOKEN_OPEN_PAREN (var (TOKEN_COMMA var)* | /*eps*/) TOKEN_CLOSE_PAREN)
+	:	TOKEN_ACTION ID (TOKEN_OPEN_PAREN (var_list | /*eps*/) TOKEN_CLOSE_PAREN)
 		(TOKEN_PRECOND formula_outerMost)?
 		(effect | sensing)
 		(TOKEN_SIGNAL valexpr TOKEN_EOL)?
 		TOKEN_END_ACTION
+		
+		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list) formula_outerMost? effect? sensing? (^(IT_SIGNAL valexpr))? )
 	;
 
 formula_outerMost
-	:	 formula TOKEN_EOL
+	:	 formula TOKEN_EOL 
+	
+		  -> ^(IT_FORMULA formula)
 	;
 
 formula	:	atom
-	|	TOKEN_NOT TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN
-	|	TOKEN_OPEN_PAREN atom (TOKEN_AND | TOKEN_OR | TOKEN_IMPLIES) formula TOKEN_CLOSE_PAREN
-	|	TOKEN_EXISTS tuple TOKEN_IN setexpr (TOKEN_SUCH formula)?
-	|	TOKEN_ALL tuple TOKEN_IN setexpr (TOKEN_SUCH formula)?
-	|	tuple TOKEN_IN setexpr
+	|	TOKEN_NOT TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN -> ^(IT_NOT formula)
+	|	TOKEN_OPEN_PAREN atom formular_connective formula TOKEN_CLOSE_PAREN -> ^(formular_connective atom formula)
+	|	TOKEN_EXISTS tuple TOKEN_IN setexpr (TOKEN_SUCH formula)? -> ^(IT_EXISTS tuple setexpr formula?)
+	|	TOKEN_ALL tuple TOKEN_IN setexpr (TOKEN_SUCH formula)? -> ^(IT_ALL tuple setexpr formula?)
+	|	tuple TOKEN_IN setexpr -> ^(IT_IN tuple setexpr)
 	;
+	
+formular_connective:	TOKEN_AND -> IT_AND
+		   | 	TOKEN_OR  -> IT_OR
+		   |    TOKEN_IMPLIES -> IT_IMPLIES
+		   ;
 
 atom
 	:	valexpr (TOKEN_EQUALS |  TOKEN_NEQUALS | TOKEN_LE | TOKEN_GE | TOKEN_LT | TOKEN_GT) valexpr
@@ -124,30 +172,45 @@ atom
 	|	(TOKEN_TRUE | TOKEN_FALSE)
 	;
 
-effect	:	TOKEN_EFFECT assignment*
+effect	:	TOKEN_EFFECT assignment* 
+
+		-> ^(IT_EFFECT ^(IT_BLOCK assignment+))
 	;
 	
-sensing	:	TOKEN_SENSING TOKEN_OPEN_PAREN var (TOKEN_COMMA var)* TOKEN_CLOSE_PAREN TOKEN_COLON assignment+
+sensing	:	TOKEN_SENSING TOKEN_OPEN_PAREN var_list TOKEN_CLOSE_PAREN TOKEN_COLON assignment+
+		
+		-> ^(IT_SENSING ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
 	;
 	
 passive_sensing_decl
-	:	TOKEN_PASSIVE_SENSING ID TOKEN_OPEN_PAREN var (TOKEN_COMMA var)* 
-		TOKEN_CLOSE_PAREN assignment+  TOKEN_END_PASSIVE_SENSING   
-                        
+	:	TOKEN_PASSIVE_SENSING ID TOKEN_OPEN_PAREN var_list
+		TOKEN_CLOSE_PAREN assignment+  TOKEN_END_PASSIVE_SENSING
+                
+                -> ^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
+                
+	;
+	
+var_list:	var (TOKEN_COMMA var)* 
+
+		-> var+
 	;
 	
 assignment
-	:	assign TOKEN_EOL
+	:	assign TOKEN_EOL -> assign
 	|	for_loop_assign
 	|	conditional_assign
 	;
 
 for_loop_assign
 	:	TOKEN_ASSIGN_ALL tuple TOKEN_IN setexpr assignment+ TOKEN_END_FOR
+		
+		-> ^(IT_ASSIGN_ALL tuple setexpr ^(IT_BLOCK assignment+))
 	;
 	
 conditional_assign
 	:	TOKEN_IF formula TOKEN_THEN (assignment)+ (TOKEN_ELSE assignment+)? TOKEN_END_IF
+		
+		-> ^(IT_IF_ASSIGN formula ^(IT_BLOCK assignment+) (^(IT_BLOCK assignment+))?)
 	;
 
 assign	:	var TOKEN_ASSIGN valexpr -> ^(IT_ASSIGN var valexpr)
@@ -155,42 +218,67 @@ assign	:	var TOKEN_ASSIGN valexpr -> ^(IT_ASSIGN var valexpr)
 	;
 	
 ass_op  :	(TOKEN_ASSIGN -> IT_ASSIGN 
-                  | TOKEN_ADD_ASSIGN -> IT_ADD_ADDASSIGN 
+                  | TOKEN_ADD_ASSIGN -> IT_ADD_ASSIGN 
                   | TOKEN_REMOVE_ASSIGN -> IT_REMOVE_ASSIGN
                 )
         ;
 
 action_exec
-	:	ID TOKEN_OPEN_PAREN (value (TOKEN_COMMA value)*)? TOKEN_CLOSE_PAREN TOKEN_EOL
+	:	ID TOKEN_OPEN_PAREN (value_list)? TOKEN_CLOSE_PAREN TOKEN_EOL
+		
+		-> ^(IT_ACTION_EXEC ID ^(IT_VALUE_LIST value_list))
+	;
+	
+value_list	
+	:	value (TOKEN_COMMA value)* 
+	
+		-> value+
 	;
 
 test	:	TOKEN_TEST formula TOKEN_EOL
+	
+		-> ^(IT_TEST formula)
 	;
 
 choose	:	TOKEN_CHOOSE block ( TOKEN_OR block )+ TOKEN_END_CHOOSE
+
+		-> ^(IT_CHOOSE block block+)
 	;
 
-pick	:	 TOKEN_PICK tuple TOKEN_FROM setexpr TOKEN_SUCH block TOKEN_END_PICK
+pick	:	TOKEN_PICK tuple TOKEN_FROM setexpr TOKEN_SUCH block TOKEN_END_PICK
+		 
+		-> ^(IT_PICK tuple setexpr block)
 	;
 
 conditional
 	:	TOKEN_IF TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN TOKEN_THEN block 
 		(TOKEN_ELSE block)? TOKEN_END_IF
+		
+		-> ^(IT_CONDITIONAL formula ^(IT_BLOCK block) (^(IT_BLOCK block))?)
 	;
 
 while_loop
-	:	 TOKEN_WHILE formula TOKEN_DO block TOKEN_END_WHILE
+	:	TOKEN_WHILE formula TOKEN_DO block TOKEN_END_WHILE
+	
+		-> ^(IT_WHILE formula block)
 	;
 	
-for_loop	:	 TOKEN_FOR_ALL tuple TOKEN_IN setexpr TOKEN_DO block TOKEN_END_FOR
+for_loop	
+	:	TOKEN_FOR_ALL tuple TOKEN_IN setexpr TOKEN_DO block TOKEN_END_FOR
+	
+		-> ^(IT_FORALL tuple setexpr block)
 	;
 
-search	:	 TOKEN_SEARCH block TOKEN_END_SEARCH
+search	:	TOKEN_SEARCH block TOKEN_END_SEARCH 
+
+		-> ^(IT_SEARCH ^(block))
 	;
 
 proc_decl
-	:	TOKEN_PROC ID (TOKEN_OPEN_PAREN var (TOKEN_COMMA var)* 
+	:	TOKEN_PROC ID (TOKEN_OPEN_PAREN var_list
 		TOKEN_CLOSE_PAREN)? block TOKEN_END_PROC
+		
+		-> ^(IT_PROC_DECL ID ^(IT_VAR_LIST var_list) ^(block))
 	;
 	
 	
