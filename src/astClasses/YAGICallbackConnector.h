@@ -11,7 +11,8 @@
 #include <string>
 #include <antlr3.h>
 #include "ASTBuilder.h"
-/*
+#include "../cppInterfaceClasses/CToCppBridge.h"
+
 extern "C" {
 YAGICallbackCollection yagiCallbackCollection;
 }
@@ -34,5 +35,5 @@ void connectCallbacks() {
 }
 
 }
-*/
+
 #endif /* CCALLBACKCONSUMER_H_ */

@@ -13,7 +13,7 @@
 
 int main(int argc, char * argv[]) {
 
-	//YAGICallbackConnector::connectCallbacks();
+	YAGICallbackConnector::connectCallbacks();
 
 	pANTLR3_INPUT_STREAM input;
 	std::cout << argv[1] << std::endl;
