@@ -6,11 +6,28 @@ options {
     ASTLabelType=pANTLR3_BASE_TREE;
 }
 
+//imaginary tokens
+tokens  
+{ 
+  IT_FLUENT_DECL; 
+  IT_STRING_SET;
+  IT_TUPLE_SET;
+  IT_FACT_DECL;
+  IT_PROGRAM;
+  IT_ASSIGN;
+  IT_ADD_ADDASSIGN;
+  IT_REMOVE_ASSIGN;
+  IT_PLUS;
+  IT_MINUS;
+  IT_TUPLE;
+  IT_VAR;
+} 
+
 @header {
     #define _empty NULL
 }
 
-program	:	(declaration | statement)+
+program	:	(declaration | statement)+ -> ^(IT_PROGRAM declaration* statement*)
 	;
 	
 block	:	statement+
@@ -37,7 +54,7 @@ statement
 	;
 	
 	
-var	:	TOKEN_VAR_DECL_START ID
+var	:	TOKEN_VAR_DECL_START ID -> ^(IT_VAR ID)
 	;
 	
 value	:	INT|STRING|var
@@ -46,27 +63,39 @@ value	:	INT|STRING|var
 valexpr	:	value ((TOKEN_PLUS | TOKEN_MINUS) value)*
 	;
 
-tuple	:	TOKEN_LT  (STRING (TOKEN_COMMA (TOKEN_PATTERN_MATCHING | STRING))* 
-		|  var (TOKEN_COMMA (TOKEN_PATTERN_MATCHING | var))* | TOKEN_PATTERN_MATCHING) TOKEN_GT
+tuple	:	TOKEN_LT (
+		  tuple_val (TOKEN_COMMA tuple_val)* -> ^(IT_TUPLE tuple_val+)
+	 	) TOKEN_GT
 	;
 	
-set	:	TOKEN_SET_START tuple (TOKEN_COMMA tuple)* TOKEN_SET_END
+tuple_val : 	STRING
+	  |     TOKEN_PATTERN_MATCHING
+	  |     var
+          ;
+	
+set	:	TOKEN_SET_START tuple (TOKEN_COMMA tuple)* TOKEN_SET_END -> ^(IT_TUPLE_SET tuple+)
 	|	ID
 	;
 	
-setexpr	:	set (TOKEN_PLUS | TOKEN_MINUS set)*	
+setexpr	:	set (expr_op set)* -> ^(set ^(expr_op set)*) 
 	;
 	
+expr_op:	TOKEN_PLUS -> IT_PLUS 
+	      | TOKEN_MINUS -> IT_MINUS
+       ;
+	
 fluent_decl
-	:	 TOKEN_FLUENT ID ( TOKEN_DOMAIN_START (TOKEN_DOMAIN_INT 
-		| TOKEN_DOMAIN_STR | TOKEN_SET_START STRING (TOKEN_COMMA STRING)* 
-		TOKEN_SET_END ) TOKEN_DOMAIN_END )+ TOKEN_EOL
+	:	TOKEN_FLUENT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL -> ^(IT_FLUENT_DECL ID domain+) 
 	;
+	
+domain: 	TOKEN_DOMAIN_INT -> TOKEN_DOMAIN_INT
+		  | TOKEN_DOMAIN_STR -> TOKEN_DOMAIN_STR
+		  | TOKEN_SET_START STRING (TOKEN_COMMA STRING)* TOKEN_SET_END -> ^(IT_STRING_SET STRING+)
+	;
+		 
 
 fact_decl
-	:	 TOKEN_FACT ID ( TOKEN_DOMAIN_START (TOKEN_DOMAIN_INT 
-		| TOKEN_DOMAIN_STR | TOKEN_SET_START STRING (TOKEN_COMMA STRING)* 
-		TOKEN_SET_END ) TOKEN_DOMAIN_END )+ TOKEN_EOL
+	:	TOKEN_FACT ID (TOKEN_DOMAIN_START domain TOKEN_DOMAIN_END)+ TOKEN_EOL -> ^(IT_FACT_DECL ID domain+) 
 	;
 
 action_decl
@@ -121,9 +150,15 @@ conditional_assign
 	:	TOKEN_IF formula TOKEN_THEN (assignment)+ (TOKEN_ELSE assignment+)? TOKEN_END_IF
 	;
 
-assign	:	 var TOKEN_ASSIGN valexpr
-	|	ID (TOKEN_ASSIGN | TOKEN_ADD_ASSIGN | TOKEN_REMOVE_ASSIGN) setexpr
+assign	:	var TOKEN_ASSIGN valexpr -> ^(IT_ASSIGN var valexpr)
+	|	ID ass_op setexpr -> ^(ass_op ID setexpr)
 	;
+	
+ass_op  :	(TOKEN_ASSIGN -> IT_ASSIGN 
+                  | TOKEN_ADD_ASSIGN -> IT_ADD_ADDASSIGN 
+                  | TOKEN_REMOVE_ASSIGN -> IT_REMOVE_ASSIGN
+                )
+        ;
 
 action_exec
 	:	ID TOKEN_OPEN_PAREN (value (TOKEN_COMMA value)*)? TOKEN_CLOSE_PAREN TOKEN_EOL
