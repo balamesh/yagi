@@ -13,25 +13,47 @@
 #include "ASTBuilder.h"
 #include "../cppInterfaceClasses/CToCppBridge.h"
 
-extern "C" {
-YAGICallbackCollection yagiCallbackCollection;
+extern "C"
+{
+    YAGICallbackCollection yagiCallbackCollection;
 }
 
-namespace YAGICallbackConnector {
-void addID(pANTLR3_STRING id) {
-	ASTBuilder::getInstance().addIDNode((char*) id->chars);
-}
-void addIDSet() {
-	ASTBuilder::getInstance().addIDSetNode();
-}
-void addFluent(pANTLR3_STRING fluentName) {
-	ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
+namespace YAGICallbackConnector
+{
+
+void addDomainElement(pANTLR3_STRING domainElement)
+{
+    ASTBuilder::getInstance().addDomainElement((char*) domainElement->chars);
 }
 
-void connectCallbacks() {
-	yagiCallbackCollection.addFluentDeclCallback = addFluent;
-	yagiCallbackCollection.addIDSetCallback = addIDSet;
-	yagiCallbackCollection.addIDCallback = addID;
+void addDomainString()
+{
+    ASTBuilder::getInstance().addDomainStringNode();
+}
+
+void addDomainInteger()
+{
+    ASTBuilder::getInstance().addDomainIntegerNode();
+}
+
+void addDomainStringElements()
+{
+    ASTBuilder::getInstance().addDomainStringElementsNode();
+}
+
+void addFluent(pANTLR3_STRING fluentName)
+{
+    ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
+}
+
+void connectCallbacks()
+{
+    yagiCallbackCollection.addFluentDeclCallback = addFluent;
+    yagiCallbackCollection.addDomainStringCallback = addDomainString;
+    yagiCallbackCollection.addDomainIntegerCallback = addDomainInteger;
+    yagiCallbackCollection.addDomainElementCallback = addDomainElement;
+    yagiCallbackCollection.addDomainStringElementsCallback = addDomainStringElements;
+
 }
 
 }

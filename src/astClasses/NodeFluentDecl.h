@@ -9,25 +9,27 @@
 #define NODEFLUENTDECL_H_
 
 #include <string>
+#include <memory>
 
 #include "ASTNodeBase.h"
 #include "NodeID.h"
-#include "NodeIDSet.h"
+#include "NodeDomainStringElements.h"
+
 
 class NodeFluentDecl: public ASTNodeBase {
 
 private:
-	NodeID* fluentName_;
-	NodeIDSet* domain_;
+	std::shared_ptr<NodeID> fluentName_;
+	std::shared_ptr<NodeDomainStringElements> domain_;
 
 public:
 	NodeFluentDecl();
 	virtual ~NodeFluentDecl();
 
-	void setFluentName(NodeID* fluentName) {
+	void setFluentName(std::shared_ptr<NodeID>  fluentName) {
 		fluentName_ = fluentName;
 	}
-	void setDomain(NodeIDSet* domain) {
+	void setDomain(std::shared_ptr<NodeDomainStringElements> domain) {
 		domain_ = domain;
 	}
 

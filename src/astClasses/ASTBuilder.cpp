@@ -7,6 +7,7 @@
 
 #include "ASTBuilder.h"
 #include <assert.h>
+#include "../utils/make_unique.h"
 
 ASTBuilder::ASTBuilder() {
 	// TODO Auto-generated constructor stub
@@ -16,26 +17,42 @@ ASTBuilder::~ASTBuilder() {
 	// TODO Auto-generated destructor stub
 }
 
-void ASTBuilder::addIDNode(std::string id) {
-	ast.push_front(new NodeID(id));
-
+void ASTBuilder::addDomainElement(std::string domainElement)
+{
+	auto domain = std::static_pointer_cast<NodeDomainStringElements>(ast.front());
+    domain->addStringToDomain(domainElement);
 }
-void ASTBuilder::addIDSetNode() {
-	NodeIDSet* idSet = new NodeIDSet();
+void ASTBuilder::addDomainStringElementsNode()
+{
+	auto domainStringElements = std::make_shared<NodeDomainStringElements>();
 
-	while (!ast.empty() && dynamic_cast<NodeID*>(ast.front()) != nullptr)
+
+	/*while (!ast.empty() && dynamic_cast<NodeID*>(ast.front()) != nullptr)
 	{
 		idSet->addID(dynamic_cast<NodeID*>(ast.front()));
 		ast.pop_front();
-	}
+	}*/
 
-	ast.push_front(idSet);
+	ast.push_front(domainStringElements);
+
 }
-void ASTBuilder::addFluentDeclNode(std::string fluentName) {
-	NodeFluentDecl* fluentDeclNode = new NodeFluentDecl();
 
-    fluentDeclNode->setFluentName(new NodeID(fluentName));
-    fluentDeclNode->setDomain(dynamic_cast<NodeIDSet*>(ast.front()));
+void ASTBuilder::addDomainIntegerNode()
+{
+
+}
+
+void ASTBuilder::addDomainStringNode()
+{
+
+}
+
+void ASTBuilder::addFluentDeclNode(std::string fluentName)
+{
+	auto fluentDeclNode = std::make_shared<NodeFluentDecl>();
+
+    fluentDeclNode->setFluentName(std::make_shared<NodeID>(fluentName));
+    fluentDeclNode->setDomain(std::static_pointer_cast<NodeDomainStringElements>(ast.front()));
     ast.pop_front();
 
 	ast.push_front(fluentDeclNode);

@@ -15,7 +15,7 @@
 
 #include "ASTNodeBase.h"
 #include "NodeID.h"
-#include "NodeIDSet.h"
+#include "NodeDomainStringElements.h"
 #include "NodeFluentDecl.h"
 
 class ASTBuilder {
@@ -26,11 +26,13 @@ public:
         return instance;
     }
 
-    void addIDNode(std::string id);
-    void addIDSetNode();
+    void addDomainElement(std::string domainElement);
+    void addDomainStringElementsNode();
+    void addDomainStringNode();
+    void addDomainIntegerNode();
     void addFluentDeclNode(std::string fluentName);
 
-    ASTNodeBase* getAST() {return (ast.size() > 0 ? ast.front() : nullptr);}
+    std::shared_ptr<ASTNodeBase> getAST() {return (ast.size() > 0 ? ast.front() : nullptr);}
 
 private:
     ASTBuilder(ASTBuilder const&);
@@ -39,7 +41,7 @@ private:
 	ASTBuilder();
 	virtual ~ASTBuilder();
 
-	std::deque<ASTNodeBase*> ast;
+	std::deque<std::shared_ptr<ASTNodeBase>> ast;
 };
 
 #endif /* ASTBUILDER_H_ */

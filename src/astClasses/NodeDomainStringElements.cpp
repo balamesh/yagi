@@ -5,9 +5,10 @@
  *      Author: cmaier
  */
 
-#include "NodeIDSet.h"
+#include "NodeDomainStringElements.h"
 
-NodeIDSet::~NodeIDSet() {
+NodeDomainStringElements::~NodeDomainStringElements()
+{
 	// TODO Auto-generated destructor stub
 }
 

@@ -15,16 +15,20 @@ extern "C" {
 
 struct YAGICallbackCollection
 {
-  void (*addIDCallback)(pANTLR3_STRING id);
-  void (*addIDSetCallback)();
+  void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
+  void (*addDomainIntegerCallback)();
+  void (*addDomainStringCallback)();
+  void (*addDomainStringElementsCallback)();
   void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
 };
 
 extern struct YAGICallbackCollection yagiCallbackCollection;
 
-#define ADD_ID(x) yagiCallbackCollection.addIDCallback(x)
-#define ADD_ID_SET() yagiCallbackCollection.addIDSetCallback()
+#define ADD_DOMAIN_ELEMENT(x) yagiCallbackCollection.addDomainElementCallback(x)
+#define ADD_DOMAIN_INTEGER() yagiCallbackCollection.addDomainIntegerCallback()
+#define ADD_DOMAIN_STRING() yagiCallbackCollection.addDomainStringCallback()
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)
+#define ADD_DOMAIN_STRING_ELEMENTS() yagiCallbackCollection.addDomainStringElementsCallback()
 
 #ifdef __cplusplus
 }

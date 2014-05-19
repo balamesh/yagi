@@ -44,6 +44,10 @@ declaration
 
 fluent_decl
 	: ^(IT_FLUENT_DECL ID domain+) 
+	
+	{
+	    ADD_FLUENT_DECL($ID->toString($ID));
+        }
 	;	
 	
 fact_decl
@@ -51,9 +55,9 @@ fact_decl
 	;
 	
 domain	
-	:	TOKEN_DOMAIN_INT
-		  | TOKEN_DOMAIN_STR
-		  | ^(IT_STRING_SET STRING+)
+	:	TOKEN_DOMAIN_INT {ADD_DOMAIN_INTEGER();}
+		  | TOKEN_DOMAIN_STR {ADD_DOMAIN_STRING();}
+		  | ^(IT_STRING_SET {ADD_DOMAIN_STRING_ELEMENTS();} (st=STRING {ADD_DOMAIN_ELEMENT($st->toString($st));})+)
 	;
 	
 action_decl
