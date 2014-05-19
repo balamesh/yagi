@@ -1,7 +1,7 @@
 //******************************************************************************
 //Grammar for the YAGI programming language
 //Author: Christopher Maier
-//Date: 2014-01-31
+//Date: 2014-05-19
 //Version: 0.1
 //Changelog:
 //  - 0.1: Initial version
@@ -152,7 +152,7 @@ proc_decl
 	:	TOKEN_PROC ID (TOKEN_OPEN_PAREN var_list
 		TOKEN_CLOSE_PAREN)? block TOKEN_END_PROC
 		
-		-> ^(IT_PROC_DECL ID ^(IT_VAR_LIST var_list) ^(block))
+		-> ^(IT_PROC_DECL ID (^(IT_VAR_LIST var_list))? block)
 	;	
 	
 passive_sensing_decl
@@ -224,7 +224,7 @@ conditional
 	:	TOKEN_IF TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN TOKEN_THEN block 
 		(TOKEN_ELSE block)? TOKEN_END_IF
 		
-		-> ^(IT_CONDITIONAL formula ^(IT_BLOCK block) (^(IT_BLOCK block))?)
+		-> ^(IT_CONDITIONAL formula ^(IT_BLOCK block) block?)
 	;
 	
 while_loop
@@ -236,7 +236,7 @@ while_loop
 search	
 	:	TOKEN_SEARCH block TOKEN_END_SEARCH 
 
-		-> ^(IT_SEARCH ^(block))
+		-> ^(IT_SEARCH block)
 	;
 	
 	
@@ -341,7 +341,9 @@ var
 	;
 	
 value	
-	:	INT|STRING|var
+	:	INT
+	|	STRING
+	|	var
 	;
 	
 valexpr	

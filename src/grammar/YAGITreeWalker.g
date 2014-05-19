@@ -1,3 +1,11 @@
+//******************************************************************************
+//Treegrammar for the YAGI programming language
+//Author: Christopher Maier
+//Date: 2014-05-19
+//Version: 0.1
+//Changelog:
+//  - 0.1: Initial version
+//******************************************************************************
 tree grammar YAGITreeWalker;
 
 options 
@@ -14,217 +22,229 @@ options
 //******************************************************************************
 //Basic program structure
 //******************************************************************************
-program	:       (declaration | block)+
+program	
+	: ^(IT_PROGRAM declaration* statement*)
 	;
-
-block   :       (statement)+;
-
+	
+block	
+	: ^(IT_BLOCK statement+)
+	;
+	
 //******************************************************************************
 //Declarations
 //******************************************************************************
 declaration
-	:	fluent_decl EOL
-	|	fact_decl EOL
+	:	fluent_decl
+	|	fact_decl
 	|	action_decl
-	|	proc_decl
-	|	passive_sensing_decl
+	| 	proc_decl
+    	|   	passive_sensing_decl
 	|	assignment
 	;
 
 fluent_decl
-	:	^(FLUENT ID set) 
-	  {
-	    ADD_FLUENT_DECL($ID->toString($ID));
-          }
-	;
-
+	: ^(IT_FLUENT_DECL ID domain+) 
+	;	
+	
 fact_decl
-	:	FACT ID (DOMAIN_START set DOMAIN_END)* 
-	;
-
-action_decl
-	:	ACTION ID (ARG_LIST_START varlist ARG_LIST_END)?
-		(PRECOND COLON formula_outerMost)?
-		(effect | sensing)?
-		(SIGNAL COLON valexpr EOL)?
-		END ACTION
-	;
-
-effect :        EFFECT COLON (assignment)*
-        ;
-
-sensing :       SENSING ARG_LIST_START varlist ARG_LIST_END COLON (assignment* | case_line*)
-        ;
-
-passive_sensing_decl    : PASSIVE_SENSING ID (ARG_LIST_START varlist 
-                          ARG_LIST_END)? (assignment* | case_line*) END PASSIVE_SENSING   
-                        ;
-
-case_line :     CASE formula COLON (assignment)* BREAK
-          ;
-
-proc_decl
-	:	PROC ID (ARG_LIST_START varlist ARG_LIST_END)? block END PROC
+	: ^(IT_FACT_DECL ID domain+) 
 	;
 	
-varlist
-	:	
-	|	var ( LIST_SEPERATOR var )*
-        |       /* epsilon */ 
+domain	
+	:	TOKEN_DOMAIN_INT
+		  | TOKEN_DOMAIN_STR
+		  | ^(IT_STRING_SET STRING+)
 	;
+	
+action_decl
+	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list) formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
+	;
+	
+effect	
+	: ^(IT_EFFECT ^(IT_BLOCK assignment+))
+	;
+	
+active_sensing	
+	: ^(IT_SENSING ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
+	;
+	
+	
+var_list
+	: var+
+	;
+	
+
+proc_decl
+	: ^(IT_PROC_DECL ID (^(IT_VAR_LIST var_list))? block)
+	;	
+	
+passive_sensing_decl
+	: ^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
+                
+	;	
+	
+assignment
+	:	assign
+	|	for_loop_assign
+	|	conditional_assign
+	;
+	
 	
 //******************************************************************************
 //Statements
 //******************************************************************************
-//pick decl fehlt!
-//while loop fehlt
 statement
-	:	action_exec EOL
-	|	pick
-	|	test EOL
-	|	for_loop
-	|	if_then_else
+	:	action_exec
+	|	test
 	|	choose
-        |   search
+	| 	pick
+	|	for_loop
+	|	conditional
+	|	while_loop
+    	| 	search
 	;
 
 action_exec
-	:	ID ARG_LIST_START arglist ARG_LIST_END
-	;
-
-arglist
-	:	
-	|	value ( LIST_SEPERATOR value )*
-	;
-
+	: ^(IT_ACTION_EXEC ID ^(IT_VALUE_LIST value_list))
+	;	
 	
+value_list	
+	: value+
+	;
+	
+test	
+	: ^(IT_TEST formula)
+	;	
+	
+choose	
+	: ^(IT_CHOOSE block block+)
+	;	
+	
+pick	
+	: ^(IT_PICK tuple setexpr block)
+	;	
+	
+for_loop	
+	: ^(IT_FORALL tuple setexpr block)
 	;
 
-test	:	TEST formula EOF
+conditional
+	: ^(IT_CONDITIONAL formula ^(IT_BLOCK block) block?)
 	;
-
-for_loop:	FOR tuple IN setexpr DO block END FOR;
-
-if_then_else
-	:	IF ARG_LIST_START formula ARG_LIST_END THEN block (ELSE block)? END IF
+	
+while_loop
+	: ^(IT_WHILE formula block)
+	;	
+	
+search	
+	: ^(IT_SEARCH block)
 	;
-
-choose	:	CHOOSE block ( LOGIC_OR block )+ END CHOOSE
-	;
-
-search  :       SEARCH block END SEARCH
-        ;
+	
 	
 //******************************************************************************
 //Assignments
 //******************************************************************************
-assignment
-	:	assign EOL
-	|	for_loop_assign
-	|	conditional_assign
+assign	
+	:	^(IT_ASSIGN var valexpr)
+	|	^(ass_op ID setexpr)
 	;
-
+	
+ass_op  
+	:	(IT_ASSIGN {printf("bli\n");}
+                  | IT_ADD_ASSIGN {printf("bla\n");}
+                  | IT_REMOVE_ASSIGN {printf("blo\n");}
+                )
+        ;
+        
 for_loop_assign
-	:	FOR tuple IN setexpr DO (assignment)* END FOR
+	: ^(IT_ASSIGN_ALL tuple setexpr ^(IT_BLOCK assignment+))
 	;
 	
 conditional_assign
-	:	IF formula THEN (assignment)* (ELSE (assignment)*)? END IF
+	: ^(IT_IF_ASSIGN formula ^(IT_BLOCK assignment+) (^(IT_BLOCK assignment+))?)
 	;
 
-assign	
-        : var assign_op valexpr
-//        | term assign_op setexpr    201403: is term used for anything except assign? is at[x] = ... still a valid assignment? 
-	;
-
-assign_op
-	:	SET_ASSIGN
-	| 	SET_ADD
-	| 	SET_REMOVE
-	;
 
 //******************************************************************************
 //Formulas
 //******************************************************************************
-formula_outerMost: formula EOL;
+formula_outerMost
+	: ^(IT_FORMULA formula)
+	;
 
-formula	:	atom
-	|	LOGIC_NOT ARG_LIST_START formula ARG_LIST_END
-	|	ARG_LIST_START atom connective formula ARG_LIST_END
-	|	LOGIC_EXISTS tuple IN setexpr (SUCH formula)?
-	|	LOGIC_ALL tuple IN setexpr (SUCH formula)?
+formula	
+	:	atom
+	|	^(IT_NOT formula)
+	|	^(formular_connective atom formula)
+	|	^(IT_EXISTS tuple setexpr formula?)
+	|	^(IT_ALL tuple setexpr formula?)
+	|	^(IT_IN tuple setexpr)
 	;
 	
-//implies!
-connective
-	:	LOGIC_AND
-	|	LOGIC_OR
-	;	
-
-atom
-	:	valexpr comp_op valexpr
-	|	setexpr comp_op setexpr
-	|	(LOGIC_TRUE | LOGIC_FALSE)
+formular_connective
+	:	IT_AND {printf("bliz\n");}
+	| 	IT_OR {printf("blaz\n");}
+	|    	IT_IMPLIES {printf("bloz\n");}
 	;
 
-comp_op
-	:	MATH_EQUALS
-	|	MATH_NEQUALS
-	|	MATH_LE
-	|	MATH_GE	
-	|	MATH_LT
-	|	MATH_GT
+atom
+	:	^(atom_connector valexpr valexpr)
+	|	^(atom_connector setexpr setexpr)
+	|	(TOKEN_TRUE | TOKEN_FALSE)
+	;
+	
+atom_connector
+	:	IT_EQ {printf("arrr\n");}
+	|  	IT_NEQ {printf("brrr\n");}
+	| 	IT_LE {printf("crrr\n");}
+	| 	IT_GE {printf("drrr\n");}
+	| 	IT_LT {printf("errr\n");}
+	| 	IT_GT {printf("frrr\n");}
 	;
 	
 //******************************************************************************
 //Sets
 //******************************************************************************
-//only tuple_list, remove term
-set  
-	:	^(BREAK id_set) {ADD_ID_SET();}
+set	:	^(IT_TUPLE_SET tuple+)
+	|	ID
 	;
 
-tuple_set :     tuple (LIST_SEPERATOR tuple)*;
-
-//id_list
-id_set :     (id=ID 
-	  { 
-	    ADD_ID($id->toString($id)); 
-	  })+
-       ;
-
-//remove value, value_set
-value_set :     value (LIST_SEPERATOR value )*;
-
-setexpr	:	set ((MATH_OP_PLUS | MATH_OP_MINUS) set)*
+setexpr	:	^(expr_op set set) 
 	;
+	
 	
 //******************************************************************************
 //Tuples
-//******************************************************************************
-//modify with var_list, id_list
-tuple   :       MATH_LT (ID | var) ( LIST_SEPERATOR (ID | var))* MATH_GT;
-
-
+//******************************************************************************	
+tuple	
+	:	^(IT_TUPLE tuple_val+)
+	;
+	
+tuple_val 
+	:	STRING
+	|     	TOKEN_PATTERN_MATCHING
+	|     	var
+	;
+	
 //******************************************************************************
 //Variables
 //******************************************************************************
-var
-	:	VAR_DECL_START ID
+var	
+	:	^(IT_VAR ID)
 	;
 
-//******************************************************************************
-//Terms and Values
-//******************************************************************************
-//remove term?
-term
- 	:	ID ( DOMAIN_START value DOMAIN_END )*
-	;
-
-valexpr	:	value ((MATH_OP_PLUS | MATH_OP_MINUS) value)*
-	;
-
-value
-	:   (INT | STRING)
+value	
+	:	INT
+	|	STRING
 	|	var
+	;
+
+//????????????????????????????????????????????????
+valexpr	
+	:	^(expr_op value value) 
+	;
+
+expr_op
+	:	IT_PLUS {printf("plus\n");}
+	      | IT_MINUS {printf("minus\n");}
 	;
