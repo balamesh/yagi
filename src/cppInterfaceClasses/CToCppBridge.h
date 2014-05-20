@@ -19,6 +19,7 @@ struct YAGICallbackCollection
   void (*addDomainIntegerCallback)();
   void (*addDomainStringCallback)();
   void (*addDomainStringElementsCallback)();
+  void (*addProgramCallback)();
   void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
 };
 
@@ -29,6 +30,7 @@ extern struct YAGICallbackCollection yagiCallbackCollection;
 #define ADD_DOMAIN_STRING() yagiCallbackCollection.addDomainStringCallback()
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)
 #define ADD_DOMAIN_STRING_ELEMENTS() yagiCallbackCollection.addDomainStringElementsCallback()
+#define ADD_PROGRAM() yagiCallbackCollection.addProgramCallback()
 
 #ifdef __cplusplus
 }

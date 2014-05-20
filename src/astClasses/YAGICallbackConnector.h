@@ -46,6 +46,11 @@ void addFluent(pANTLR3_STRING fluentName)
     ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
 }
 
+void addProgram()
+{
+    ASTBuilder::getInstance().addProgram();
+}
+
 void connectCallbacks()
 {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
@@ -53,6 +58,7 @@ void connectCallbacks()
     yagiCallbackCollection.addDomainIntegerCallback = addDomainInteger;
     yagiCallbackCollection.addDomainElementCallback = addDomainElement;
     yagiCallbackCollection.addDomainStringElementsCallback = addDomainStringElements;
+    yagiCallbackCollection.addProgramCallback = addProgram;
 
 }
 

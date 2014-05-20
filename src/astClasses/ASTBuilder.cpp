@@ -47,6 +47,19 @@ void ASTBuilder::addDomainStringNode()
 
 }
 
+void ASTBuilder::addProgram()
+{
+    auto programNode = std::make_shared<NodeProgram>();
+
+    std::for_each(ast.begin(), ast.end(), [&programNode](std::shared_ptr<ASTNodeBase> statement)
+    {
+        programNode->addStatementToProgram(statement);
+    });
+
+    ast.clear();
+    ast.push_back(programNode);
+}
+
 void ASTBuilder::addFluentDeclNode(std::string fluentName)
 {
 	auto fluentDeclNode = std::make_shared<NodeFluentDecl>();

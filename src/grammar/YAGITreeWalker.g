@@ -24,6 +24,10 @@ options
 //******************************************************************************
 program	
 	: ^(IT_PROGRAM declaration* statement*)
+	{
+	    ADD_PROGRAM();
+        }
+	
 	;
 	
 block	

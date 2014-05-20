@@ -49,7 +49,7 @@ int main(int argc, char * argv[]) {
 
 	//Run the parser rule. This also runs the lexer to create the token stream.
 	auto langAST = psr->program(psr);//psr->program(psr);
-	std::cout << "AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+	std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
 
 	if (psr->pParser->rec->state->errorCount > 0) {
 		fprintf(stderr,
@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
 		treePsr->program(treePsr);
 
 		auto ast = ASTBuilder::getInstance().getAST();
-		std::cout << "AST: " << ast->toString() << std::endl;
+		std::cout << ast->toString() << std::endl;
 
 	}
 

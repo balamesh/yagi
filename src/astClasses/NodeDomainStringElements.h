@@ -33,25 +33,12 @@ public:
     {
 
       auto ret = std::accumulate(std::begin(domainElements_), std::end(domainElements_),
-        std::string{"{"}, [](std::string& foo, const std::string& bar) {return foo + bar + ",";});
+        std::string{"{"}, [](std::string& first, const std::string& last) {return first + last + ",";});
 
       ret.pop_back();
       ret += "}";
 
       return ret;
-//
-//        bool first = true;
-//        for (const auto& id : idNodes_)
-//        {
-//            if (!first) ret += "," + id->toString();
-//            else
-//            {
-//                ret += id->toString();
-//                first = false;
-//            }
-//        }
-//
-//        return ret += "}";
     }
 };
 

@@ -12,11 +12,13 @@
 #include <memory>
 #include <iostream>
 #include <deque>
+#include <algorithm>
 
 #include "ASTNodeBase.h"
 #include "NodeID.h"
 #include "NodeDomainStringElements.h"
 #include "NodeFluentDecl.h"
+#include "NodeProgram.h"
 
 class ASTBuilder {
 public:
@@ -31,6 +33,7 @@ public:
     void addDomainStringNode();
     void addDomainIntegerNode();
     void addFluentDeclNode(std::string fluentName);
+    void addProgram();
 
     std::shared_ptr<ASTNodeBase> getAST() {return (ast.size() > 0 ? ast.front() : nullptr);}
 
