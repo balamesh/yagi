@@ -19,7 +19,16 @@ private:
 public:
 	NodeID(std::string id) : id_(id) {}
 	virtual ~NodeID();
-	virtual std::string toString() {return id_;}
+
+  virtual void accept(ASTNodeVisitorBase* visitor) override
+  {
+    visitor->visit(this);
+  }
+
+    const std::string& getId() const
+    {
+      return id_;
+    }
 };
 
 #endif /* NODEID_H_ */

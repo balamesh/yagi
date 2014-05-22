@@ -20,7 +20,10 @@ ASTBuilder::~ASTBuilder() {
 void ASTBuilder::addDomainElement(std::string domainElement)
 {
 	auto domain = std::static_pointer_cast<NodeDomainStringElements>(ast.front());
-    domain->addStringToDomain(domainElement);
+  auto stringNode = std::make_shared<NodeString>();
+  stringNode->setString(domainElement);
+
+	domain->addStringToDomain(stringNode);
 }
 void ASTBuilder::addDomainStringElementsNode()
 {

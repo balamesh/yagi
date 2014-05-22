@@ -8,15 +8,15 @@
 #ifndef ASTNODEBASE_H_
 #define ASTNODEBASE_H_
 
-#include <string>
-#include <stdexcept>
+#include "../astVisitors/ASTNodeVisitorBase.h"
 
-class ASTNodeBase {
-public:
-	ASTNodeBase();
-	virtual ~ASTNodeBase();
+class ASTNodeBase
+{
+  public:
+    ASTNodeBase();
+    virtual ~ASTNodeBase();
 
-	virtual std::string toString() = 0; //{throw std::logic_error("never instantiate this!");};
+    virtual void accept(ASTNodeVisitorBase* visitor) = 0;
 };
 
 #endif /* ASTNODEBASE_H_ */

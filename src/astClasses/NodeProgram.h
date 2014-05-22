@@ -7,28 +7,30 @@
 #include "ASTNodeBase.h"
 #include <algorithm>
 
-class NodeProgram : public ASTNodeBase
+class NodeProgram: public ASTNodeBase
 {
-    private:
-        std::vector<std::shared_ptr<ASTNodeBase>> program;
+  private:
+    std::vector<std::shared_ptr<ASTNodeBase>> program;
 
-    public:
-        void addStatementToProgram(std::shared_ptr<ASTNodeBase> statement) {program.push_back(statement);}
+  public:
+    void addStatementToProgram(std::shared_ptr<ASTNodeBase> statement)
+    {
+      program.push_back(statement);
+    }
 
-        NodeProgram();
-        virtual ~NodeProgram();
+    NodeProgram();
+    virtual ~NodeProgram();
 
-        virtual std::string toString()
-        {
-            std::string astText {"C++ AST: "};
+    virtual void accept(ASTNodeVisitorBase* visitor) override
+    {
+      std::for_each(program.begin(), program.end(),
+          [&visitor](std::shared_ptr<ASTNodeBase> stmt)
+          {
+            stmt->accept(visitor);
+          });
 
-            std::for_each(program.begin(), program.end(), [&astText](std::shared_ptr<ASTNodeBase> statement)
-            {
-                astText += statement->toString();
-            });
-
-            return astText;
-        }
+      visitor->visit(this);
+    }
 };
 
 #endif // NODEPROGRAM_H
