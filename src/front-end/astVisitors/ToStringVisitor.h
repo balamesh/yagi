@@ -8,6 +8,8 @@
 #ifndef TOSTRINGVISITOR_H_
 #define TOSTRINGVISITOR_H_
 
+#include <iostream>
+
 #include "../../common/ASTNodeVisitorBase.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
@@ -16,6 +18,8 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 
 class ToStringVisitor: public ASTNodeVisitorBase
 {
@@ -33,6 +37,9 @@ class ToStringVisitor: public ASTNodeVisitorBase
     virtual void visit(NodeString* string) override;
     virtual void visit(NodeDomainInteger* domainInt) override;
     virtual void visit(NodeDomainString* domainString) override;
+
+    virtual void visit(NodeFactDecl* factDecl) override;
+    virtual void visit(NodeActionDecl* actionDecl) override;
 };
 
 #endif /* TOSTRINGVISITOR_H_ */

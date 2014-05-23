@@ -10,20 +10,23 @@
 
 #include "../ASTNodeBase.h"
 #include <string>
-#include <iostream>
 
-class NodeID: public ASTNodeBase {
-private:
-	std::string id_;
+class NodeID: public ASTNodeBase
+{
+  private:
+    std::string id_;
 
-public:
-	NodeID(std::string id) : id_(id) {}
-	virtual ~NodeID();
+  public:
+    NodeID(std::string id) :
+        id_(id)
+    {
+    }
+    virtual ~NodeID();
 
-  virtual void accept(ASTNodeVisitorBase* visitor) override
-  {
-    visitor->visit(this);
-  }
+    virtual void accept(ASTNodeVisitorBase* visitor) override
+    {
+      visitor->visit(this);
+    }
 
     const std::string& getId() const
     {

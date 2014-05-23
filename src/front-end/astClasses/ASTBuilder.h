@@ -21,32 +21,41 @@
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 
-class ASTBuilder {
-public:
+class ASTBuilder
+{
+  public:
     static ASTBuilder& getInstance()
     {
-        static ASTBuilder instance;
-        return instance;
+      static ASTBuilder instance;
+      return instance;
     }
 
-    void addDomainElement(std::string domainElement);
+    void addDomainElement(const std::string& domainElement);
     void addDomainStringElementsNode();
     void addDomainStringNode();
     void addDomainIntegerNode();
-    void addFluentDeclNode(std::string fluentName);
+    void addFluentDeclNode(const std::string& fluentName);
     void addProgram();
+    void addFactDeclNode(const std::string& factName);
+    void addVarNode(const std::string& varName);
+    void addVarListNode();
+    void addActionDeclNode(const std::string& actionName);
 
-    std::shared_ptr<ASTNodeBase> getAST() {return (ast.size() > 0 ? ast.front() : nullptr);}
+    std::shared_ptr<ASTNodeBase> getAST()
+    {
+      return (ast.size() > 0 ? ast.front() : nullptr);
+    }
 
-private:
+  private:
     ASTBuilder(ASTBuilder const&);
     void operator=(ASTBuilder const&);
 
-	ASTBuilder();
-	virtual ~ASTBuilder();
+    ASTBuilder();
+    virtual ~ASTBuilder();
 
-	std::deque<std::shared_ptr<ASTNodeBase>> ast;
+    std::deque<std::shared_ptr<ASTNodeBase>> ast;
 };
 
 #endif /* ASTBUILDER_H_ */

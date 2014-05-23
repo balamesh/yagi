@@ -56,6 +56,10 @@ fluent_decl
 	
 fact_decl
 	: ^(IT_FACT_DECL ID domain+) 
+
+	{
+	    ADD_FACT_DECL($ID->toString($ID));
+        }
 	;
 	
 domain	
@@ -66,19 +70,36 @@ domain
 	
 action_decl
 	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list) formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
+	
+	{
+	    ADD_ACTION_DECL($ID->toString($ID));
+        }
+	
 	;
 	
 effect	
 	: ^(IT_EFFECT ^(IT_BLOCK assignment+))
+	
+	{
+	    ADD_EFFECT();
+        }
 	;
 	
 active_sensing	
 	: ^(IT_SENSING ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
+	
+	{
+	    ADD_ACTIVE_SENSING();
+        }	
 	;
 	
 	
 var_list
 	: var+
+	
+	{
+	  ADD_VAR_LIST();
+	}
 	;
 	
 
@@ -239,6 +260,9 @@ tuple_val
 //******************************************************************************
 var	
 	:	^(IT_VAR ID)
+	{
+	  ADD_VAR($ID->toString($ID));
+	}
 	;
 
 value	

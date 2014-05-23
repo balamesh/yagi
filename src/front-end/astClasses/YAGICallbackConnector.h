@@ -46,6 +46,26 @@ void addFluent(pANTLR3_STRING fluentName)
     ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
 }
 
+void addFact(pANTLR3_STRING factName)
+{
+    ASTBuilder::getInstance().addFactDeclNode((char*) factName->chars);
+}
+
+void addVar(pANTLR3_STRING varName)
+{
+    ASTBuilder::getInstance().addVarNode((char*) varName->chars);
+}
+
+void addAction(pANTLR3_STRING actionName)
+{
+    ASTBuilder::getInstance().addActionDeclNode((char*) actionName->chars);
+}
+
+void addVarList()
+{
+    ASTBuilder::getInstance().addVarListNode();
+}
+
 void addProgram()
 {
     ASTBuilder::getInstance().addProgram();
@@ -59,7 +79,11 @@ void connectCallbacks()
     yagiCallbackCollection.addDomainElementCallback = addDomainElement;
     yagiCallbackCollection.addDomainStringElementsCallback = addDomainStringElements;
     yagiCallbackCollection.addProgramCallback = addProgram;
+    yagiCallbackCollection.addFactDeclCallback = addFact;
 
+    yagiCallbackCollection.addActionDeclCallback = addAction;
+    yagiCallbackCollection.addVarCallback = addVar;
+    yagiCallbackCollection.addVarListCallback = addVarList;
 }
 
 }

@@ -27,30 +27,22 @@ void ToStringVisitor::visit(NodeString* string)
 
 void ToStringVisitor::visit(NodeDomainStringElements* domainStringElements)
 {
-//  auto domainElements = domainStringElements->getDomainElements();
-//  auto ret = std::accumulate(std::begin(domainElements),
-//      std::end(domainElements), std::string { "{" },
-//      [](std::string& first, const std::string& last)
-//      { return first + last + ",";});
-//
-//  ret.pop_back();
-//  ret += "}";
-//
-//  outString += ret;
-
   outString += "DOMAIN ";
 }
 
 void ToStringVisitor::visit(NodeFluentDecl* fluentDecl)
 {
-//  auto fluentName = fluentDecl->getFluentName();
-//  auto domain = fluentDecl->getDomain();
-//
-//  outString += std::string(
-//      std::string("Fluent '") + fluentName + "' Domain: "
-//          + domain);
-
   outString += "FLUENT_DECL ";
+}
+
+void ToStringVisitor::visit(NodeFactDecl* factDecl)
+{
+  outString += "FACT_DECL ";
+}
+
+void ToStringVisitor::visit(NodeActionDecl* actionDecl)
+{
+  outString += "ACTION_DECL ";
 }
 
 void ToStringVisitor::visit(NodeID* id)
