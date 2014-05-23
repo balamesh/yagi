@@ -10,7 +10,7 @@
 
 #include<string>
 
-#include "ASTNodeBase.h"
+#include "../ASTNodeBase.h"
 
 class NodeString: public ASTNodeBase
 {

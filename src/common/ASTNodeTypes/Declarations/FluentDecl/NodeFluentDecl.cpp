@@ -9,7 +9,6 @@
 
 NodeFluentDecl::NodeFluentDecl() {
 	fluentName_ = nullptr;
-	domain_ = nullptr;
 }
 
 NodeFluentDecl::~NodeFluentDecl() {

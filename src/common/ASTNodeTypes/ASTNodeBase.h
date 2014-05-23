@@ -8,7 +8,7 @@
 #ifndef ASTNODEBASE_H_
 #define ASTNODEBASE_H_
 
-#include "../astVisitors/ASTNodeVisitorBase.h"
+#include "../../common/ASTNodeVisitorBase.h"
 
 class ASTNodeBase
 {

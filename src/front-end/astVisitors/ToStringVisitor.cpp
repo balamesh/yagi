@@ -38,7 +38,7 @@ void ToStringVisitor::visit(NodeDomainStringElements* domainStringElements)
 //
 //  outString += ret;
 
-  outString += "<= DOMAIN ";
+  outString += "DOMAIN ";
 }
 
 void ToStringVisitor::visit(NodeFluentDecl* fluentDecl)
@@ -50,7 +50,7 @@ void ToStringVisitor::visit(NodeFluentDecl* fluentDecl)
 //      std::string("Fluent '") + fluentName + "' Domain: "
 //          + domain);
 
-  outString += "<= FLUENT_DECL ";
+  outString += "FLUENT_DECL ";
 }
 
 void ToStringVisitor::visit(NodeID* id)
@@ -61,4 +61,14 @@ void ToStringVisitor::visit(NodeID* id)
 void ToStringVisitor::visit(NodeProgram* program)
 {
   std::cout << outString << std::endl;
+}
+
+void ToStringVisitor::visit(NodeDomainInteger* domainInt)
+{
+  outString += "DOMAIN_INTEGER ";
+}
+
+void ToStringVisitor::visit(NodeDomainString* domainString)
+{
+  outString += "DOMAIN_STRING ";
 }

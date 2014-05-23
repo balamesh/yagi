@@ -13,6 +13,8 @@ class NodeFluentDecl;
 class NodeID;
 class NodeProgram;
 class NodeString;
+class NodeDomainString;
+class NodeDomainInteger;
 
 class ASTNodeVisitorBase
 {
@@ -25,6 +27,8 @@ class ASTNodeVisitorBase
     virtual void visit(NodeID* id) = 0;
     virtual void visit(NodeProgram* program) = 0;
     virtual void visit(NodeString* string) = 0;
+    virtual void visit(NodeDomainInteger* domainInt) = 0;
+    virtual void visit(NodeDomainString* domainString) = 0;
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */

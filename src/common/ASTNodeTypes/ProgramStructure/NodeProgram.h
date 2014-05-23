@@ -3,9 +3,10 @@
 
 #include<vector>
 #include<memory>
-
-#include "ASTNodeBase.h"
 #include <algorithm>
+
+#include "../ASTNodeBase.h"
+
 
 class NodeProgram: public ASTNodeBase
 {
@@ -30,6 +31,11 @@ class NodeProgram: public ASTNodeBase
           });
 
       visitor->visit(this);
+    }
+
+    const std::vector<std::shared_ptr<ASTNodeBase> >& getProgram() const
+    {
+      return program;
     }
 };
 

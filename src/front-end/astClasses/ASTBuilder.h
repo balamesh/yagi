@@ -14,11 +14,13 @@
 #include <deque>
 #include <algorithm>
 
-#include "ASTNodeBase.h"
-#include "NodeID.h"
-#include "NodeDomainStringElements.h"
-#include "NodeFluentDecl.h"
-#include "NodeProgram.h"
+#include "../../common/ASTNodeTypes/ASTNodeBase.h"
+#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 
 class ASTBuilder {
 public:

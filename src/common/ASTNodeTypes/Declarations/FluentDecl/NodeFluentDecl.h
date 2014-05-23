@@ -10,17 +10,19 @@
 
 #include <string>
 #include <memory>
+#include <vector>
+#include <algorithm>
 
-#include "ASTNodeBase.h"
-#include "NodeID.h"
-#include "NodeDomainStringElements.h"
+#include "../../ASTNodeBase.h"
+#include "../../Identifier/NodeID.h"
+#include "../../Domains/NodeDomainBase.h"
 
 class NodeFluentDecl: public ASTNodeBase
 {
 
   private:
     std::shared_ptr<NodeID> fluentName_;
-    std::shared_ptr<NodeDomainStringElements> domain_;
+    std::vector<std::shared_ptr<NodeDomainBase>> domains_;
 
   public:
     NodeFluentDecl();
@@ -30,19 +32,23 @@ class NodeFluentDecl: public ASTNodeBase
     {
       fluentName_ = fluentName;
     }
-    void setDomain(std::shared_ptr<NodeDomainStringElements> domain)
+
+    void addDomain(std::shared_ptr<NodeDomainBase> domain)
     {
-      domain_ = domain;
+      domains_.push_back(domain);
     }
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-fluentName_->accept(visitor);
-domain_->accept(visitor);
-      //visitor->visit(fluentName_.get());
-      //visitor->visit(domain_.get());
-
       visitor->visit(this);
+
+      fluentName_->accept(visitor);
+
+      std::for_each(std::begin(domains_), std::end(domains_),
+          [&visitor](std::shared_ptr<NodeDomainBase> domain)
+          {
+            domain->accept(visitor);
+          });
     }
 };
 

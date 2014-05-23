@@ -8,7 +8,7 @@
 #ifndef NODEID_H_
 #define NODEID_H_
 
-#include "ASTNodeBase.h"
+#include "../ASTNodeBase.h"
 #include <string>
 #include <iostream>
 
