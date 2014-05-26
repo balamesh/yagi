@@ -47,11 +47,7 @@ declaration
 	;
 
 fluent_decl
-	: ^(IT_FLUENT_DECL ID domain+) 
-	
-	{
-	    ADD_FLUENT_DECL($ID->toString($ID));
-        }
+	: ^(IT_FLUENT_DECL ID ({ADD_FLUENT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})+) 
 	;	
 	
 fact_decl
@@ -174,7 +170,7 @@ search
 //Assignments
 //******************************************************************************
 assign	
-	:	^(IT_ASSIGN var valexpr)
+	:	^(IT_ASSIGN var valexpr) {ADD_VAR_ASSIGN();}
 	|	^(ass_op ID setexpr)
 	;
 	
@@ -217,8 +213,8 @@ formular_connective
 	;
 
 atom
-	:	^(atom_connector valexpr valexpr)
-	|	^(atom_connector setexpr setexpr)
+	:	^(IT_ATOM_VALEXPR ^(atom_connector valexpr valexpr))
+	|	^(IT_ATOM_SETEXPR ^(atom_connector setexpr setexpr))
 	|	(TOKEN_TRUE | TOKEN_FALSE)
 	;
 	
@@ -234,11 +230,9 @@ atom_connector
 //******************************************************************************
 //Sets
 //******************************************************************************
-set	:	^(IT_TUPLE_SET tuple+)
+setexpr	:	^(expr_op setexpr setexpr) 
+	|	^(IT_TUPLE_SET tuple+)
 	|	ID
-	;
-
-setexpr	:	^(expr_op set set) 
 	;
 	
 	
@@ -250,7 +244,7 @@ tuple
 	;
 	
 tuple_val 
-	:	STRING
+	:	STRING {ADD_STRING($STRING->toString($STRING));}
 	|     	TOKEN_PATTERN_MATCHING
 	|     	var
 	;
@@ -266,17 +260,19 @@ var
 	;
 
 value	
-	:	INT
-	|	STRING
+	:	INT {ADD_INT($INT->toString($INT));}
+	|	STRING {ADD_STRING($STRING->toString($STRING));}
 	|	var
 	;
 
-//????????????????????????????????????????????????
 valexpr	
-	:	^(expr_op value value) 
+	:	^(expr_op valexpr valexpr) {ADD_VALEXPR();}
+	|	INT {ADD_INT($INT->toString($INT));}
+	|	STRING {ADD_STRING($STRING->toString($STRING));}
+	|	var
 	;
 
 expr_op
-	:	IT_PLUS {printf("plus\n");}
-	      | IT_MINUS {printf("minus\n");}
+	:	IT_PLUS {ADD_EXPR_OP("+");}
+	| 	IT_MINUS {ADD_EXPR_OP("-");}
 	;

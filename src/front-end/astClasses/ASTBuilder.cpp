@@ -30,7 +30,6 @@ void ASTBuilder::addDomainStringElementsNode()
 {
   auto domainStringElements = std::make_shared<NodeDomainStringElements>();
   ast.push_back(domainStringElements);
-
 }
 
 void ASTBuilder::addDomainIntegerNode()
@@ -43,6 +42,14 @@ void ASTBuilder::addDomainStringNode()
 {
   auto domainString = std::make_shared<NodeDomainString>();
   ast.push_back(domainString);
+}
+
+void ASTBuilder::consumeDomain()
+{
+  //TODO: can be either fluent or fact
+  auto fluent = std::static_pointer_cast<NodeFluentDecl>(ast.front());
+  if (fluent == nullptr)
+    throw std::runtime_error("consumeDomain needs fluent or fact!");
 }
 
 void ASTBuilder::addProgram()
@@ -65,18 +72,20 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
 
   fluentDeclNode->setFluentName(std::make_shared<NodeID>(fluentName));
 
-  auto firstNoDomain = std::find_if_not(std::begin(ast), std::end(ast),
-      [](std::shared_ptr<ASTNodeBase> elem)
-      { return dynamic_cast<NodeDomainBase*>(elem.get());});
+  //std::cout << "bla!" << std::endl;
 
-  if (firstNoDomain != std::end(ast))
-  {
-    std::for_each(std::begin(ast), firstNoDomain - 1,
-        [&fluentDeclNode](std::shared_ptr<ASTNodeBase> elem)
-        { fluentDeclNode->addDomain(std::static_pointer_cast<NodeDomainBase>(elem));});
-
-    ast.erase(std::begin(ast), firstNoDomain - 1);
-  }
+//  auto firstNoDomain = std::find_if_not(std::begin(ast), std::end(ast),
+//      [](std::shared_ptr<ASTNodeBase> elem)
+//      { return dynamic_cast<NodeDomainBase*>(elem.get());});
+//
+//  if (firstNoDomain != std::end(ast))
+//  {
+//    std::for_each(std::begin(ast), firstNoDomain - 1,
+//        [&fluentDeclNode](std::shared_ptr<ASTNodeBase> elem)
+//        { fluentDeclNode->addDomain(std::static_pointer_cast<NodeDomainBase>(elem));});
+//
+//    ast.erase(std::begin(ast), firstNoDomain - 1);
+//  }
 
   ast.push_front(fluentDeclNode);
 }
@@ -105,11 +114,86 @@ void ASTBuilder::addFactDeclNode(const std::string& factName)
 
 void ASTBuilder::addVarNode(const std::string& varName)
 {
+  auto varNode = std::make_shared<NodeVariable>();
+  varNode->setVarName(varName);
 
+  ast.push_front(varNode);
 }
 
 void ASTBuilder::addVarListNode()
 {
+
+}
+
+void ASTBuilder::addIntNode(const std::string& intVal)
+{
+  auto intNode = std::make_shared<NodeInteger>();
+  intNode->setValueFromString(intVal); //TODO: can go boom!
+
+  ast.push_front(intNode);
+}
+
+void ASTBuilder::addStringNode(const std::string& stringVal)
+{
+  auto stringNode = std::make_shared<NodeString>();
+  stringNode->setString(stringVal);
+
+  ast.push_front(stringNode);
+}
+
+void ASTBuilder::addValueExpressionNode()
+{
+  auto valExpr = std::make_shared<NodeValueExpression>();
+
+  //get operator, lhs and rhs (in that order)
+  auto op = std::static_pointer_cast<NodeValueExpressionOperator>(ast.front());
+  if (op == nullptr)
+    throw std::runtime_error("No NodeValueExpressionOperator for ValExpr!");
+  ast.pop_front();
+
+  auto lhs = std::static_pointer_cast<NodeValueExpression>(ast.front());
+  if (op == nullptr)
+    throw std::runtime_error("No NodeValueExpression for ValExpr lhs!");
+  ast.pop_front();
+
+  auto rhs = std::static_pointer_cast<NodeValueExpression>(ast.front());
+  if (op == nullptr)
+    throw std::runtime_error("No NodeValueExpression for ValExpr rhs!");
+  ast.pop_front();
+
+  valExpr->setOperator(op);
+  valExpr->setLhs(lhs);
+  valExpr->setRhs(rhs);
+  ast.push_front(valExpr);
+
+}
+
+void ASTBuilder::addExprOperator(const std::string& op)
+{
+  auto opNode = std::make_shared<NodeValueExpressionOperator>();
+  opNode->fromString(op); //TODO: Can go boom!
+
+  ast.push_front(opNode);
+}
+
+void ASTBuilder::addVarAssign()
+{
+  auto varAss = std::make_shared<NodeVariableAssignment>();
+
+  //get var and valexpr
+  auto var = std::static_pointer_cast<NodeVariable>(ast.front());
+  if (var == nullptr)
+    throw std::runtime_error("No NodeVariable for VarAssign!");
+  ast.pop_front();
+
+  auto valExpr = std::static_pointer_cast<NodeValueExpression>(ast.front());
+  if (valExpr == nullptr)
+    throw std::runtime_error("No ValExpr for VarAssign!");
+  ast.pop_front();
+
+  varAss->setVariable(var);
+  varAss->setValExpr(valExpr);
+  ast.push_front(varAss);
 
 }
 

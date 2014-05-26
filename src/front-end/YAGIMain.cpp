@@ -73,10 +73,10 @@ int main(int argc, char * argv[])
     treePsr = YAGITreeWalkerNew(nodes);
     treePsr->program(treePsr);
 
-    //auto ast = ASTBuilder::getInstance().getAST();
+    auto ast = ASTBuilder::getInstance().getAST();
 
-    //auto toStringVisitor = std::make_shared<ToStringVisitor>();
-    //ast->accept(toStringVisitor.get());
+    auto toStringVisitor = std::make_shared<ToStringVisitor>();
+    ast->accept(toStringVisitor.get());
 
   }
 

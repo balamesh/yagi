@@ -22,6 +22,12 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeInteger.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
+#include "../../common/ASTNodeTypes/Assignment/NodeVariableAssignment.h"
 
 class ASTBuilder
 {
@@ -36,12 +42,25 @@ class ASTBuilder
     void addDomainStringElementsNode();
     void addDomainStringNode();
     void addDomainIntegerNode();
+    void consumeDomain();
+
     void addFluentDeclNode(const std::string& fluentName);
     void addProgram();
     void addFactDeclNode(const std::string& factName);
     void addVarNode(const std::string& varName);
     void addVarListNode();
     void addActionDeclNode(const std::string& actionName);
+
+    //Variables
+    void addIntNode(const std::string& intVal);
+    void addStringNode(const std::string& stringVal);
+
+    //Expressions
+    void addValueExpressionNode();
+    void addExprOperator(const std::string& op);
+
+    //Assignment
+    void addVarAssign();
 
     std::shared_ptr<ASTNodeBase> getAST()
     {

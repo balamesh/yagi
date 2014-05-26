@@ -65,6 +65,8 @@ tokens
   IT_LT;
   IT_GE;
   IT_LE;
+  IT_ATOM_SETEXPR;
+  IT_ATOM_VALEXPR;
 } 
 
 //Somehow ANTLR generates code with unknown symbol _empty
@@ -293,8 +295,8 @@ formular_connective
 	;
 
 atom
-	:	v1=valexpr atom_connector v2=valexpr -> ^(atom_connector $v1 $v2)
-	|	s1=setexpr atom_connector s2=setexpr -> ^(atom_connector $s1 $s2)
+	:	v1=valexpr atom_connector v2=valexpr -> ^(IT_ATOM_VALEXPR ^(atom_connector $v1 $v2))
+	|	s1=setexpr atom_connector s2=setexpr -> ^(IT_ATOM_SETEXPR ^(atom_connector $s1 $s2))
 	|	(TOKEN_TRUE | TOKEN_FALSE)
 	;
 	

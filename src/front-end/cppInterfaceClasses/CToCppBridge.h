@@ -8,30 +8,43 @@
 #define CTOCPPBRIDGE_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include    <antlr3.h>
 
-struct YAGICallbackCollection
-{
-  void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
-  void (*addDomainIntegerCallback)();
-  void (*addDomainStringCallback)();
-  void (*addDomainStringElementsCallback)();
-  void (*addProgramCallback)();
-  void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
-  void (*addFactDeclCallback)(pANTLR3_STRING factName);
+  struct YAGICallbackCollection
+  {
+      void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
+      void (*addDomainIntegerCallback)();
+      void (*addDomainStringCallback)();
+      void (*addDomainStringElementsCallback)();
+      void (*consumeDomainCallback)();
 
-  void (*addActionDeclCallback)(pANTLR3_STRING actionName);
-  void (*addVarCallback)(pANTLR3_STRING varName);
-  void (*addVarListCallback)();
+      void (*addProgramCallback)();
+      void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
+      void (*addFactDeclCallback)(pANTLR3_STRING factName);
 
-  void (*addActiveSensingCallback)();
-  void (*addEffectCallback) ();
-};
+      void (*addActionDeclCallback)(pANTLR3_STRING actionName);
 
-extern struct YAGICallbackCollection yagiCallbackCollection;
+      void (*addVarCallback)(pANTLR3_STRING varName);
+      void (*addVarListCallback)();
+      void (*addIntCallback)(pANTLR3_STRING intVal);
+      void (*addStringCallback)(pANTLR3_STRING stringVal);
+
+      void (*addActiveSensingCallback)();
+      void (*addEffectCallback)();
+
+      //Expression
+      void (*addValueExpressionCallback)();
+      void (*addExprOperatorCallback)(char* op);
+
+      //Assignment
+      void (*addVarAssignCallback)();
+  };
+
+  extern struct YAGICallbackCollection yagiCallbackCollection;
 
 //Program Structure
 #define ADD_PROGRAM() yagiCallbackCollection.addProgramCallback()
@@ -46,10 +59,21 @@ extern struct YAGICallbackCollection yagiCallbackCollection;
 #define ADD_DOMAIN_INTEGER() yagiCallbackCollection.addDomainIntegerCallback()
 #define ADD_DOMAIN_STRING() yagiCallbackCollection.addDomainStringCallback()
 #define ADD_DOMAIN_STRING_ELEMENTS() yagiCallbackCollection.addDomainStringElementsCallback()
+#define CONSUME_DOMAIN() yagiCallbackCollection.consumeDomainCallback()
+
 
 //Variables
 #define ADD_VAR(x) yagiCallbackCollection.addVarCallback(x)
 #define ADD_VAR_LIST() yagiCallbackCollection.addVarListCallback()
+#define ADD_INT(x) yagiCallbackCollection.addIntCallback(x)
+#define ADD_STRING(x) yagiCallbackCollection.addStringCallback(x)
+
+//Expression
+#define ADD_EXPR_OP(x) yagiCallbackCollection.addExprOperatorCallback(x)
+#define ADD_VALEXPR() yagiCallbackCollection.addValueExpressionCallback()
+
+//Assignment
+#define ADD_VAR_ASSIGN() yagiCallbackCollection.addVarAssignCallback()
 
 //Action Decl Stuff
 #define ADD_ACTIVE_SENSING() yagiCallbackCollection.addActiveSensingCallback()
