@@ -17,6 +17,11 @@ class NodeDomainString;
 class NodeDomainInteger;
 class NodeFactDecl;
 class NodeActionDecl;
+class NodeVariableAssignment;
+class NodeValueExpression;
+class NodeValueExpressionOperator;
+class NodeInteger;
+class NodeVariable;
 
 class ASTNodeVisitorBase
 {
@@ -40,9 +45,19 @@ class ASTNodeVisitorBase
     //Identifier
     virtual void visit(NodeID* id) = 0;
 
+    //Variables
+    virtual void visit(NodeVariable* var) = 0;
+
+    //Expressions
+    virtual void visit(NodeValueExpression* expr) = 0;
+    virtual void visit(NodeValueExpressionOperator* exprOp) = 0;
+
     //Data Types
     virtual void visit(NodeString* string) = 0;
+    virtual void visit(NodeInteger* integer) = 0;
 
+    //Assignments
+    virtual void visit(NodeVariableAssignment* ass) = 0;
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */

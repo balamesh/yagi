@@ -38,8 +38,7 @@ class NodeInteger: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement
-      //visitor->visit(this);
+      visitor->visit(this);
     }
 };
 

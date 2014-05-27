@@ -58,8 +58,11 @@ class NodeValueExpression: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement!
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      if (operator_ != nullptr) operator_->accept(visitor);
+      if (lhs_ != nullptr) lhs_->accept(visitor);
+      rhs_->accept(visitor); //can't be null!
     }
 
     const std::shared_ptr<NodeValueExpressionOperator>& getOperator() const

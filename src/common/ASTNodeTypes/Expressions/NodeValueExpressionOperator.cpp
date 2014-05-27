@@ -9,7 +9,7 @@
 
 NodeValueExpressionOperator::NodeValueExpressionOperator()
 {
-  // TODO Auto-generated constructor stub
+  operator_ = ValueExprOperator::Unknown;
 
 }
 

@@ -15,7 +15,7 @@
 
 enum class ValueExprOperator
 {
-  Plus, Minus
+  Plus, Minus, Unknown
 };
 
 class NodeValueExpressionOperator: public ASTNodeBase
@@ -49,8 +49,7 @@ class NodeValueExpressionOperator: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement!
-      //visitor->visit(this);
+      visitor->visit(this);
     }
 };
 

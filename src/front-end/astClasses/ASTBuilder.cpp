@@ -6,7 +6,6 @@
  */
 
 #include "ASTBuilder.h"
-#include <assert.h>
 
 ASTBuilder::ASTBuilder()
 {
@@ -20,7 +19,7 @@ ASTBuilder::~ASTBuilder()
 
 void ASTBuilder::addDomainElement(const std::string& domainElement)
 {
-  auto domain = std::static_pointer_cast<NodeDomainStringElements>(ast.back());
+  auto domain = std::dynamic_pointer_cast<NodeDomainStringElements>(ast.back());
   auto stringNode = std::make_shared<NodeString>();
   stringNode->setString(domainElement);
 
@@ -46,10 +45,30 @@ void ASTBuilder::addDomainStringNode()
 
 void ASTBuilder::consumeDomain()
 {
-  //TODO: can be either fluent or fact
-  auto fluent = std::static_pointer_cast<NodeFluentDecl>(ast.front());
-  if (fluent == nullptr)
+  auto fluent = std::dynamic_pointer_cast<NodeFluentDecl>(ast.front());
+  auto fact = std::dynamic_pointer_cast<NodeFactDecl>(ast.front());
+
+  if (fluent == nullptr && fact == nullptr)
     throw std::runtime_error("consumeDomain needs fluent or fact!");
+
+  ast.pop_front();
+
+  auto domain = std::dynamic_pointer_cast<NodeDomainBase>(ast.front());
+  if (domain == nullptr)
+    throw std::runtime_error("consumeDomain needs domain!");
+
+  ast.pop_front();
+
+  if (fluent != nullptr)
+  {
+    fluent->addDomain(domain);
+    ast.push_front(fluent);
+  }
+  else
+  {
+    fact->addDomain(domain);
+    ast.push_front(fact);
+  }
 }
 
 void ASTBuilder::addProgram()
@@ -71,43 +90,13 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
   auto fluentDeclNode = std::make_shared<NodeFluentDecl>();
 
   fluentDeclNode->setFluentName(std::make_shared<NodeID>(fluentName));
-
-  //std::cout << "bla!" << std::endl;
-
-//  auto firstNoDomain = std::find_if_not(std::begin(ast), std::end(ast),
-//      [](std::shared_ptr<ASTNodeBase> elem)
-//      { return dynamic_cast<NodeDomainBase*>(elem.get());});
-//
-//  if (firstNoDomain != std::end(ast))
-//  {
-//    std::for_each(std::begin(ast), firstNoDomain - 1,
-//        [&fluentDeclNode](std::shared_ptr<ASTNodeBase> elem)
-//        { fluentDeclNode->addDomain(std::static_pointer_cast<NodeDomainBase>(elem));});
-//
-//    ast.erase(std::begin(ast), firstNoDomain - 1);
-//  }
-
   ast.push_front(fluentDeclNode);
 }
 
 void ASTBuilder::addFactDeclNode(const std::string& factName)
 {
   auto factDeclNode = std::make_shared<NodeFactDecl>();
-
   factDeclNode->setFactName(std::make_shared<NodeID>(factName));
-
-  auto firstNoDomain = std::find_if_not(std::begin(ast), std::end(ast),
-      [](std::shared_ptr<ASTNodeBase> elem)
-      { return dynamic_cast<NodeDomainBase*>(elem.get());});
-
-  if (firstNoDomain != std::end(ast))
-  {
-    std::for_each(std::begin(ast), firstNoDomain - 1,
-        [&factDeclNode](std::shared_ptr<ASTNodeBase> elem)
-        { factDeclNode->addDomain(std::static_pointer_cast<NodeDomainBase>(elem));});
-
-    ast.erase(std::begin(ast), firstNoDomain - 1);
-  }
 
   ast.push_front(factDeclNode);
 }
@@ -145,27 +134,25 @@ void ASTBuilder::addValueExpressionNode()
 {
   auto valExpr = std::make_shared<NodeValueExpression>();
 
-  //get operator, lhs and rhs (in that order)
-  auto op = std::static_pointer_cast<NodeValueExpressionOperator>(ast.front());
+  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  if (rhs == nullptr)
+    throw std::runtime_error("No ASTNodeBase for ValExpr rhs!");
+  ast.pop_front();
+
+  auto lhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  if (lhs == nullptr)
+    throw std::runtime_error("No ASTNodeBase for ValExpr lhs!");
+  ast.pop_front();
+
+  auto op = std::dynamic_pointer_cast<NodeValueExpressionOperator>(ast.front());
   if (op == nullptr)
     throw std::runtime_error("No NodeValueExpressionOperator for ValExpr!");
-  ast.pop_front();
-
-  auto lhs = std::static_pointer_cast<NodeValueExpression>(ast.front());
-  if (op == nullptr)
-    throw std::runtime_error("No NodeValueExpression for ValExpr lhs!");
-  ast.pop_front();
-
-  auto rhs = std::static_pointer_cast<NodeValueExpression>(ast.front());
-  if (op == nullptr)
-    throw std::runtime_error("No NodeValueExpression for ValExpr rhs!");
   ast.pop_front();
 
   valExpr->setOperator(op);
   valExpr->setLhs(lhs);
   valExpr->setRhs(rhs);
   ast.push_front(valExpr);
-
 }
 
 void ASTBuilder::addExprOperator(const std::string& op)
@@ -178,21 +165,31 @@ void ASTBuilder::addExprOperator(const std::string& op)
 
 void ASTBuilder::addVarAssign()
 {
-  auto varAss = std::make_shared<NodeVariableAssignment>();
+  //get rhs of assignment
+  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  ast.pop_front();
 
-  //get var and valexpr
-  auto var = std::static_pointer_cast<NodeVariable>(ast.front());
+  //get var
+  auto var = std::dynamic_pointer_cast<NodeVariable>(ast.front());
   if (var == nullptr)
     throw std::runtime_error("No NodeVariable for VarAssign!");
   ast.pop_front();
 
-  auto valExpr = std::static_pointer_cast<NodeValueExpression>(ast.front());
-  if (valExpr == nullptr)
-    throw std::runtime_error("No ValExpr for VarAssign!");
-  ast.pop_front();
-
+  auto varAss = std::make_shared<NodeVariableAssignment>();
   varAss->setVariable(var);
-  varAss->setValExpr(valExpr);
+
+  //if it's a "simple" assignment we need to create a valexpr,
+  //otherwise it already has been created earlier...
+  auto recursiveValExpr = std::dynamic_pointer_cast<NodeValueExpression>(rhs);
+  if (recursiveValExpr == nullptr)
+  {
+    auto valExpr = std::make_shared<NodeValueExpression>();
+    valExpr->setRhs(rhs); //in case it's a simple assignment we just set RHS and leave the rest nullptr
+    varAss->setValExpr(valExpr);
+  }
+  else
+    varAss->setValExpr(recursiveValExpr);
+
   ast.push_front(varAss);
 
 }

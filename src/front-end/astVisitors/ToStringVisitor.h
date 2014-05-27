@@ -24,7 +24,7 @@
 class ToStringVisitor: public ASTNodeVisitorBase
 {
   private:
-    std::string outString{"AST String Visitor: "};
+    std::string outString{""};
 
   public:
     ToStringVisitor();
@@ -40,6 +40,13 @@ class ToStringVisitor: public ASTNodeVisitorBase
 
     virtual void visit(NodeFactDecl* factDecl) override;
     virtual void visit(NodeActionDecl* actionDecl) override;
+
+    virtual void visit(NodeInteger* integer) override;
+    virtual void visit(NodeValueExpression* expr) override;
+    virtual void visit(NodeValueExpressionOperator* exprOp) override;
+    virtual void visit(NodeVariableAssignment* ass) override;
+
+    virtual void visit(NodeVariable* var) override;
 };
 
 #endif /* TOSTRINGVISITOR_H_ */

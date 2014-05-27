@@ -27,22 +27,22 @@ void ToStringVisitor::visit(NodeString* string)
 
 void ToStringVisitor::visit(NodeDomainStringElements* domainStringElements)
 {
-  outString += "DOMAIN ";
+  outString += "[DomainRoot] ";
 }
 
 void ToStringVisitor::visit(NodeFluentDecl* fluentDecl)
 {
-  outString += "FLUENT_DECL ";
+  outString += "[FluentDecl] ";
 }
 
 void ToStringVisitor::visit(NodeFactDecl* factDecl)
 {
-  outString += "FACT_DECL ";
+  outString += "[FactDecl] ";
 }
 
 void ToStringVisitor::visit(NodeActionDecl* actionDecl)
 {
-  outString += "ACTION_DECL ";
+  //std::cout << "[ActionDecl]" << std::endl;
 }
 
 void ToStringVisitor::visit(NodeID* id)
@@ -52,15 +52,39 @@ void ToStringVisitor::visit(NodeID* id)
 
 void ToStringVisitor::visit(NodeProgram* program)
 {
+  std::cout << "--Program--" << std::endl;
   std::cout << outString << std::endl;
 }
 
 void ToStringVisitor::visit(NodeDomainInteger* domainInt)
 {
-  outString += "DOMAIN_INTEGER ";
+  outString += "[DomainInteger] ";
 }
 
 void ToStringVisitor::visit(NodeDomainString* domainString)
 {
-  outString += "DOMAIN_STRING ";
+  outString += "[DomainString] ";
+}
+
+void ToStringVisitor::visit(NodeInteger* integer)
+{
+  outString += "[Integer=" + std::to_string(integer->getValue()) + "] ";
+}
+void ToStringVisitor::visit(NodeValueExpression* expr)
+{
+  outString += "[ValueExpression] ";
+}
+void ToStringVisitor::visit(NodeValueExpressionOperator* exprOp)
+{
+  outString += std::string{"[ExprOp="}
+      + (exprOp->getOperator() == ValueExprOperator::Plus ? "+" : "-") + "] ";
+}
+void ToStringVisitor::visit(NodeVariableAssignment* ass)
+{
+  outString += "[VariableAss] ";
+}
+
+void ToStringVisitor::visit(NodeVariable* var)
+{
+  outString += "[Var=" + var->getVarName() + "] ";
 }

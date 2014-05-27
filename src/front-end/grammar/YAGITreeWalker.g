@@ -51,11 +51,7 @@ fluent_decl
 	;	
 	
 fact_decl
-	: ^(IT_FACT_DECL ID domain+) 
-
-	{
-	    ADD_FACT_DECL($ID->toString($ID));
-        }
+	: ^(IT_FACT_DECL ID ({ADD_FACT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})+) 
 	;
 	
 domain	

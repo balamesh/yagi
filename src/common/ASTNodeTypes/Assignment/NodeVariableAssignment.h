@@ -46,8 +46,10 @@ class NodeVariableAssignment: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement!
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      variable_->accept(visitor);
+      valExpr_->accept(visitor);
     }
 };
 

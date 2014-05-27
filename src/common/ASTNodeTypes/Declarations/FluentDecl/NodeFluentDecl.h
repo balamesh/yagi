@@ -28,11 +28,6 @@ class NodeFluentDecl: public ASTNodeBase
     NodeFluentDecl();
     virtual ~NodeFluentDecl();
 
-    void setFluentName(std::shared_ptr<NodeID> fluentName)
-    {
-      fluentName_ = fluentName;
-    }
-
     void addDomain(std::shared_ptr<NodeDomainBase> domain)
     {
       domains_.push_back(domain);
@@ -49,6 +44,22 @@ class NodeFluentDecl: public ASTNodeBase
           {
             domain->accept(visitor);
           });
+
+    }
+
+    const std::vector<std::shared_ptr<NodeDomainBase> >& getDomains() const
+    {
+      return domains_;
+    }
+
+    const std::shared_ptr<NodeID>& getFluentName() const
+    {
+      return fluentName_;
+    }
+
+    void setFluentName(const std::shared_ptr<NodeID>& fluentName)
+    {
+      fluentName_ = fluentName;
     }
 };
 
