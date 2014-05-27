@@ -167,13 +167,13 @@ search
 //******************************************************************************
 assign	
 	:	^(IT_ASSIGN var valexpr) {ADD_VAR_ASSIGN();}
-	|	^(ass_op ID setexpr)
+	|	^(ass_op ID setexpr) {ADD_FLUENT_ASSIGN($ID->toString($ID));}
 	;
 	
 ass_op  
-	:	(IT_ASSIGN {printf("bli\n");}
-                  | IT_ADD_ASSIGN {printf("bla\n");}
-                  | IT_REMOVE_ASSIGN {printf("blo\n");}
+	:	(IT_ASSIGN {ADD_ASSIGN_OP("=");}
+                  | IT_ADD_ASSIGN {ADD_ASSIGN_OP("+=");}
+                  | IT_REMOVE_ASSIGN {ADD_ASSIGN_OP("-=");}
                 )
         ;
         
@@ -226,22 +226,22 @@ atom_connector
 //******************************************************************************
 //Sets
 //******************************************************************************
-setexpr	:	^(expr_op setexpr setexpr) 
-	|	^(IT_TUPLE_SET tuple+)
+setexpr	:	^(expr_op setexpr setexpr) {ADD_SETEXPR();}
+	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})+)
 	|	ID
 	;
 	
 	
 //******************************************************************************
 //Tuples
-//******************************************************************************	
+//****************************************************************************** 
 tuple	
-	:	^(IT_TUPLE tuple_val+)
+	:	^(IT_TUPLE ({ADD_TUPLE();}) (tuple_val {CONSUME_TUPLE_VAL();})+)
 	;
 	
 tuple_val 
 	:	STRING {ADD_STRING($STRING->toString($STRING));}
-	|     	TOKEN_PATTERN_MATCHING
+	|     	TOKEN_PATTERN_MATCHING {ADD_PATTERN_MATCH();}
 	|     	var
 	;
 	

@@ -23,7 +23,7 @@ class NodeValueExpression: public ASTNodeBase
     std::shared_ptr<ASTNodeBase> lhs_;
     std::shared_ptr<ASTNodeBase> rhs_;
 
-    bool IsPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
+    bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
   public:
     NodeValueExpression();
     virtual ~NodeValueExpression();
@@ -35,7 +35,7 @@ class NodeValueExpression: public ASTNodeBase
 
     void setLhs(const std::shared_ptr<ASTNodeBase>& lhs)
     {
-      if (IsPassedTypeValid(lhs))
+      if (isPassedTypeValid(lhs))
         this->lhs_ = lhs;
       else
         throw std::runtime_error(
@@ -49,7 +49,7 @@ class NodeValueExpression: public ASTNodeBase
 
     void setRhs(const std::shared_ptr<ASTNodeBase>& rhs)
     {
-      if (IsPassedTypeValid(rhs))
+      if (isPassedTypeValid(rhs))
         this->rhs_ = rhs;
       else
         throw std::runtime_error(

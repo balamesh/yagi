@@ -42,6 +42,18 @@ extern "C"
 
       //Assignment
       void (*addVarAssignCallback)();
+      void (*addPatternMatchCallback)();
+      void (*addFluentAssignCallback)(pANTLR3_STRING fluentName);
+      void (*addAssignOpCallback)(char* op);
+
+      //Tuples
+      void (*addTupleCallback)();
+      void (*consumeTupleValCallback)();
+      void (*consumeTupleCallback)();
+
+      //Sets
+      void (*addTupleSetCallback)();
+      void (*addSetExprCallback)();
   };
 
   extern struct YAGICallbackCollection yagiCallbackCollection;
@@ -74,6 +86,18 @@ extern "C"
 
 //Assignment
 #define ADD_VAR_ASSIGN() yagiCallbackCollection.addVarAssignCallback()
+#define ADD_PATTERN_MATCH() yagiCallbackCollection.addPatternMatchCallback()
+#define ADD_FLUENT_ASSIGN(x) yagiCallbackCollection.addFluentAssignCallback(x)
+#define ADD_ASSIGN_OP(x) yagiCallbackCollection.addAssignOpCallback(x)
+
+//Tuples
+#define ADD_TUPLE() yagiCallbackCollection.addTupleCallback()
+#define CONSUME_TUPLE_VAL() yagiCallbackCollection.consumeTupleValCallback()
+#define CONSUME_TUPLE() yagiCallbackCollection.consumeTupleCallback()
+
+//Sets
+#define ADD_TUPLE_SET() yagiCallbackCollection.addTupleSetCallback()
+#define ADD_SETEXPR() yagiCallbackCollection.addSetExprCallback()
 
 //Action Decl Stuff
 #define ADD_ACTIVE_SENSING() yagiCallbackCollection.addActiveSensingCallback()

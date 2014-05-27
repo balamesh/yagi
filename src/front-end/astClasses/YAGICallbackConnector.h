@@ -106,6 +106,43 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addProgram();
   }
 
+  void addPatternMatch()
+  {
+    ASTBuilder::getInstance().addPatternMatch();
+  }
+
+  void addTuple()
+  {
+    ASTBuilder::getInstance().addTuple();
+  }
+  void consumeTuple()
+  {
+    ASTBuilder::getInstance().consumeTuple();
+  }
+  void consumeTupleVal()
+  {
+    ASTBuilder::getInstance().consumeTupleVal();
+  }
+
+  void addSet()
+  {
+    ASTBuilder::getInstance().addSet();
+  }
+  void addSetExpr()
+  {
+    ASTBuilder::getInstance().addSetExpr();
+  }
+
+  void addAssignOp(char* op)
+  {
+    ASTBuilder::getInstance().addAssignmentOp(op);
+  }
+
+  void addFluentAssign(pANTLR3_STRING fluentName)
+  {
+    ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
+  }
+
   void connectCallbacks()
   {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
@@ -133,6 +170,19 @@ namespace YAGICallbackConnector
 
     //Assignment
     yagiCallbackCollection.addVarAssignCallback = addVarAssign;
+    yagiCallbackCollection.addPatternMatchCallback = addPatternMatch;
+    yagiCallbackCollection.addFluentAssignCallback = addFluentAssign;
+    yagiCallbackCollection.addAssignOpCallback = addAssignOp;
+
+    //Tuples
+    yagiCallbackCollection.addTupleCallback = addTuple;
+    yagiCallbackCollection.consumeTupleCallback = consumeTuple;
+    yagiCallbackCollection.consumeTupleValCallback = consumeTupleVal;
+
+    //Sets
+    yagiCallbackCollection.addTupleSetCallback = addSet;
+    yagiCallbackCollection.addSetExprCallback = addSetExpr;
+
   }
 
 }

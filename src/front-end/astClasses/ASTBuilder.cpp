@@ -194,6 +194,35 @@ void ASTBuilder::addVarAssign()
 
 }
 
+void ASTBuilder::addPatternMatch()
+{
+}
+void ASTBuilder::addTuple()
+{
+}
+void ASTBuilder::consumeTuple()
+{
+}
+void ASTBuilder::consumeTupleVal()
+{
+}
+void ASTBuilder::addSet()
+{
+}
+void ASTBuilder::addSetExpr()
+{
+}
+
+void ASTBuilder::addFluentAssign(const std::string& fluentName)
+{
+
+}
+
+void ASTBuilder::addAssignmentOp(const std::string& op)
+{
+
+}
+
 void ASTBuilder::addActionDeclNode(const std::string& actionName)
 {
 

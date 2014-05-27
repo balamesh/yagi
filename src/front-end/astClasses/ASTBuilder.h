@@ -62,6 +62,15 @@ class ASTBuilder
     //Assignment
     void addVarAssign();
 
+    void addPatternMatch();
+    void addTuple();
+    void consumeTuple();
+    void consumeTupleVal();
+    void addSet();
+    void addSetExpr();
+    void addFluentAssign(const std::string& fluentName);
+    void addAssignmentOp(const std::string& op);
+
     std::shared_ptr<ASTNodeBase> getAST()
     {
       return (ast.size() > 0 ? ast.front() : nullptr);
