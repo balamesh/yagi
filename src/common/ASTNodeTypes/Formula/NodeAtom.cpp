@@ -5,15 +5,18 @@
  *      Author: cmaier
  */
 
-#include "NodeFormula.h"
+#include "NodeAtom.h"
 
-NodeFormula::NodeFormula()
+NodeAtom::NodeAtom()
 {
   // TODO Auto-generated constructor stub
+  leftOperand_ = nullptr;
+  connective_ = nullptr;
+  rightOperand_ = nullptr;
 
 }
 
-NodeFormula::~NodeFormula()
+NodeAtom::~NodeAtom()
 {
   // TODO Auto-generated destructor stub
 }

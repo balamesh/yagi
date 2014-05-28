@@ -143,6 +143,40 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
   }
 
+  void addConnective(char* connective)
+  {
+    ASTBuilder::getInstance().addConnective(connective);
+  }
+
+  void addConstant(char* constant)
+  {
+    ASTBuilder::getInstance().addConstant(constant);
+  }
+  void addAtom()
+  {
+    ASTBuilder::getInstance().addAtom();
+  }
+  void addNegation()
+  {
+    ASTBuilder::getInstance().addNegation();
+  }
+  void addConnectedFormula()
+  {
+    ASTBuilder::getInstance().addConnectedFormula();
+  }
+  void addExists()
+  {
+    ASTBuilder::getInstance().addExists();
+  }
+  void addAll()
+  {
+    ASTBuilder::getInstance().addAll();
+  }
+  void addIn()
+  {
+    ASTBuilder::getInstance().addIn();
+  }
+
   void connectCallbacks()
   {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
@@ -182,6 +216,16 @@ namespace YAGICallbackConnector
     //Sets
     yagiCallbackCollection.addTupleSetCallback = addSet;
     yagiCallbackCollection.addSetExprCallback = addSetExpr;
+
+    //Formulas
+    yagiCallbackCollection.addConnectiveCallback = addConnective;
+    yagiCallbackCollection.addConstantCallback = addConstant;
+    yagiCallbackCollection.addAtomCallback = addAtom;
+    yagiCallbackCollection.addNegationCallback = addNegation;
+    yagiCallbackCollection.addConnectedFormulaCallback = addConnectedFormula;
+    yagiCallbackCollection.addExistsCallback = addExists;
+    yagiCallbackCollection.addAllCallback = addAll;
+    yagiCallbackCollection.addInCallback = addIn;
 
   }
 

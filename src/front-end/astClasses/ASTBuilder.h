@@ -32,6 +32,10 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeFluentAssignment.h"
+#include "../../common/ASTNodeTypes/Formula/NodeConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeFormulaBase.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
 
 class ASTBuilder
 {
@@ -74,6 +78,16 @@ class ASTBuilder
     void addSetExpr();
     void addFluentAssign(const std::string& fluentName);
     void addAssignmentOp(const std::string& op);
+
+    //Formulas
+    void addConnective(const std::string& connective);
+    void addConstant(const std::string& constant);
+    void addAtom();
+    void addNegation();
+    void addConnectedFormula();
+    void addExists();
+    void addAll();
+    void addIn();
 
     std::shared_ptr<ASTNodeBase> getAST()
     {

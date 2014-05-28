@@ -11,22 +11,22 @@
 #include <memory>
 
 #include "../../ASTNodeBase.h"
-#include "../../Formula/NodeFormula.h"
+#include "../../Formula/NodeFormulaBase.h"
 
 class NodeActionPrecondition: public ASTNodeBase
 {
   private:
-    std::shared_ptr<NodeFormula> formula_;
+    std::shared_ptr<NodeFormulaBase> formula_;
   public:
     NodeActionPrecondition();
     virtual ~NodeActionPrecondition();
 
-    const std::shared_ptr<NodeFormula>& getFormula() const
+    const std::shared_ptr<NodeFormulaBase>& getFormula() const
     {
       return formula_;
     }
 
-    void setFormula(const std::shared_ptr<NodeFormula>& formula)
+    void setFormula(const std::shared_ptr<NodeFormulaBase>& formula)
     {
       formula_ = formula;
     }

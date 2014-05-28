@@ -194,33 +194,33 @@ formula_outerMost
 	;
 
 formula	
-	:	atom
-	|	^(IT_NOT formula)
-	|	^(formular_connective atom formula)
-	|	^(IT_EXISTS tuple setexpr formula?)
-	|	^(IT_ALL tuple setexpr formula?)
-	|	^(IT_IN tuple setexpr)
+	:	atom {ADD_ATOM();}
+	|	^(IT_NOT formula) {ADD_NEGATION();}
+	|	^(formular_connective atom formula) {ADD_CONNECTED_FORMULA();}
+	|	^(IT_EXISTS tuple setexpr formula?) {ADD_EXISTS();} 
+	|	^(IT_ALL tuple setexpr formula?) {ADD_ALL();}
+	|	^(IT_IN tuple setexpr) {ADD_IN();}
 	;
 	
 formular_connective
-	:	IT_AND {printf("bliz\n");}
-	| 	IT_OR {printf("blaz\n");}
-	|    	IT_IMPLIES {printf("bloz\n");}
+	:	IT_AND {ADD_CONNECTIVE("&&");}
+	| 	IT_OR {ADD_CONNECTIVE("||");}
+	|    	IT_IMPLIES {ADD_CONNECTIVE("->");}
 	;
 
 atom
 	:	^(IT_ATOM_VALEXPR ^(atom_connector valexpr valexpr))
 	|	^(IT_ATOM_SETEXPR ^(atom_connector setexpr setexpr))
-	|	(TOKEN_TRUE | TOKEN_FALSE)
+	|	(TOKEN_TRUE {ADD_CONSTANT("true");} | TOKEN_FALSE {ADD_CONSTANT("false");})
 	;
 	
 atom_connector
-	:	IT_EQ {printf("arrr\n");}
-	|  	IT_NEQ {printf("brrr\n");}
-	| 	IT_LE {printf("crrr\n");}
-	| 	IT_GE {printf("drrr\n");}
-	| 	IT_LT {printf("errr\n");}
-	| 	IT_GT {printf("frrr\n");}
+	:	IT_EQ {ADD_CONNECTIVE("==");}
+	|  	IT_NEQ {ADD_CONNECTIVE("!=");}
+	| 	IT_LE {ADD_CONNECTIVE("<=");}
+	| 	IT_GE {ADD_CONNECTIVE(">=");}
+	| 	IT_LT {ADD_CONNECTIVE("<");}
+	| 	IT_GT {ADD_CONNECTIVE(">");}
 	;
 	
 //******************************************************************************

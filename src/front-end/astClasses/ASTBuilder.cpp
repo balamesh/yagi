@@ -175,7 +175,6 @@ void ASTBuilder::addVarAssign()
     throw std::runtime_error("No NodeVariable for VarAssign!");
   ast.pop_front();
 
-
   auto varAss = std::make_shared<NodeVariableAssignment>();
   varAss->setVariable(var);
 
@@ -272,7 +271,8 @@ void ASTBuilder::addFluentAssign(const std::string& fluentName)
   fluentAss->setFluentName(std::make_shared<NodeID>(fluentName));
 
   //get op
-  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
+  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(
+      ast.front());
   if (assOp == nullptr)
     throw std::runtime_error("No assignment operator for fluent assign!");
   ast.pop_front();
@@ -300,6 +300,91 @@ void ASTBuilder::addAssignmentOp(const std::string& op)
   opNode->fromString(op);
 
   ast.push_front(opNode);
+}
+
+void ASTBuilder::addConnective(const std::string& connective)
+{
+  auto conn = std::make_shared<NodeConnective>();
+  conn->fromString(connective);
+
+  ast.push_front(conn);
+}
+void ASTBuilder::addConstant(const std::string& constant)
+{
+}
+void ASTBuilder::addAtom()
+{
+  //an atom can be just "true" or "false..
+  auto elem = ast.front();
+
+  if (std::dynamic_pointer_cast<NodeConstant>(elem) != nullptr)
+  {
+    //a truth value is a valid formula, i.e. we're done
+    return;
+  }
+
+  //we have something of the form <connective> <expr> <expr> (right to left)
+  //sanity check
+  if ((std::dynamic_pointer_cast<NodeValueExpression>(elem) == nullptr)
+      && (std::dynamic_pointer_cast<NodeSetExpression>(elem) == nullptr))
+  {
+    throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
+  }
+
+  auto atom = std::make_shared<NodeAtom>();
+  atom->setRightOperand(elem);
+  ast.pop_front();
+
+  auto leftOperand = ast.front();
+
+  //sanity check
+  if ((std::dynamic_pointer_cast<NodeValueExpression>(leftOperand) == nullptr)
+      && (std::dynamic_pointer_cast<NodeSetExpression>(leftOperand) == nullptr))
+  {
+    throw std::runtime_error("Atom lhs is neither value- nor setexpression!");
+  }
+
+  ast.pop_front();
+  atom->setLeftOperand(leftOperand);
+
+  auto connective = std::dynamic_pointer_cast<NodeConnective>(ast.front());
+  if (connective == nullptr)
+  {
+    throw std::runtime_error("Atom connective is no NodeConnective!");
+  }
+
+  ast.pop_front();
+  atom->setConnective(connective);
+
+  ast.push_front(atom);
+}
+
+void ASTBuilder::addNegation()
+{
+  //TODO: we need better formula abstraction...
+  //get formula to negate
+//  auto formula = std::dynamic_pointer_cast<NodeFormula>(ast.front());
+//  ast.pop_front();
+//
+//  if (formula == nullptr)
+//  {
+//    throw std::runtime_error("Want to negate something that's not a formula!");
+//  }
+//
+//  auto formulaNew = std::make_shared<NodeFormula>();
+//  formulaNew->setConnective()
+}
+void ASTBuilder::addConnectedFormula()
+{
+}
+void ASTBuilder::addExists()
+{
+}
+void ASTBuilder::addAll()
+{
+}
+void ASTBuilder::addIn()
+{
 }
 
 void ASTBuilder::addActionDeclNode(const std::string& actionName)

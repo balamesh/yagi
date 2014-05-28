@@ -54,6 +54,16 @@ extern "C"
       //Sets
       void (*addTupleSetCallback)();
       void (*addSetExprCallback)();
+
+      //Formulas
+      void (*addConnectiveCallback)(char* conn);
+      void (*addConstantCallback)(char* constant);
+      void (*addAtomCallback)();
+      void (*addNegationCallback)();
+      void (*addConnectedFormulaCallback)();
+      void (*addExistsCallback)();
+      void (*addAllCallback)();
+      void (*addInCallback)();
   };
 
   extern struct YAGICallbackCollection yagiCallbackCollection;
@@ -102,6 +112,16 @@ extern "C"
 //Action Decl Stuff
 #define ADD_ACTIVE_SENSING() yagiCallbackCollection.addActiveSensingCallback()
 #define ADD_EFFECT() yagiCallbackCollection.addEffectCallback()
+
+//Formulas
+#define ADD_CONNECTIVE(x) yagiCallbackCollection.addConnectiveCallback(x)
+#define ADD_CONSTANT(x) yagiCallbackCollection.addConstantCallback(x)
+#define ADD_ATOM() yagiCallbackCollection.addAtomCallback()
+#define ADD_NEGATION() yagiCallbackCollection.addNegationCallback()
+#define ADD_CONNECTED_FORMULA() yagiCallbackCollection.addConnectedFormulaCallback()
+#define ADD_EXISTS() yagiCallbackCollection.addExistsCallback()
+#define ADD_ALL() yagiCallbackCollection.addAllCallback()
+#define ADD_IN() yagiCallbackCollection.addInCallback()
 
 #ifdef __cplusplus
 }
