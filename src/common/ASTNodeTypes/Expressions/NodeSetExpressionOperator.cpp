@@ -10,6 +10,7 @@
 NodeSetExpressionOperator::NodeSetExpressionOperator()
 {
   // TODO Auto-generated constructor stub
+  operator_ = SetExprOperator::Unknown;
 
 }
 

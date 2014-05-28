@@ -117,7 +117,7 @@ void ASTBuilder::addVarListNode()
 void ASTBuilder::addIntNode(const std::string& intVal)
 {
   auto intNode = std::make_shared<NodeInteger>();
-  intNode->setValueFromString(intVal); //TODO: can go boom!
+  intNode->setValueFromString(intVal);
 
   ast.push_front(intNode);
 }
@@ -158,7 +158,7 @@ void ASTBuilder::addValueExpressionNode()
 void ASTBuilder::addExprOperator(const std::string& op)
 {
   auto opNode = std::make_shared<NodeValueExpressionOperator>();
-  opNode->fromString(op); //TODO: Can go boom!
+  opNode->fromString(op);
 
   ast.push_front(opNode);
 }
@@ -174,6 +174,7 @@ void ASTBuilder::addVarAssign()
   if (var == nullptr)
     throw std::runtime_error("No NodeVariable for VarAssign!");
   ast.pop_front();
+
 
   auto varAss = std::make_shared<NodeVariableAssignment>();
   varAss->setVariable(var);
@@ -196,31 +197,109 @@ void ASTBuilder::addVarAssign()
 
 void ASTBuilder::addPatternMatch()
 {
+  //TODO
 }
+
 void ASTBuilder::addTuple()
 {
+  auto tuple = std::make_shared<NodeTuple>();
+  ast.push_front(tuple);
 }
 void ASTBuilder::consumeTuple()
 {
+  //get tuple
+  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  ast.pop_front();
+
+  //get set
+  auto set = std::dynamic_pointer_cast<NodeSet>(ast.front());
+  if (set == nullptr)
+    throw std::runtime_error("No NodeSet for consumeTuple!");
+
+  set->addTuple(tuple);
 }
 void ASTBuilder::consumeTupleVal()
 {
+  //get tuple val
+  auto val = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  ast.pop_front();
+
+  //get tuple
+  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  if (tuple == nullptr)
+    throw std::runtime_error("No NodeTuple for consumeTupleVal!");
+
+  tuple->addTupleValue(val);
 }
 void ASTBuilder::addSet()
 {
+  auto set = std::make_shared<NodeSet>();
+  ast.push_front(set);
 }
 void ASTBuilder::addSetExpr()
 {
+  auto setExpr = std::make_shared<NodeSetExpression>();
+
+  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  if (rhs == nullptr)
+    throw std::runtime_error("No ASTNodeBase for SetExpr rhs!");
+  ast.pop_front();
+
+  auto lhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  if (lhs == nullptr)
+    throw std::runtime_error("No ASTNodeBase for SetExpr lhs!");
+  ast.pop_front();
+
+  auto op = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
+  if (op == nullptr)
+    throw std::runtime_error("No NodeSetExpressionOperator for SetExpr!");
+  ast.pop_front();
+
+  setExpr->setOperator(op);
+  setExpr->setLhs(lhs);
+  setExpr->setRhs(rhs);
+  ast.push_front(setExpr);
 }
 
 void ASTBuilder::addFluentAssign(const std::string& fluentName)
 {
+  //get rhs of assignment
+  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  ast.pop_front();
 
+  //build lhs
+  auto fluentAss = std::make_shared<NodeFluentAssignment>();
+  fluentAss->setFluentName(std::make_shared<NodeID>(fluentName));
+
+  //get op
+  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
+  if (assOp == nullptr)
+    throw std::runtime_error("No assignment operator for fluent assign!");
+  ast.pop_front();
+
+  fluentAss->setOperator(assOp);
+
+  //if it's a "simple" assignment we need to create a setxpr,
+  //otherwise it already has been created earlier...
+  auto recursiveSetExpr = std::dynamic_pointer_cast<NodeSetExpression>(rhs);
+  if (recursiveSetExpr == nullptr)
+  {
+    auto setExpr = std::make_shared<NodeSetExpression>();
+    setExpr->setRhs(rhs); //in case it's a simple assignment we just set RHS and leave the rest nullptr
+    fluentAss->setSetExpr(setExpr);
+  }
+  else
+    fluentAss->setSetExpr(recursiveSetExpr);
+
+  ast.push_front(fluentAss);
 }
 
 void ASTBuilder::addAssignmentOp(const std::string& op)
 {
+  auto opNode = std::make_shared<NodeSetExpressionOperator>();
+  opNode->fromString(op);
 
+  ast.push_front(opNode);
 }
 
 void ASTBuilder::addActionDeclNode(const std::string& actionName)

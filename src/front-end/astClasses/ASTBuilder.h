@@ -28,6 +28,10 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeVariableAssignment.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
+#include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
+#include "../../common/ASTNodeTypes/Assignment/NodeFluentAssignment.h"
 
 class ASTBuilder
 {

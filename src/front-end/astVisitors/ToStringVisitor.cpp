@@ -76,7 +76,7 @@ void ToStringVisitor::visit(NodeValueExpression* expr)
 }
 void ToStringVisitor::visit(NodeValueExpressionOperator* exprOp)
 {
-  outString += std::string{"[ExprOp="}
+  outString += std::string { "[ExprOp=" }
       + (exprOp->getOperator() == ValueExprOperator::Plus ? "+" : "-") + "] ";
 }
 void ToStringVisitor::visit(NodeVariableAssignment* ass)
@@ -87,4 +87,47 @@ void ToStringVisitor::visit(NodeVariableAssignment* ass)
 void ToStringVisitor::visit(NodeVariable* var)
 {
   outString += "[Var=" + var->getVarName() + "] ";
+}
+
+void ToStringVisitor::visit(NodeSetExpressionOperator* setExprOp)
+{
+  std::string opString{""};
+
+  switch (setExprOp->getOperator())
+  {
+    case SetExprOperator::Assign:
+      opString = "=";
+      break;
+
+    case SetExprOperator::AddAssign:
+      opString = "+=";
+      break;
+
+    case SetExprOperator::RemoveAssign:
+      opString = "-=";
+      break;
+
+    case SetExprOperator::Unknown:
+    default:
+      opString = "??";
+      break;
+  }
+
+  outString += "[SetExprOp = '" + opString + "'] ";
+}
+void ToStringVisitor::visit(NodeFluentAssignment* fluentAss)
+{
+  outString += "[FluentAss] ";
+}
+void ToStringVisitor::visit(NodeSet* set)
+{
+  outString += "[Set] ";
+}
+void ToStringVisitor::visit(NodeSetExpression* setExpr)
+{
+  outString += "[SetExpr] ";
+}
+void ToStringVisitor::visit(NodeTuple* tuple)
+{
+  outString += "[Tuple] ";
 }

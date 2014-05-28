@@ -10,6 +10,8 @@
 
 #include "../ASTNodeBase.h"
 #include "NodeSetExpressionOperator.h"
+#include "../../ASTNodeTypes/Identifier/NodeID.h"
+#include "../../ASTNodeTypes/Set/NodeSet.h"
 
 #include <memory>
 
@@ -64,11 +66,11 @@ class NodeSetExpression: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-//      visitor->visit(this);
-//
-//      if (operator_ != nullptr) operator_->accept(visitor);
-//      if (lhs_ != nullptr) lhs_->accept(visitor);
-//      rhs_->accept(visitor); //can't be null!
+      visitor->visit(this);
+
+      if (operator_ != nullptr) operator_->accept(visitor);
+      if (lhs_ != nullptr) lhs_->accept(visitor);
+      rhs_->accept(visitor); //can't be null!
     }
 };
 

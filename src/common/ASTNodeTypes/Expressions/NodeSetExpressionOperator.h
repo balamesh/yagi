@@ -39,7 +39,7 @@ class NodeSetExpressionOperator: public ASTNodeBase
 
     void fromString(std::string opString)
     {
-      if (opString == "==")
+      if (opString == "=")
         operator_ = SetExprOperator::Assign;
       else if (opString == "+=")
         operator_ = SetExprOperator::AddAssign;
@@ -51,8 +51,7 @@ class NodeSetExpressionOperator: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement
-      //visitor->visit(this);
+      visitor->visit(this);
     }
 };
 

@@ -22,12 +22,23 @@ class NodeValueExpression;
 class NodeValueExpressionOperator;
 class NodeInteger;
 class NodeVariable;
+class NodeSetExpressionOperator;
+class NodeFluentAssignment;
+class NodeSet;
+class NodeSetExpression;
+class NodeTuple;
 
 class ASTNodeVisitorBase
 {
   public:
-    ASTNodeVisitorBase() {};
-    virtual ~ASTNodeVisitorBase() {};
+    ASTNodeVisitorBase()
+    {
+    }
+    ;
+    virtual ~ASTNodeVisitorBase()
+    {
+    }
+    ;
 
     //Program Structure
     virtual void visit(NodeProgram* program) = 0;
@@ -58,6 +69,12 @@ class ASTNodeVisitorBase
 
     //Assignments
     virtual void visit(NodeVariableAssignment* ass) = 0;
+
+    virtual void visit(NodeSetExpressionOperator* ass) = 0;
+    virtual void visit(NodeFluentAssignment* ass) = 0;
+    virtual void visit(NodeSet* ass) = 0;
+    virtual void visit(NodeSetExpression* ass) = 0;
+    virtual void visit(NodeTuple* ass) = 0;
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */

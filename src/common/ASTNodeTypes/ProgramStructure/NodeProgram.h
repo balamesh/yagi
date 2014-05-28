@@ -10,6 +10,7 @@
 #include "../Declarations/FluentDecl/NodeFluentDecl.h"
 #include "../Declarations/FactDecl/NodeFactDecl.h"
 #include "../Assignment/NodeVariableAssignment.h"
+#include "../Assignment/NodeFluentAssignment.h"
 
 class NodeProgram: public ASTNodeBase
 {
@@ -20,7 +21,9 @@ class NodeProgram: public ASTNodeBase
     {
       return (std::dynamic_pointer_cast<NodeFluentDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeFactDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeVariableAssignment>(line) != nullptr);
+          || std::dynamic_pointer_cast<NodeVariableAssignment>(line) != nullptr
+          || std::dynamic_pointer_cast<NodeFluentAssignment>(line) != nullptr
+          );
     }
 
   public:
