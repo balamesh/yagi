@@ -302,16 +302,30 @@ void ASTBuilder::addAssignmentOp(const std::string& op)
   ast.push_front(opNode);
 }
 
-void ASTBuilder::addConnective(const std::string& connective)
+void ASTBuilder::addAtomConnective(const std::string& connective)
 {
-  auto conn = std::make_shared<NodeConnective>();
+  auto conn = std::make_shared<NodeAtomConnective>();
   conn->fromString(connective);
 
   ast.push_front(conn);
 }
+
+void ASTBuilder::addFormulaConnective(const std::string& connective)
+{
+  auto conn = std::make_shared<NodeFormulaConnective>();
+  conn->fromString(connective);
+
+  ast.push_front(conn);
+}
+
 void ASTBuilder::addConstant(const std::string& constant)
 {
+  auto truthVal = std::make_shared<NodeConstant>();
+  truthVal->fromString(constant);
+
+  ast.push_front(truthVal);
 }
+
 void ASTBuilder::addAtom()
 {
   //an atom can be just "true" or "false..
@@ -347,10 +361,10 @@ void ASTBuilder::addAtom()
   ast.pop_front();
   atom->setLeftOperand(leftOperand);
 
-  auto connective = std::dynamic_pointer_cast<NodeConnective>(ast.front());
+  auto connective = std::dynamic_pointer_cast<NodeAtomConnective>(ast.front());
   if (connective == nullptr)
   {
-    throw std::runtime_error("Atom connective is no NodeConnective!");
+    throw std::runtime_error("Atom connective is no NodeAtomConnective!");
   }
 
   ast.pop_front();
@@ -361,30 +375,134 @@ void ASTBuilder::addAtom()
 
 void ASTBuilder::addNegation()
 {
-  //TODO: we need better formula abstraction...
   //get formula to negate
-//  auto formula = std::dynamic_pointer_cast<NodeFormula>(ast.front());
-//  ast.pop_front();
-//
-//  if (formula == nullptr)
-//  {
-//    throw std::runtime_error("Want to negate something that's not a formula!");
-//  }
-//
-//  auto formulaNew = std::make_shared<NodeFormula>();
-//  formulaNew->setConnective()
+  auto formula = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  ast.pop_front();
+
+  if (formula == nullptr)
+  {
+    throw std::runtime_error("Want to negate something that's not a formula!");
+  }
+
+  auto formulaNegate = std::make_shared<NodeNegation>();
+  formulaNegate->setFormula(formula);
+
+  ast.push_front(formulaNegate);
 }
 void ASTBuilder::addConnectedFormula()
 {
+  //we have something of the form <formula_connective> <atom> <formula>
+  //an atom can be just "true" or "false..
+  auto rhs = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+
+  //we have something of the form <connective> <expr> <expr> (right to left)
+  //sanity check
+  if (rhs == nullptr)
+  {
+    throw std::runtime_error("addConnectedFormula rhs is no NodeFormulaBase!");
+  }
+
+  auto compoundFormula = std::make_shared<NodeCompoundFormula>();
+  compoundFormula->setRightOperand(rhs);
+  ast.pop_front();
+
+  auto lhs = std::dynamic_pointer_cast<NodeAtom>(ast.front());
+
+  //sanity check
+  if (lhs == nullptr)
+  {
+    throw std::runtime_error("Compound formula lhs is no atom!");
+  }
+
+  ast.pop_front();
+  compoundFormula->setLeftOperand(lhs);
+
+  auto connective = std::dynamic_pointer_cast<NodeFormulaConnective>(
+      ast.front());
+  if (connective == nullptr)
+  {
+    throw std::runtime_error("Atom connective is no NodeFormulaConnective!");
+  }
+
+  ast.pop_front();
+  compoundFormula->setConnective(connective);
+
+  ast.push_front(compoundFormula);
+
 }
 void ASTBuilder::addExists()
 {
+  addQuantifiedFormula(Quantifier::exists);
 }
 void ASTBuilder::addAll()
 {
+  addQuantifiedFormula(Quantifier::all);
 }
+
+void ASTBuilder::addQuantifiedFormula(Quantifier quant)
+{
+  auto quantifiedFormula = std::make_shared<NodeQuantifiedFormula>();
+  quantifiedFormula->setQuantifier(quant);
+
+  std::shared_ptr<NodeSetExpression> setExpr = nullptr;
+
+  //we have something of the form <tuple> <setexpr> <formula>?
+  auto formula = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  if (formula != nullptr) //formula is optional...
+  {
+    quantifiedFormula->setFormula(formula);
+    ast.pop_front();
+  }
+
+  setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
+  if (setExpr != nullptr)
+  {
+    throw std::runtime_error("Expected setexpr in quantified formula!");
+  }
+
+  quantifiedFormula->setSetExpr(setExpr);
+  ast.pop_front();
+
+  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+
+  //sanity check
+  if (tuple == nullptr)
+  {
+    throw std::runtime_error("Expected tuple in quantified formula!");
+  }
+
+  ast.pop_front();
+  quantifiedFormula->setTuple(tuple);
+
+  ast.push_front(quantifiedFormula);
+}
+
 void ASTBuilder::addIn()
 {
+  auto inFormula = std::make_shared<NodeOperatorIn>();
+
+  //we have something of the form <tuple> <setexpr>
+  auto setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
+  if (setExpr != nullptr)
+  {
+    throw std::runtime_error("Expected setexpr in in-formula!");
+  }
+
+  inFormula->setSetExpr(setExpr);
+  ast.pop_front();
+
+  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+
+  //sanity check
+  if (tuple == nullptr)
+  {
+    throw std::runtime_error("Expected tuple in in-formula!");
+  }
+
+  ast.pop_front();
+  inFormula->setTuple(tuple);
+
+  ast.push_front(inFormula);
 }
 
 void ASTBuilder::addActionDeclNode(const std::string& actionName)

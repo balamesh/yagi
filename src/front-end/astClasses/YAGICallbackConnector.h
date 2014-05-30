@@ -143,9 +143,14 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
   }
 
-  void addConnective(char* connective)
+  void addAtomConnective(char* connective)
   {
-    ASTBuilder::getInstance().addConnective(connective);
+    ASTBuilder::getInstance().addAtomConnective(connective);
+  }
+
+  void addFormulaConnective(char* connective)
+  {
+    ASTBuilder::getInstance().addFormulaConnective(connective);
   }
 
   void addConstant(char* constant)
@@ -218,7 +223,8 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addSetExprCallback = addSetExpr;
 
     //Formulas
-    yagiCallbackCollection.addConnectiveCallback = addConnective;
+    yagiCallbackCollection.addFormulaConnectiveCallback = addFormulaConnective;
+    yagiCallbackCollection.addAtomConnectiveCallback = addAtomConnective;
     yagiCallbackCollection.addConstantCallback = addConstant;
     yagiCallbackCollection.addAtomCallback = addAtom;
     yagiCallbackCollection.addNegationCallback = addNegation;

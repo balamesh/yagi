@@ -282,13 +282,13 @@ formula_outerMost
 formula	
 	:	atom
 	|	TOKEN_NOT TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN -> ^(IT_NOT formula)
-	|	TOKEN_OPEN_PAREN atom formular_connective formula TOKEN_CLOSE_PAREN -> ^(formular_connective atom formula)
+	|	TOKEN_OPEN_PAREN atom formula_connective formula TOKEN_CLOSE_PAREN -> ^(formula_connective atom formula)
 	|	TOKEN_EXISTS tuple TOKEN_IN setexpr (TOKEN_SUCH formula)? -> ^(IT_EXISTS tuple setexpr formula?)
 	|	TOKEN_ALL tuple TOKEN_IN setexpr (TOKEN_SUCH formula)? -> ^(IT_ALL tuple setexpr formula?)
 	|	tuple TOKEN_IN setexpr -> ^(IT_IN tuple setexpr)
 	;
 	
-formular_connective
+formula_connective
 	:	TOKEN_AND -> IT_AND
 	| 	TOKEN_OR  -> IT_OR
 	|    	TOKEN_IMPLIES -> IT_IMPLIES

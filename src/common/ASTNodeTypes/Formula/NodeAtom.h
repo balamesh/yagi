@@ -11,25 +11,25 @@
 #include <memory>
 
 #include "NodeFormulaBase.h"
-#include "NodeConnective.h"
+#include "NodeAtomConnective.h"
 
 class NodeAtom: public NodeFormulaBase
 {
   private:
     std::shared_ptr<ASTNodeBase> leftOperand_;
-    std::shared_ptr<NodeConnective> connective_;
+    std::shared_ptr<NodeAtomConnective> connective_;
     std::shared_ptr<ASTNodeBase> rightOperand_;
 
   public:
     NodeAtom();
     virtual ~NodeAtom();
 
-    const std::shared_ptr<NodeConnective>& getConnective() const
+    const std::shared_ptr<NodeAtomConnective>& getConnective() const
     {
       return connective_;
     }
 
-    void setConnective(const std::shared_ptr<NodeConnective>& connective)
+    void setConnective(const std::shared_ptr<NodeAtomConnective>& connective)
     {
       connective_ = connective;
     }

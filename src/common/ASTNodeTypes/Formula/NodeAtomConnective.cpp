@@ -5,16 +5,16 @@
  *      Author: cmaier
  */
 
-#include "NodeConnective.h"
+#include "NodeAtomConnective.h"
 
-NodeConnective::NodeConnective()
+NodeAtomConnective::NodeAtomConnective()
 {
   // TODO Auto-generated constructor stub
-  connective_ = FormulaConnective::Unknown;
+  atomConnective_ = AtomConnective::Unknown;
 
 }
 
-NodeConnective::~NodeConnective()
+NodeAtomConnective::~NodeAtomConnective()
 {
   // TODO Auto-generated destructor stub
 }

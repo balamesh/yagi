@@ -196,16 +196,16 @@ formula_outerMost
 formula	
 	:	atom {ADD_ATOM();}
 	|	^(IT_NOT formula) {ADD_NEGATION();}
-	|	^(formular_connective atom formula) {ADD_CONNECTED_FORMULA();}
+	|	^(formula_connective atom formula) {ADD_CONNECTED_FORMULA();}
 	|	^(IT_EXISTS tuple setexpr formula?) {ADD_EXISTS();} 
 	|	^(IT_ALL tuple setexpr formula?) {ADD_ALL();}
 	|	^(IT_IN tuple setexpr) {ADD_IN();}
 	;
 	
-formular_connective
-	:	IT_AND {ADD_CONNECTIVE("&&");}
-	| 	IT_OR {ADD_CONNECTIVE("||");}
-	|    	IT_IMPLIES {ADD_CONNECTIVE("->");}
+formula_connective
+	:	IT_AND {ADD_FORMULA_CONNECTIVE("&&");}
+	| 	IT_OR {ADD_FORMULA_CONNECTIVE("||");}
+	|    	IT_IMPLIES {ADD_FORMULA_CONNECTIVE("->");}
 	;
 
 atom
@@ -215,12 +215,12 @@ atom
 	;
 	
 atom_connector
-	:	IT_EQ {ADD_CONNECTIVE("==");}
-	|  	IT_NEQ {ADD_CONNECTIVE("!=");}
-	| 	IT_LE {ADD_CONNECTIVE("<=");}
-	| 	IT_GE {ADD_CONNECTIVE(">=");}
-	| 	IT_LT {ADD_CONNECTIVE("<");}
-	| 	IT_GT {ADD_CONNECTIVE(">");}
+	:	IT_EQ {ADD_ATOM_CONNECTIVE("==");}
+	|  	IT_NEQ {ADD_ATOM_CONNECTIVE("!=");}
+	| 	IT_LE {ADD_ATOM_CONNECTIVE("<=");}
+	| 	IT_GE {ADD_ATOM_CONNECTIVE(">=");}
+	| 	IT_LT {ADD_ATOM_CONNECTIVE("<");}
+	| 	IT_GT {ADD_ATOM_CONNECTIVE(">");}
 	;
 	
 //******************************************************************************

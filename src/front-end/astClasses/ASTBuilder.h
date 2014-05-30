@@ -32,13 +32,21 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeFluentAssignment.h"
-#include "../../common/ASTNodeTypes/Formula/NodeConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeFormulaBase.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 #include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
+#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
 
 class ASTBuilder
 {
+  private:
+    void addQuantifiedFormula(Quantifier quant);
+
   public:
     static ASTBuilder& getInstance()
     {
@@ -80,7 +88,8 @@ class ASTBuilder
     void addAssignmentOp(const std::string& op);
 
     //Formulas
-    void addConnective(const std::string& connective);
+    void addAtomConnective(const std::string& connective);
+    void addFormulaConnective(const std::string& connective);
     void addConstant(const std::string& constant);
     void addAtom();
     void addNegation();

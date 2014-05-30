@@ -56,7 +56,8 @@ extern "C"
       void (*addSetExprCallback)();
 
       //Formulas
-      void (*addConnectiveCallback)(char* conn);
+      void (*addFormulaConnectiveCallback)(char* conn);
+      void (*addAtomConnectiveCallback)(char* conn);
       void (*addConstantCallback)(char* constant);
       void (*addAtomCallback)();
       void (*addNegationCallback)();
@@ -114,7 +115,8 @@ extern "C"
 #define ADD_EFFECT() yagiCallbackCollection.addEffectCallback()
 
 //Formulas
-#define ADD_CONNECTIVE(x) yagiCallbackCollection.addConnectiveCallback(x)
+#define ADD_ATOM_CONNECTIVE(x) yagiCallbackCollection.addAtomConnectiveCallback(x)
+#define ADD_FORMULA_CONNECTIVE(x) yagiCallbackCollection.addFormulaConnectiveCallback(x)
 #define ADD_CONSTANT(x) yagiCallbackCollection.addConstantCallback(x)
 #define ADD_ATOM() yagiCallbackCollection.addAtomCallback()
 #define ADD_NEGATION() yagiCallbackCollection.addNegationCallback()
