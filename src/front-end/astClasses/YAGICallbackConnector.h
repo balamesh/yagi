@@ -61,6 +61,11 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addVarNode((char*) varName->chars);
   }
 
+  void consumeVariable()
+  {
+    ASTBuilder::getInstance().consumeVarNode();
+  }
+
   void addValueExpression()
   {
     ASTBuilder::getInstance().addValueExpressionNode();
@@ -94,6 +99,16 @@ namespace YAGICallbackConnector
   void addAction(pANTLR3_STRING actionName)
   {
     ASTBuilder::getInstance().addActionDeclNode((char*) actionName->chars);
+  }
+
+  void addID(pANTLR3_STRING id)
+    {
+      ASTBuilder::getInstance().addID((char*) id->chars);
+    }
+
+  void addEffect()
+  {
+    ASTBuilder::getInstance().addEffect();
   }
 
   void addVarList()
@@ -141,6 +156,11 @@ namespace YAGICallbackConnector
   void addFluentAssign(pANTLR3_STRING fluentName)
   {
     ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
+  }
+
+  void consumeAssignment()
+  {
+    ASTBuilder::getInstance().consumeAssignment();
   }
 
   void addAtomConnective(char* connective)
@@ -195,13 +215,17 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addProgramCallback = addProgram;
     yagiCallbackCollection.addFactDeclCallback = addFact;
 
+    //Action Decl
     yagiCallbackCollection.addActionDeclCallback = addAction;
+    yagiCallbackCollection.addEffectCallback = addEffect;
 
     //Variables
     yagiCallbackCollection.addVarCallback = addVar;
     yagiCallbackCollection.addVarListCallback = addVarList;
     yagiCallbackCollection.addIntCallback = addInt;
     yagiCallbackCollection.addStringCallback = addString;
+    yagiCallbackCollection.consumeVariableCallback = consumeVariable;
+    yagiCallbackCollection.addIDCallback = addID;
 
     //Expressions
     yagiCallbackCollection.addValueExpressionCallback = addValueExpression;
@@ -212,6 +236,7 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addPatternMatchCallback = addPatternMatch;
     yagiCallbackCollection.addFluentAssignCallback = addFluentAssign;
     yagiCallbackCollection.addAssignOpCallback = addAssignOp;
+    yagiCallbackCollection.consumeAssignmentCallback = consumeAssignment;
 
     //Tuples
     yagiCallbackCollection.addTupleCallback = addTuple;

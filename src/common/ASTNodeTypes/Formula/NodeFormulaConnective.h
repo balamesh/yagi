@@ -51,8 +51,7 @@ class NodeFormulaConnective: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
     }
 };
 

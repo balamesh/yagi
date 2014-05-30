@@ -30,8 +30,10 @@ extern "C"
 
       void (*addVarCallback)(pANTLR3_STRING varName);
       void (*addVarListCallback)();
+      void (*consumeVariableCallback)();
       void (*addIntCallback)(pANTLR3_STRING intVal);
       void (*addStringCallback)(pANTLR3_STRING stringVal);
+      void (*addIDCallback)(pANTLR3_STRING id);
 
       void (*addActiveSensingCallback)();
       void (*addEffectCallback)();
@@ -45,6 +47,7 @@ extern "C"
       void (*addPatternMatchCallback)();
       void (*addFluentAssignCallback)(pANTLR3_STRING fluentName);
       void (*addAssignOpCallback)(char* op);
+      void (*consumeAssignmentCallback)();
 
       //Tuples
       void (*addTupleCallback)();
@@ -84,12 +87,13 @@ extern "C"
 #define ADD_DOMAIN_STRING_ELEMENTS() yagiCallbackCollection.addDomainStringElementsCallback()
 #define CONSUME_DOMAIN() yagiCallbackCollection.consumeDomainCallback()
 
-
 //Variables
 #define ADD_VAR(x) yagiCallbackCollection.addVarCallback(x)
 #define ADD_VAR_LIST() yagiCallbackCollection.addVarListCallback()
 #define ADD_INT(x) yagiCallbackCollection.addIntCallback(x)
 #define ADD_STRING(x) yagiCallbackCollection.addStringCallback(x)
+#define CONSUME_VAR() yagiCallbackCollection.consumeVariableCallback()
+#define ADD_ID(x) yagiCallbackCollection.addIDCallback(x)
 
 //Expression
 #define ADD_EXPR_OP(x) yagiCallbackCollection.addExprOperatorCallback(x)
@@ -100,6 +104,7 @@ extern "C"
 #define ADD_PATTERN_MATCH() yagiCallbackCollection.addPatternMatchCallback()
 #define ADD_FLUENT_ASSIGN(x) yagiCallbackCollection.addFluentAssignCallback(x)
 #define ADD_ASSIGN_OP(x) yagiCallbackCollection.addAssignOpCallback(x)
+#define CONSUME_ASSIGNMENT() yagiCallbackCollection.consumeAssignmentCallback()
 
 //Tuples
 #define ADD_TUPLE() yagiCallbackCollection.addTupleCallback()

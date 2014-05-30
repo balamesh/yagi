@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include "../../ASTNodeTypes/ASTNodeBase.h"
 #include "../../ASTNodeTypes/Variables/NodeVariable.h"
@@ -35,8 +36,11 @@ class NodeVarList: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this!
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      std::for_each(std::begin(variables_), std::end(variables_),
+          [&visitor](std::shared_ptr<NodeVariable> variable)
+          { variable->accept(visitor);});
     }
 };
 

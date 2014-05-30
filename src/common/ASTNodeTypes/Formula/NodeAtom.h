@@ -56,8 +56,11 @@ class NodeAtom: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      leftOperand_->accept(visitor);
+      connective_->accept(visitor);
+      rightOperand_->accept(visitor);
     }
 };
 

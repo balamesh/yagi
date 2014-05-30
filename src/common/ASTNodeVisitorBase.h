@@ -27,6 +27,18 @@ class NodeFluentAssignment;
 class NodeSet;
 class NodeSetExpression;
 class NodeTuple;
+class NodeActionEffect;
+class NodeActionPrecondition;
+class NodeAtom;
+class NodeAtomConnective;
+class NodeCompoundFormula;
+class NodeFormulaConnective;
+class NodeNegation;
+class NodeOperatorIn;
+class NodeQuantifiedFormula;
+class NodeSignal;
+class NodeConstant;
+class NodeVarList;
 
 class ASTNodeVisitorBase
 {
@@ -43,10 +55,15 @@ class ASTNodeVisitorBase
     //Program Structure
     virtual void visit(NodeProgram* program) = 0;
 
-    //Declarations
+    //Fluents and facts
     virtual void visit(NodeFluentDecl* fluentDecl) = 0;
     virtual void visit(NodeFactDecl* factDecl) = 0;
+
+    //Action Decl
     virtual void visit(NodeActionDecl* actionDecl) = 0;
+    virtual void visit(NodeSignal* signal) = 0;
+    virtual void visit(NodeActionEffect* actionEffect) = 0;
+    virtual void visit(NodeActionPrecondition* actionPrecondition) = 0;
 
     //Domains
     virtual void visit(NodeDomainStringElements* domainStringElements) = 0;
@@ -58,6 +75,7 @@ class ASTNodeVisitorBase
 
     //Variables
     virtual void visit(NodeVariable* var) = 0;
+    virtual void visit(NodeVarList* varList) = 0;
 
     //Expressions
     virtual void visit(NodeValueExpression* expr) = 0;
@@ -75,6 +93,16 @@ class ASTNodeVisitorBase
     virtual void visit(NodeSet* ass) = 0;
     virtual void visit(NodeSetExpression* ass) = 0;
     virtual void visit(NodeTuple* ass) = 0;
+
+    //Formulas
+    virtual void visit(NodeAtom* atom) = 0;
+    virtual void visit(NodeAtomConnective* atomConnective) = 0;
+    virtual void visit(NodeCompoundFormula* compoundFormula) = 0;
+    virtual void visit(NodeFormulaConnective* formulaConnective) = 0;
+    virtual void visit(NodeNegation* negation) = 0;
+    virtual void visit(NodeOperatorIn* operatorIn) = 0;
+    virtual void visit(NodeQuantifiedFormula* quantifiedFormula) = 0;
+    virtual void visit(NodeConstant* constant) = 0;
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */

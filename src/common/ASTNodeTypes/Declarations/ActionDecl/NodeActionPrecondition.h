@@ -18,6 +18,10 @@ class NodeActionPrecondition: public ASTNodeBase
   private:
     std::shared_ptr<NodeFormulaBase> formula_;
   public:
+    NodeActionPrecondition(const std::shared_ptr<NodeFormulaBase>& formula) :
+        formula_(formula)
+    {
+    }
     NodeActionPrecondition();
     virtual ~NodeActionPrecondition();
 
@@ -33,8 +37,9 @@ class NodeActionPrecondition: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      formula_->accept(visitor);
     }
 };
 

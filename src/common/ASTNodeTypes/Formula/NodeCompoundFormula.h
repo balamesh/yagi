@@ -17,7 +17,7 @@
 class NodeCompoundFormula: public NodeFormulaBase
 {
   private:
-    std::shared_ptr<NodeAtom> leftOperand_;
+    std::shared_ptr<NodeFormulaBase> leftOperand_;
     std::shared_ptr<NodeFormulaConnective> connective_;
     std::shared_ptr<NodeFormulaBase> rightOperand_;
 
@@ -35,12 +35,12 @@ class NodeCompoundFormula: public NodeFormulaBase
       connective_ = connective;
     }
 
-    const std::shared_ptr<NodeAtom>& getLeftOperand() const
+    const std::shared_ptr<NodeFormulaBase>& getLeftOperand() const
     {
       return leftOperand_;
     }
 
-    void setLeftOperand(const std::shared_ptr<NodeAtom>& leftOperand)
+    void setLeftOperand(const std::shared_ptr<NodeFormulaBase>& leftOperand)
     {
       leftOperand_ = leftOperand;
     }
@@ -57,8 +57,11 @@ class NodeCompoundFormula: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      connective_->accept(visitor);
+      leftOperand_->accept(visitor);
+      rightOperand_->accept(visitor);
     }
 };
 

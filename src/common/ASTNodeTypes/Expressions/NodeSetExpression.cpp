@@ -22,7 +22,7 @@ NodeSetExpression::~NodeSetExpression()
 
 bool NodeSetExpression::isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign)
 {
-  //type must be either a set, an id or an other setexpr TODO
+  //type must be either a set, an id or an other setexpr
   auto set = std::dynamic_pointer_cast<NodeSet>(valueToAssign);
   if (set != nullptr) return true;
 

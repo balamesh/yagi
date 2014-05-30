@@ -10,11 +10,11 @@
 
 #include <memory>
 
-#include "../ASTNodeBase.h"
+#include "NodeAssignmentBase.h"
 #include "../Variables/NodeVariable.h"
 #include "../Expressions/NodeValueExpression.h"
 
-class NodeVariableAssignment: public ASTNodeBase
+class NodeVariableAssignment: public NodeAssignmentBase
 {
   private:
     std::shared_ptr<NodeVariable> variable_;

@@ -17,7 +17,7 @@ class NodeID: public ASTNodeBase
     std::string id_;
 
   public:
-    NodeID(std::string id) :
+    NodeID(const std::string& id) :
         id_(id)
     {
     }

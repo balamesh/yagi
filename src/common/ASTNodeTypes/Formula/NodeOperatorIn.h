@@ -19,18 +19,18 @@ class NodeOperatorIn: public NodeFormulaBase
 {
   private:
     std::shared_ptr<NodeTuple> tuple_;
-    std::shared_ptr<NodeSetExpression> setExpr_;
+    std::shared_ptr<ASTNodeBase> setExpr_;
 
   public:
     NodeOperatorIn();
     virtual ~NodeOperatorIn();
 
-    const std::shared_ptr<NodeSetExpression>& getSetExpr() const
+    const std::shared_ptr<ASTNodeBase>& getSetExpr() const
     {
       return setExpr_;
     }
 
-    void setSetExpr(const std::shared_ptr<NodeSetExpression>& setExpr)
+    void setSetExpr(const std::shared_ptr<ASTNodeBase>& setExpr)
     {
       setExpr_ = setExpr;
     }
@@ -47,8 +47,10 @@ class NodeOperatorIn: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      tuple_->accept(visitor);
+      setExpr_->accept(visitor);
     }
 };
 

@@ -33,8 +33,9 @@ class NodeNegation: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      formula_->accept(visitor);
     }
 };
 

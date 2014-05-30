@@ -41,6 +41,11 @@
 #include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
 #include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
 #include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
+#include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
 
 class ASTBuilder
 {
@@ -65,11 +70,16 @@ class ASTBuilder
     void addFactDeclNode(const std::string& factName);
     void addVarNode(const std::string& varName);
     void addVarListNode();
+    void addID(const std::string& id);
+
+    //Action Decl
     void addActionDeclNode(const std::string& actionName);
+    void addEffect();
 
     //Variables
     void addIntNode(const std::string& intVal);
     void addStringNode(const std::string& stringVal);
+    void consumeVarNode();
 
     //Expressions
     void addValueExpressionNode();
@@ -77,6 +87,7 @@ class ASTBuilder
 
     //Assignment
     void addVarAssign();
+    void consumeAssignment();
 
     void addPatternMatch();
     void addTuple();

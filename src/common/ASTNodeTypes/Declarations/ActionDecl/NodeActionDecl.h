@@ -31,15 +31,66 @@ class NodeActionDecl: public ASTNodeBase
     NodeActionDecl();
     virtual ~NodeActionDecl();
 
+    const std::shared_ptr<NodeActionEffect>& getActionEffect() const
+    {
+      return actionEffect_;
+    }
+
+    void setActionEffect(const std::shared_ptr<NodeActionEffect>& actionEffect)
+    {
+      actionEffect_ = actionEffect;
+    }
+
+    const std::shared_ptr<NodeID>& getActionName() const
+    {
+      return actionName_;
+    }
+
+    void setActionName(const std::shared_ptr<NodeID>& actionName)
+    {
+      actionName_ = actionName;
+    }
+
+    const std::shared_ptr<NodeActionPrecondition>& getActionPrecondition() const
+    {
+      return actionPrecondition_;
+    }
+
+    void setActionPrecondition(
+        const std::shared_ptr<NodeActionPrecondition>& actionPrecondition)
+    {
+      actionPrecondition_ = actionPrecondition;
+    }
+
+    const std::shared_ptr<NodeSignal>& getSignal() const
+    {
+      return signal_;
+    }
+
+    void setSignal(const std::shared_ptr<NodeSignal>& signal)
+    {
+      signal_ = signal;
+    }
+
+    const std::shared_ptr<NodeVarList>& getVarList() const
+    {
+      return varList_;
+    }
+
+    void setVarList(const std::shared_ptr<NodeVarList>& varList)
+    {
+      varList_ = varList;
+    }
+
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
       visitor->visit(this);
 
       actionName_->accept(visitor);
-      varList_->accept(visitor);
-      actionPrecondition_->accept(visitor);
-      actionEffect_->accept(visitor);
-      signal_->accept(visitor);
+      if (varList_ != nullptr) varList_->accept(visitor);
+      if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
+      if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
+      if (signal_ != nullptr) signal_->accept(visitor);
     }
 };
 

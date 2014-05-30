@@ -37,6 +37,12 @@ void ASTBuilder::addDomainIntegerNode()
   ast.push_back(domainInteger);
 }
 
+void ASTBuilder::addID(const std::string& id)
+{
+  auto idNode = std::make_shared<NodeID>(id);
+  ast.push_front(idNode);
+}
+
 void ASTBuilder::addDomainStringNode()
 {
   auto domainString = std::make_shared<NodeDomainString>();
@@ -111,7 +117,8 @@ void ASTBuilder::addVarNode(const std::string& varName)
 
 void ASTBuilder::addVarListNode()
 {
-
+  auto varList = std::make_shared<NodeVarList>();
+  ast.push_front(varList);
 }
 
 void ASTBuilder::addIntNode(const std::string& intVal)
@@ -395,7 +402,6 @@ void ASTBuilder::addConnectedFormula()
   //an atom can be just "true" or "false..
   auto rhs = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
 
-  //we have something of the form <connective> <expr> <expr> (right to left)
   //sanity check
   if (rhs == nullptr)
   {
@@ -406,16 +412,19 @@ void ASTBuilder::addConnectedFormula()
   compoundFormula->setRightOperand(rhs);
   ast.pop_front();
 
-  auto lhs = std::dynamic_pointer_cast<NodeAtom>(ast.front());
+  auto lhs_atom = std::dynamic_pointer_cast<NodeAtom>(ast.front());
+  auto lhs_constant = std::dynamic_pointer_cast<NodeConstant>(ast.front());
 
   //sanity check
-  if (lhs == nullptr)
+  if (lhs_atom == nullptr && lhs_constant == nullptr)
   {
-    throw std::runtime_error("Compound formula lhs is no atom!");
+    throw std::runtime_error(
+        "Compound formula lhs is neither an atom nor a constant!");
   }
 
+  compoundFormula->setLeftOperand(
+      std::dynamic_pointer_cast<NodeFormulaBase>(ast.front()));
   ast.pop_front();
-  compoundFormula->setLeftOperand(lhs);
 
   auto connective = std::dynamic_pointer_cast<NodeFormulaConnective>(
       ast.front());
@@ -482,13 +491,18 @@ void ASTBuilder::addIn()
   auto inFormula = std::make_shared<NodeOperatorIn>();
 
   //we have something of the form <tuple> <setexpr>
+
+  //TODO: find better type abstraction
   auto setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
-  if (setExpr != nullptr)
+  auto set = std::dynamic_pointer_cast<NodeSet>(ast.front());
+  auto id = std::dynamic_pointer_cast<NodeID>(ast.front());
+
+  if (setExpr == nullptr && set == nullptr && id == nullptr)
   {
-    throw std::runtime_error("Expected setexpr in in-formula!");
+    throw std::runtime_error("Expected setexpr, set or id in in-formula!");
   }
 
-  inFormula->setSetExpr(setExpr);
+  inFormula->setSetExpr(ast.front());
   ast.pop_front();
 
   auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
@@ -505,7 +519,97 @@ void ASTBuilder::addIn()
   ast.push_front(inFormula);
 }
 
+void ASTBuilder::consumeVarNode()
+{
+  auto var = std::dynamic_pointer_cast<NodeVariable>(ast.front());
+  if (var == nullptr)
+  {
+    throw std::runtime_error("Want to consume a variable when there is none!");
+  }
+  ast.pop_front();
+
+  auto varList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  if (varList == nullptr)
+  {
+    throw std::runtime_error(
+        "Want to consume variable into something thats not a varlist!");
+  }
+
+  varList->addVariable(var);
+}
+
+void ASTBuilder::consumeAssignment()
+{
+  auto assignment = std::dynamic_pointer_cast<NodeAssignmentBase>(ast.front());
+  ast.pop_front();
+
+  if (assignment == nullptr)
+  {
+    throw std::runtime_error("Want to consume assignment when there is none!");
+  }
+
+  auto consumer = ast.front();
+
+  //Different stuff can consume assignments...
+  auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(consumer);
+  if (actionEffect != nullptr)
+  {
+    actionEffect->addAssignment(assignment);
+  }
+  else
+    throw std::runtime_error(
+        "Don't know what the consumer for the assignment is!");
+}
+
+void ASTBuilder::addEffect()
+{
+  auto effect = std::make_shared<NodeActionEffect>();
+  ast.push_front(effect);
+}
+
 void ASTBuilder::addActionDeclNode(const std::string& actionName)
 {
+  auto actionDecl = std::make_shared<NodeActionDecl>();
+  actionDecl->setActionName(std::make_shared<NodeID>(actionName));
+
+  //TODO: find a better type abstraction, this is ugly!
+  auto signalExpr = std::dynamic_pointer_cast<NodeValueExpression>(ast.front());
+  auto signalInt = std::dynamic_pointer_cast<NodeInteger>(ast.front());
+  auto signalString = std::dynamic_pointer_cast<NodeString>(ast.front());
+  auto signalVar = std::dynamic_pointer_cast<NodeVariable>(ast.front());
+
+  if (signalExpr != nullptr || signalInt != nullptr || signalString != nullptr
+      || signalVar != nullptr)
+  {
+    actionDecl->setSignal(std::make_shared<NodeSignal>(ast.front()));
+    ast.pop_front();
+  }
+
+  //TODO: add active sensing
+
+  auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(ast.front());
+  if (actionEffect != nullptr)
+  {
+    actionDecl->setActionEffect(actionEffect);
+    ast.pop_front();
+  }
+
+  auto actionPrecondition = std::dynamic_pointer_cast<NodeFormulaBase>(
+      ast.front());
+  if (actionPrecondition != nullptr)
+  {
+    actionDecl->setActionPrecondition(
+        std::make_shared<NodeActionPrecondition>(actionPrecondition));
+    ast.pop_front();
+  }
+
+  auto paramList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  if (paramList != nullptr)
+  {
+    actionDecl->setVarList(paramList);
+    ast.pop_front();
+  }
+
+  ast.push_front(actionDecl);
 
 }

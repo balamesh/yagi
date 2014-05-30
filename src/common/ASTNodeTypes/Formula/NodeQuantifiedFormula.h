@@ -74,8 +74,13 @@ class NodeQuantifiedFormula: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      visitor->visit(this);
+
+      tuple_->accept(visitor);
+      setExpr_->accept(visitor);
+
+      if (formula_ != nullptr)
+        formula_->accept(visitor);
     }
 };
 

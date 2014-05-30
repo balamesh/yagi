@@ -20,6 +20,20 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
+#include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
+#include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
+
+
 
 class ToStringVisitor: public ASTNodeVisitorBase
 {
@@ -47,12 +61,25 @@ class ToStringVisitor: public ASTNodeVisitorBase
     virtual void visit(NodeVariableAssignment* ass) override;
 
     virtual void visit(NodeVariable* var) override;
+    virtual void visit(NodeVarList* varList) override;
 
     virtual void visit(NodeSetExpressionOperator* ass) override;
     virtual void visit(NodeFluentAssignment* ass) override;
     virtual void visit(NodeSet* ass) override;
     virtual void visit(NodeSetExpression* ass) override;
     virtual void visit(NodeTuple* ass) override;
+
+    virtual void visit(NodeAtom* atom) override;
+    virtual void visit(NodeAtomConnective* atomConnective) override;
+    virtual void visit(NodeCompoundFormula* compoundFormula) override;
+    virtual void visit(NodeFormulaConnective* formulaConnective) override;
+    virtual void visit(NodeNegation* negation) override;
+    virtual void visit(NodeOperatorIn* operatorIn) override;
+    virtual void visit(NodeQuantifiedFormula* quantifiedFormula) override;
+    virtual void visit(NodeConstant* constant) override;
+    virtual void visit(NodeSignal* signal) override;
+    virtual void visit(NodeActionEffect* actionEffect) override;
+    virtual void visit(NodeActionPrecondition* actionPrecondition) override;
 };
 
 #endif /* TOSTRINGVISITOR_H_ */

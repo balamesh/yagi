@@ -8,14 +8,14 @@
 #ifndef NODEFLUENTASSIGNMENT_H_
 #define NODEFLUENTASSIGNMENT_H_
 
-#include "../../ASTNodeTypes/ASTNodeBase.h"
+#include "NodeAssignmentBase.h"
 #include "../../ASTNodeTypes/Identifier/NodeID.h"
 #include "../../ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
 
 #include <memory>
 
-class NodeFluentAssignment: public ASTNodeBase
+class NodeFluentAssignment: public NodeAssignmentBase
 {
   private:
     std::shared_ptr<NodeID> fluentName_;

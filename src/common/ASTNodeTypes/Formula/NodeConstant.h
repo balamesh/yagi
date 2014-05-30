@@ -43,8 +43,7 @@ class NodeConstant: public NodeFormulaBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this!
-      //visitor->visit(this);
+      visitor->visit(this);
     }
 };
 

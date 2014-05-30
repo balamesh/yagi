@@ -70,11 +70,7 @@ action_decl
 	;
 	
 effect	
-	: ^(IT_EFFECT ^(IT_BLOCK assignment+))
-	
-	{
-	    ADD_EFFECT();
-        }
+	: ^(IT_EFFECT ({ADD_EFFECT();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
 	;
 	
 active_sensing	
@@ -85,13 +81,8 @@ active_sensing
         }	
 	;
 	
-	
 var_list
-	: var+
-	
-	{
-	  ADD_VAR_LIST();
-	}
+	: ({ADD_VAR_LIST();}) (var {CONSUME_VAR();})+
 	;
 	
 
@@ -228,7 +219,7 @@ atom_connector
 //******************************************************************************
 setexpr	:	^(expr_op setexpr setexpr) {ADD_SETEXPR();}
 	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})+)
-	|	ID
+	|	ID {ADD_ID($ID->toString($ID));}
 	;
 	
 	
