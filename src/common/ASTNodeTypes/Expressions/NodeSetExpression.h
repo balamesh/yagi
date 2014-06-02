@@ -22,10 +22,11 @@ class NodeSetExpression: public ASTNodeBase
     std::shared_ptr<ASTNodeBase> lhs_;
     std::shared_ptr<ASTNodeBase> rhs_;
 
-    bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
   public:
     NodeSetExpression();
     virtual ~NodeSetExpression();
+
+    static bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
 
     const std::shared_ptr<ASTNodeBase>& getLhs() const
     {
@@ -70,7 +71,7 @@ class NodeSetExpression: public ASTNodeBase
 
       if (operator_ != nullptr) operator_->accept(visitor);
       if (lhs_ != nullptr) lhs_->accept(visitor);
-      rhs_->accept(visitor); //can't be null!
+      if (rhs_ != nullptr) rhs_->accept(visitor);
     }
 };
 

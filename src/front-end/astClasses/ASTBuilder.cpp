@@ -344,29 +344,60 @@ void ASTBuilder::addAtom()
     return;
   }
 
+  auto atom = std::make_shared<NodeAtom>();
+
   //we have something of the form <connective> <expr> <expr> (right to left)
   //sanity check
   if ((std::dynamic_pointer_cast<NodeValueExpression>(elem) == nullptr)
       && (std::dynamic_pointer_cast<NodeSetExpression>(elem) == nullptr))
   {
-    throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
+    //try to make it a valexpr/setexpr
+    if (NodeValueExpression::isPassedTypeValid(elem))
+    {
+      auto valExpr = std::make_shared<NodeValueExpression>();
+      valExpr->setLhs(elem);
+      atom->setRightOperand(valExpr);
+    }
+    else if (NodeSetExpression::isPassedTypeValid(elem))
+    {
+      auto setExpr = std::make_shared<NodeSetExpression>();
+      setExpr->setLhs(elem);
+      atom->setRightOperand(setExpr);
+    }
+    else
+      throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
   }
+  else
+    atom->setRightOperand(elem);
 
-  auto atom = std::make_shared<NodeAtom>();
-  atom->setRightOperand(elem);
   ast.pop_front();
-
   auto leftOperand = ast.front();
 
   //sanity check
+  //TODO: needs refactoring!
   if ((std::dynamic_pointer_cast<NodeValueExpression>(leftOperand) == nullptr)
       && (std::dynamic_pointer_cast<NodeSetExpression>(leftOperand) == nullptr))
   {
-    throw std::runtime_error("Atom lhs is neither value- nor setexpression!");
+    //sanity check
+    if (NodeValueExpression::isPassedTypeValid(leftOperand))
+    {
+      auto valExpr = std::make_shared<NodeValueExpression>();
+      valExpr->setLhs(leftOperand);
+      atom->setLeftOperand(valExpr);
+    }
+    else if (NodeSetExpression::isPassedTypeValid(leftOperand))
+    {
+      auto setExpr = std::make_shared<NodeSetExpression>();
+      setExpr->setLhs(leftOperand);
+      atom->setLeftOperand(setExpr);
+    }
+    else
+      throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
   }
+  else
+    atom->setLeftOperand(leftOperand);
 
   ast.pop_front();
-  atom->setLeftOperand(leftOperand);
 
   auto connective = std::dynamic_pointer_cast<NodeAtomConnective>(ast.front());
   if (connective == nullptr)
@@ -464,12 +495,16 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   }
 
   setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
-  if (setExpr != nullptr)
+  if (setExpr == nullptr)
   {
-    throw std::runtime_error("Expected setexpr in quantified formula!");
+    //if its not already a setexpression we try to make it one...
+    auto newSetExpr = std::make_shared<NodeSetExpression>();
+    newSetExpr->setRhs(ast.front());
+    quantifiedFormula->setSetExpr(newSetExpr);
   }
+  else
+    quantifiedFormula->setSetExpr(setExpr);
 
-  quantifiedFormula->setSetExpr(setExpr);
   ast.pop_front();
 
   auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());

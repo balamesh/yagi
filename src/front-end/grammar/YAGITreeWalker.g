@@ -187,7 +187,7 @@ formula_outerMost
 formula	
 	:	atom {ADD_ATOM();}
 	|	^(IT_NOT formula) {ADD_NEGATION();}
-	|	^(formula_connective atom formula) {ADD_CONNECTED_FORMULA();}
+	|	^(formula_connective atom ({ADD_ATOM();}) formula) {ADD_CONNECTED_FORMULA();}
 	|	^(IT_EXISTS tuple setexpr formula?) {ADD_EXISTS();} 
 	|	^(IT_ALL tuple setexpr formula?) {ADD_ALL();}
 	|	^(IT_IN tuple setexpr) {ADD_IN();}
