@@ -59,6 +59,8 @@ class ToStringVisitor: public ASTNodeVisitorBase
     virtual void visit(NodeValueExpression* expr) override;
     virtual void visit(NodeValueExpressionOperator* exprOp) override;
     virtual void visit(NodeVariableAssignment* ass) override;
+    virtual void visit(NodeForLoopAssignment* ass) override;
+    virtual void visit(NodeConditionalAssignment* ass) override;
 
     virtual void visit(NodeVariable* var) override;
     virtual void visit(NodeVarList* varList) override;

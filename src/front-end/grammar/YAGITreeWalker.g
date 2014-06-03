@@ -163,13 +163,15 @@ ass_op
                   | IT_REMOVE_ASSIGN {ADD_ASSIGN_OP("-=");}
                 )
         ;
-        
+    
 for_loop_assign
-	: ^(IT_ASSIGN_ALL tuple setexpr ^(IT_BLOCK assignment+))
+	: ^(IT_ASSIGN_ALL tuple setexpr ({ADD_FOR_LOOP_ASSIGN();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
 	;
 	
 conditional_assign
-	: ^(IT_IF_ASSIGN formula ^(IT_BLOCK assignment+) (^(IT_BLOCK assignment+))?)
+	: ^(IT_IF_ASSIGN formula ({ADD_CONDITIONAL_ASSIGN();}) 
+	  ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+) 
+	 (^(IT_BLOCK ({ADD_CONDITIONAL_ASSIGN_ELSE();}) (assignment {CONSUME_ASSIGNMENT();})+))?)
 	;
 
 

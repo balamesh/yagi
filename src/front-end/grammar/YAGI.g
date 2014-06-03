@@ -264,9 +264,9 @@ for_loop_assign
 	;
 	
 conditional_assign
-	:	TOKEN_IF formula TOKEN_THEN (assignment)+ (TOKEN_ELSE assignment+)? TOKEN_END_IF
+	:	TOKEN_IF formula TOKEN_THEN ass1=assignment+ (TOKEN_ELSE ass2=assignment+)? TOKEN_END_IF
 		
-		-> ^(IT_IF_ASSIGN formula ^(IT_BLOCK assignment+) (^(IT_BLOCK assignment+))?)
+		-> ^(IT_IF_ASSIGN formula ^(IT_BLOCK $ass1) (^(IT_BLOCK $ass2))?)
 	;
 
 

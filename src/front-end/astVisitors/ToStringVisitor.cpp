@@ -231,8 +231,8 @@ void ToStringVisitor::visit(NodeQuantifiedFormula* quantifiedFormula)
 }
 void ToStringVisitor::visit(NodeConstant* constant)
 {
-  outString += std::string("[Constant = ")
-      + (constant->getTruthValue() == true ? "true" : "false") + "] ";
+  outString += std::string("[Constant = ") + (constant->getTruthValue() == true ? "true" : "false")
+      + "] ";
 }
 void ToStringVisitor::visit(NodeSignal* signal)
 {
@@ -255,4 +255,14 @@ void ToStringVisitor::visit(NodeVarList* varList)
 void ToStringVisitor::visit(NodeActiveSensing* activeSensing)
 {
   outString += "[ActiveSensing] ";
+}
+
+void ToStringVisitor::visit(NodeForLoopAssignment* ass)
+{
+  outString += "[ForLoopAssignment] ";
+}
+
+void ToStringVisitor::visit(NodeConditionalAssignment* ass)
+{
+  outString += "[ConditionalAssignment] ";
 }

@@ -48,6 +48,8 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
 
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActiveSensing.h"
+#include "../../common/ASTNodeTypes/Assignment/NodeConditionalAssignment.h"
+#include "../../common/ASTNodeTypes/Assignment/NodeForLoopAssignment.h"
 
 class ASTBuilder
 {
@@ -96,6 +98,9 @@ class ASTBuilder
     //Assignment
     void addVarAssign();
     void consumeAssignment();
+    void addForLoopAssign();
+    void addConditionalAssign();
+    void addConditionalAssignElse();
 
     void addPatternMatch();
     void addTuple();

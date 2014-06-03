@@ -41,6 +41,8 @@ class NodeConstant;
 class NodeVarList;
 
 class NodeActiveSensing;
+class NodeForLoopAssignment;
+class NodeConditionalAssignment;
 
 class ASTNodeVisitorBase
 {
@@ -90,6 +92,8 @@ class ASTNodeVisitorBase
 
     //Assignments
     virtual void visit(NodeVariableAssignment* ass) = 0;
+    virtual void visit(NodeForLoopAssignment* ass) = 0;
+    virtual void visit(NodeConditionalAssignment* ass) = 0;
 
     virtual void visit(NodeSetExpressionOperator* ass) = 0;
     virtual void visit(NodeFluentAssignment* ass) = 0;
