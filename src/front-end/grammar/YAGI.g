@@ -121,13 +121,13 @@ domain
 	;
 	
 action_decl
-	:	TOKEN_ACTION ID (TOKEN_OPEN_PAREN (var_list | /*eps*/) TOKEN_CLOSE_PAREN)
+	:	TOKEN_ACTION ID (TOKEN_OPEN_PAREN var_list? TOKEN_CLOSE_PAREN)
 		(TOKEN_PRECOND formula_outerMost)?
 		(effect | active_sensing)
 		(TOKEN_SIGNAL valexpr TOKEN_EOL)?
 		TOKEN_END_ACTION
 		
-		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list) formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
+		-> ^(IT_ACTION_DECL ID (^(IT_VAR_LIST var_list))? formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
 	;
 	
 effect	

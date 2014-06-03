@@ -101,10 +101,16 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addActionDeclNode((char*) actionName->chars);
   }
 
+  void addActiveSensing()
+  {
+    ASTBuilder::getInstance().addActiveSensing();
+
+  }
+
   void addID(pANTLR3_STRING id)
-    {
-      ASTBuilder::getInstance().addID((char*) id->chars);
-    }
+  {
+    ASTBuilder::getInstance().addID((char*) id->chars);
+  }
 
   void addEffect()
   {
@@ -208,8 +214,7 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addDomainStringCallback = addDomainString;
     yagiCallbackCollection.addDomainIntegerCallback = addDomainInteger;
     yagiCallbackCollection.addDomainElementCallback = addDomainElement;
-    yagiCallbackCollection.addDomainStringElementsCallback =
-        addDomainStringElements;
+    yagiCallbackCollection.addDomainStringElementsCallback = addDomainStringElements;
     yagiCallbackCollection.consumeDomainCallback = consumeDomain;
 
     yagiCallbackCollection.addProgramCallback = addProgram;
@@ -218,6 +223,7 @@ namespace YAGICallbackConnector
     //Action Decl
     yagiCallbackCollection.addActionDeclCallback = addAction;
     yagiCallbackCollection.addEffectCallback = addEffect;
+    yagiCallbackCollection.addActiveSensingCallback = addActiveSensing;
 
     //Variables
     yagiCallbackCollection.addVarCallback = addVar;

@@ -251,3 +251,8 @@ void ToStringVisitor::visit(NodeVarList* varList)
 {
   outString += "[VarList] ";
 }
+
+void ToStringVisitor::visit(NodeActiveSensing* activeSensing)
+{
+  outString += "[ActiveSensing] ";
+}

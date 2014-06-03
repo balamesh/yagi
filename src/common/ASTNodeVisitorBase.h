@@ -40,6 +40,8 @@ class NodeSignal;
 class NodeConstant;
 class NodeVarList;
 
+class NodeActiveSensing;
+
 class ASTNodeVisitorBase
 {
   public:
@@ -64,6 +66,7 @@ class ASTNodeVisitorBase
     virtual void visit(NodeSignal* signal) = 0;
     virtual void visit(NodeActionEffect* actionEffect) = 0;
     virtual void visit(NodeActionPrecondition* actionPrecondition) = 0;
+    virtual void visit(NodeActiveSensing* activeSensing) = 0;
 
     //Domains
     virtual void visit(NodeDomainStringElements* domainStringElements) = 0;

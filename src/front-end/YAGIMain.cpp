@@ -50,8 +50,8 @@ int main(int argc, char * argv[])
 
 bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 {
-  auto res = std::mismatch(std::begin(potentialPrefix),
-      std::end(potentialPrefix), std::begin(text));
+  auto res = std::mismatch(std::begin(potentialPrefix), std::end(potentialPrefix),
+      std::begin(text));
 
   return (res.first == std::end(potentialPrefix));
 }
@@ -63,19 +63,21 @@ bool execute(const std::string& line)
     return false;
   }
 
+  //using Antlr3InputStreamType = std::unique_ptr<pANTLR3_INPUT_STREAM, std::function<void(pANTLR3_INPUT_STREAM)>>;
   pANTLR3_INPUT_STREAM input = nullptr;
 
-  auto antlrInputBufferDeletor = [](char* ptr)
-  { free(ptr);};
-
-  using bufferType = std::unique_ptr<char, std::function<void(char*)>>;
-  bufferType antlrInputBuffer;
+  using BufferType = std::unique_ptr<char[], std::function<void(char*)>>;
+  BufferType antlrInputBuffer;
 
   if (isPrefixOf(std::string { "import" }, line))
   {
     std::string fname = parseFileName(line);
 
-    input = antlr3FileStreamNew((pANTLR3_UINT8) fname.c_str(), ANTLR3_ENC_8BIT);
+    input = antlr3FileStreamNew((pANTLR3_UINT8) fname.c_str(),
+    ANTLR3_ENC_8BIT);
+
+//    input = Antlr3InputStreamType(antlr3FileStreamNew((pANTLR3_UINT8) fname.c_str(),
+//        ANTLR3_ENC_8BIT), [](pANTLR3_INPUT_STREAM st){st->close(st);});
 
     if (input == nullptr)
     {
@@ -85,12 +87,11 @@ bool execute(const std::string& line)
   }
   else
   {
-    antlrInputBuffer = bufferType(strdup(line.c_str()),
-        antlrInputBufferDeletor);
+    antlrInputBuffer = BufferType(strdup(line.c_str()), [](char* ptr)
+    { free(ptr);});
 
     input = antlr3StringStreamNew((unsigned char*) antlrInputBuffer.get(),
-    ANTLR3_ENC_8BIT, strlen(antlrInputBuffer.get()),
-        (unsigned char*) "yagi-shell-input");
+    ANTLR3_ENC_8BIT, strlen(antlrInputBuffer.get()), (unsigned char*) "yagi-shell-input");
   }
 
   pYAGILexer lxr = YAGILexerNew(input);
@@ -117,8 +118,7 @@ bool execute(const std::string& line)
   }
 
   auto langAST = psr->program(psr);
-  std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars
-      << std::endl;
+  std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
 
   if (psr->pParser->rec->state->errorCount > 0)
   {
@@ -128,9 +128,8 @@ bool execute(const std::string& line)
   }
   else
   {
-    pANTLR3_COMMON_TREE_NODE_STREAM nodes = antlr3CommonTreeNodeStreamNewTree(
-        langAST.tree,
-        ANTLR3_SIZE_HINT); // sIZE HINT WILL SOON BE DEPRECATED!!
+    pANTLR3_COMMON_TREE_NODE_STREAM nodes = antlr3CommonTreeNodeStreamNewTree(langAST.tree,
+    ANTLR3_SIZE_HINT); // sIZE HINT WILL SOON BE DEPRECATED!!
 
     pYAGITreeWalker treePsr;
     treePsr = YAGITreeWalkerNew(nodes);
@@ -141,6 +140,31 @@ bool execute(const std::string& line)
     auto toStringVisitor = std::make_shared<ToStringVisitor>();
     ast->accept(toStringVisitor.get());
 
+    ASTBuilder::getInstance().reset();
+  }
+
+  if (psr)
+  {
+    psr->free(psr);
+    psr = NULL;
+  }
+
+  if (tstream)
+  {
+    tstream->free(tstream);
+    tstream = NULL;
+  }
+
+  if (lxr)
+  {
+    lxr->free(lxr);
+    lxr = NULL;
+  }
+
+  if (input)
+  {
+    input->close(input);
+    input = NULL;
   }
 
   return true;

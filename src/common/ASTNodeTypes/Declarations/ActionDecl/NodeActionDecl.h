@@ -18,6 +18,7 @@
 #include "NodeActionEffect.h"
 #include "NodeSignal.h"
 #include "../../Identifier/NodeID.h"
+#include "NodeActiveSensing.h"
 
 class NodeActionDecl: public ASTNodeBase
 {
@@ -26,6 +27,7 @@ class NodeActionDecl: public ASTNodeBase
     std::shared_ptr<NodeVarList> varList_;
     std::shared_ptr<NodeActionPrecondition> actionPrecondition_;
     std::shared_ptr<NodeActionEffect> actionEffect_;
+    std::shared_ptr<NodeActiveSensing> activeSensing_;
     std::shared_ptr<NodeSignal> signal_;
   public:
     NodeActionDecl();
@@ -90,7 +92,18 @@ class NodeActionDecl: public ASTNodeBase
       if (varList_ != nullptr) varList_->accept(visitor);
       if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
       if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
+      if (activeSensing_ != nullptr) activeSensing_->accept(visitor);
       if (signal_ != nullptr) signal_->accept(visitor);
+    }
+
+    const std::shared_ptr<NodeActiveSensing>& getActiveSensing() const
+    {
+      return activeSensing_;
+    }
+
+    void setActiveSensing(const std::shared_ptr<NodeActiveSensing>& activeSensing)
+    {
+      activeSensing_ = activeSensing;
     }
 };
 

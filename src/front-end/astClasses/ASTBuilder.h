@@ -47,6 +47,8 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
 
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActiveSensing.h"
+
 class ASTBuilder
 {
   private:
@@ -57,6 +59,11 @@ class ASTBuilder
     {
       static ASTBuilder instance;
       return instance;
+    }
+
+    void reset()
+    {
+      ast.clear();
     }
 
     void addDomainElement(const std::string& domainElement);
@@ -75,6 +82,7 @@ class ASTBuilder
     //Action Decl
     void addActionDeclNode(const std::string& actionName);
     void addEffect();
+    void addActiveSensing();
 
     //Variables
     void addIntNode(const std::string& intVal);

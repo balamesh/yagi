@@ -81,11 +81,10 @@ void ASTBuilder::addProgram()
 {
   auto programNode = std::make_shared<NodeProgram>();
 
-  std::for_each(ast.begin(), ast.end(),
-      [&programNode](std::shared_ptr<ASTNodeBase> statement)
-      {
-        programNode->addStatementToProgram(statement);
-      });
+  std::for_each(ast.begin(), ast.end(), [&programNode](std::shared_ptr<ASTNodeBase> statement)
+  {
+    programNode->addStatementToProgram(statement);
+  });
 
   ast.clear();
   ast.push_back(programNode);
@@ -278,8 +277,7 @@ void ASTBuilder::addFluentAssign(const std::string& fluentName)
   fluentAss->setFluentName(std::make_shared<NodeID>(fluentName));
 
   //get op
-  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(
-      ast.front());
+  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
   if (assOp == nullptr)
     throw std::runtime_error("No assignment operator for fluent assign!");
   ast.pop_front();
@@ -449,16 +447,13 @@ void ASTBuilder::addConnectedFormula()
   //sanity check
   if (lhs_atom == nullptr && lhs_constant == nullptr)
   {
-    throw std::runtime_error(
-        "Compound formula lhs is neither an atom nor a constant!");
+    throw std::runtime_error("Compound formula lhs is neither an atom nor a constant!");
   }
 
-  compoundFormula->setLeftOperand(
-      std::dynamic_pointer_cast<NodeFormulaBase>(ast.front()));
+  compoundFormula->setLeftOperand(std::dynamic_pointer_cast<NodeFormulaBase>(ast.front()));
   ast.pop_front();
 
-  auto connective = std::dynamic_pointer_cast<NodeFormulaConnective>(
-      ast.front());
+  auto connective = std::dynamic_pointer_cast<NodeFormulaConnective>(ast.front());
   if (connective == nullptr)
   {
     throw std::runtime_error("Atom connective is no NodeFormulaConnective!");
@@ -566,8 +561,7 @@ void ASTBuilder::consumeVarNode()
   auto varList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
   if (varList == nullptr)
   {
-    throw std::runtime_error(
-        "Want to consume variable into something thats not a varlist!");
+    throw std::runtime_error("Want to consume variable into something thats not a varlist!");
   }
 
   varList->addVariable(var);
@@ -587,19 +581,40 @@ void ASTBuilder::consumeAssignment()
 
   //Different stuff can consume assignments...
   auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(consumer);
+  auto activeSensing = std::dynamic_pointer_cast<NodeActiveSensing>(consumer);
+
   if (actionEffect != nullptr)
   {
     actionEffect->addAssignment(assignment);
   }
+  else if (activeSensing != nullptr)
+  {
+    activeSensing->addAssignment(assignment);
+  }
   else
-    throw std::runtime_error(
-        "Don't know what the consumer for the assignment is!");
+    throw std::runtime_error("Don't know what the consumer for the assignment is!");
 }
 
 void ASTBuilder::addEffect()
 {
   auto effect = std::make_shared<NodeActionEffect>();
   ast.push_front(effect);
+}
+
+void ASTBuilder::addActiveSensing()
+{
+  auto activeSensing = std::make_shared<NodeActiveSensing>();
+
+  //there must be a varlist for active sensing
+  auto varList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  if (varList == nullptr)
+  {
+    throw std::runtime_error("There must be a varlist for active sensing, but there isn't!");
+  }
+  activeSensing->setVarList(varList);
+
+  ast.pop_front();
+  ast.push_front(activeSensing);
 }
 
 void ASTBuilder::addActionDeclNode(const std::string& actionName)
@@ -620,7 +635,12 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
     ast.pop_front();
   }
 
-  //TODO: add active sensing
+  auto activeSensing = std::dynamic_pointer_cast<NodeActiveSensing>(ast.front());
+  if (activeSensing != nullptr)
+  {
+    actionDecl->setActiveSensing(activeSensing);
+    ast.pop_front();
+  }
 
   auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(ast.front());
   if (actionEffect != nullptr)
@@ -629,12 +649,10 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
     ast.pop_front();
   }
 
-  auto actionPrecondition = std::dynamic_pointer_cast<NodeFormulaBase>(
-      ast.front());
+  auto actionPrecondition = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
   if (actionPrecondition != nullptr)
   {
-    actionDecl->setActionPrecondition(
-        std::make_shared<NodeActionPrecondition>(actionPrecondition));
+    actionDecl->setActionPrecondition(std::make_shared<NodeActionPrecondition>(actionPrecondition));
     ast.pop_front();
   }
 

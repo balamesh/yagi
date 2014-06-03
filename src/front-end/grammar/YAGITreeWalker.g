@@ -61,7 +61,7 @@ domain
 	;
 	
 action_decl
-	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list) formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
+	: ^(IT_ACTION_DECL ID (^(IT_VAR_LIST var_list))? formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
 	
 	{
 	    ADD_ACTION_DECL($ID->toString($ID));
@@ -74,11 +74,7 @@ effect
 	;
 	
 active_sensing	
-	: ^(IT_SENSING ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
-	
-	{
-	    ADD_ACTIVE_SENSING();
-        }	
+	: ^(IT_SENSING ^(IT_VAR_LIST var_list) ({ADD_ACTIVE_SENSING();}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))	
 	;
 	
 var_list

@@ -1,48 +1,44 @@
 /*
- * ToStringVisitor.h
+ * ToGologVisitor.h
  *
- *  Created on: May 22, 2014
+ *  Created on: May 23, 2014
  *      Author: cmaier
  */
 
-#ifndef TOSTRINGVISITOR_H_
-#define TOSTRINGVISITOR_H_
+#ifndef TOGOLOGVISITOR_H_
+#define TOGOLOGVISITOR_H_
 
-#include <iostream>
+#include "../common/ASTNodeVisitorBase.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../common/ASTNodeTypes/Identifier/NodeID.h"
+#include "../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
+#include "../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
+#include "../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
+#include "../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
+#include "../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
+#include "../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
+#include "../common/ASTNodeTypes/Formula/NodeConstant.h"
+#include "../common/ASTNodeTypes/Variables/NodeVarList.h"
+#include "../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
+#include "../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
+#include "../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 
-#include "../../common/ASTNodeVisitorBase.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
-#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
-#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
-#include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
-#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
-#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
-#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
-#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
-#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
-#include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
-#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
-#include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
-#include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
-#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
-#include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
-
-
-
-class ToStringVisitor: public ASTNodeVisitorBase
+class ToGologVisitor: public ASTNodeVisitorBase
 {
   private:
-    std::string outString{""};
+    std::vector<std::string> stringValues_;
 
   public:
-    ToStringVisitor();
-    virtual ~ToStringVisitor();
+    ToGologVisitor();
+    virtual ~ToGologVisitor();
 
     virtual void visit(NodeDomainStringElements* domainStringElements) override;
     virtual void visit(NodeFluentDecl* fluentDecl) override;
@@ -80,8 +76,6 @@ class ToStringVisitor: public ASTNodeVisitorBase
     virtual void visit(NodeSignal* signal) override;
     virtual void visit(NodeActionEffect* actionEffect) override;
     virtual void visit(NodeActionPrecondition* actionPrecondition) override;
-
-    virtual void visit(NodeActiveSensing* activeSensing) override;
 };
 
-#endif /* TOSTRINGVISITOR_H_ */
+#endif /* INTERPRETATIONVISITOR_H_ */
