@@ -99,6 +99,23 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
   ast.push(fluentDeclNode);
 }
 
+void ASTBuilder::addPassiveSensingDeclNode(const std::string& passSensName)
+{
+  auto passiveSensingNode = std::make_shared<NodePassiveSensingDecl>();
+  passiveSensingNode->setPassiveSensingName(std::make_shared<NodeID>(passSensName));
+
+  //there must be a varlist for passive sensing
+  auto varList = getFrontElement<NodeVarList>();
+  if (varList == nullptr)
+  {
+    throw std::runtime_error("There must be a varlist for passive sensing, but there isn't!");
+  }
+  passiveSensingNode->setArgList(varList);
+  ast.pop();
+
+  ast.push(passiveSensingNode);
+}
+
 void ASTBuilder::addFactDeclNode(const std::string& factName)
 {
   auto factDeclNode = std::make_shared<NodeFactDecl>();
@@ -650,6 +667,7 @@ void ASTBuilder::consumeAssignment()
   auto activeSensing = std::dynamic_pointer_cast<NodeActiveSensing>(consumer);
   auto forLoopAssign = std::dynamic_pointer_cast<NodeForLoopAssignment>(consumer);
   auto conditionalAssign = std::dynamic_pointer_cast<NodeConditionalAssignment>(consumer);
+  auto passiveSensing = std::dynamic_pointer_cast<NodePassiveSensingDecl>(consumer);
 
   //TODO: put this into baseclass
   if (actionEffect != nullptr)
@@ -667,6 +685,10 @@ void ASTBuilder::consumeAssignment()
   else if (conditionalAssign != nullptr)
   {
     conditionalAssign->addAssignment(assignment);
+  }
+  else if (passiveSensing != nullptr)
+  {
+    passiveSensing->addAssignment(assignment);
   }
   else
     throw std::runtime_error("Don't know what the consumer for the assignment is!");
@@ -741,5 +763,54 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
   }
 
   ast.push(actionDecl);
+}
 
+void ASTBuilder::addBlock()
+{
+  auto block = std::make_shared<NodeBlock>();
+  ast.push(block);
+}
+
+void ASTBuilder::consumeStatement()
+{
+  auto stmt = getFrontElement<NodeStatementBase>();
+  if (stmt == nullptr)
+  {
+    throw std::runtime_error("Want to consume a statement when there is none!");
+  }
+  ast.pop();
+
+  //Only blocks can consume statements
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("There must be a block to consume a statement!");
+  }
+
+  block->addStatement(stmt);
+}
+
+void ASTBuilder::addProcDecl(const std::string& procName)
+{
+  auto procDecl = std::make_shared<NodeProcDecl>();
+  procDecl->setProcName(std::make_shared<NodeID>(procName));
+
+  //there must be a block...
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("There must be a block for a proc decl!");
+  }
+
+  ast.pop();
+
+  //there can be a varlist for passive sensing
+  auto varList = getFrontElement<NodeVarList>();
+  if (varList != nullptr)
+  {
+    procDecl->setArgList(varList);
+    ast.pop();
+  }
+
+  ast.push(procDecl);
 }

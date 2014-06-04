@@ -25,6 +25,8 @@ extern "C"
       void (*addProgramCallback)();
       void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
       void (*addFactDeclCallback)(pANTLR3_STRING factName);
+      void (*addPassiveSensingDeclCallback)(pANTLR3_STRING passSensName);
+      void (*addProcDeclCallback)(pANTLR3_STRING procName);
 
       void (*addActionDeclCallback)(pANTLR3_STRING actionName);
 
@@ -71,6 +73,10 @@ extern "C"
       void (*addExistsCallback)();
       void (*addAllCallback)();
       void (*addInCallback)();
+
+      //Statements
+      void (*addBlockCallback)();
+      void (*consumeStatementCallback)();
   };
 
   extern struct YAGICallbackCollection yagiCallbackCollection;
@@ -82,6 +88,7 @@ extern "C"
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)
 #define ADD_FACT_DECL(x) yagiCallbackCollection.addFactDeclCallback(x)
 #define ADD_ACTION_DECL(x) yagiCallbackCollection.addActionDeclCallback(x)
+#define ADD_PASSIVE_SENSING_DECL(x) yagiCallbackCollection.addPassiveSensingDeclCallback(x)
 
 //Domains
 #define ADD_DOMAIN_ELEMENT(x) yagiCallbackCollection.addDomainElementCallback(x)
@@ -135,6 +142,11 @@ extern "C"
 #define ADD_EXISTS() yagiCallbackCollection.addExistsCallback()
 #define ADD_ALL() yagiCallbackCollection.addAllCallback()
 #define ADD_IN() yagiCallbackCollection.addInCallback()
+
+//Statements
+#define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
+#define CONSUME_STATEMENT() yagiCallbackCollection.consumeStatementCallback()
+#define ADD_PROC_DECL(x) yagiCallbackCollection.addProcDeclCallback(x)
 
 #ifdef __cplusplus
 }

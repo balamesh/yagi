@@ -43,6 +43,7 @@ class NodeVarList;
 class NodeActiveSensing;
 class NodeForLoopAssignment;
 class NodeConditionalAssignment;
+class NodePassiveSensingDecl;
 
 class ASTNodeVisitorBase
 {
@@ -62,6 +63,7 @@ class ASTNodeVisitorBase
     //Fluents and facts
     virtual void visit(NodeFluentDecl* fluentDecl) = 0;
     virtual void visit(NodeFactDecl* factDecl) = 0;
+    virtual void visit(NodePassiveSensingDecl* passiveSensingDecl) = 0;
 
     //Action Decl
     virtual void visit(NodeActionDecl* actionDecl) = 0;

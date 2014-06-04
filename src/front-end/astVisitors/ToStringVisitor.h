@@ -32,7 +32,7 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
-
+#include "../../common/ASTNodeTypes/Declarations/PassiveSensing/NodePassiveSensingDecl.h"
 
 
 class ToStringVisitor: public ASTNodeVisitorBase
@@ -54,6 +54,7 @@ class ToStringVisitor: public ASTNodeVisitorBase
 
     virtual void visit(NodeFactDecl* factDecl) override;
     virtual void visit(NodeActionDecl* actionDecl) override;
+    virtual void visit(NodePassiveSensingDecl* passiveSensingDecl) override;
 
     virtual void visit(NodeInteger* integer) override;
     virtual void visit(NodeValueExpression* expr) override;

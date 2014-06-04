@@ -50,6 +50,9 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActiveSensing.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeConditionalAssignment.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeForLoopAssignment.h"
+#include "../../common/ASTNodeTypes/Declarations/PassiveSensing/NodePassiveSensingDecl.h"
+#include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
+#include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
 
 class ASTBuilder
 {
@@ -93,9 +96,11 @@ class ASTBuilder
     void addFluentDeclNode(const std::string& fluentName);
     void addProgram();
     void addFactDeclNode(const std::string& factName);
+    void addPassiveSensingDeclNode(const std::string& passSensName);
     void addVarNode(const std::string& varName);
     void addVarListNode();
     void addID(const std::string& id);
+    void addProcDecl(const std::string& procName);
 
     //Action Decl
     void addActionDeclNode(const std::string& actionName);
@@ -137,6 +142,10 @@ class ASTBuilder
     void addExists();
     void addAll();
     void addIn();
+
+    //Statements
+    void addBlock();
+    void consumeStatement();
 
     std::shared_ptr<ASTNodeBase> getAST()
     {

@@ -51,6 +51,11 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
   }
 
+  void addPassiveSensing(pANTLR3_STRING passSensName)
+  {
+    ASTBuilder::getInstance().addPassiveSensingDeclNode((char*) passSensName->chars);
+  }
+
   void addFact(pANTLR3_STRING factName)
   {
     ASTBuilder::getInstance().addFactDeclNode((char*) factName->chars);
@@ -221,9 +226,26 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addIn();
   }
 
+  void addBlock()
+  {
+    ASTBuilder::getInstance().addBlock();
+  }
+
+  void consumeStatement()
+  {
+    ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addProcDecl(pANTLR3_STRING procName)
+  {
+    ASTBuilder::getInstance().addProcDecl((char*) procName->chars);
+  }
+
   void connectCallbacks()
   {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
+    yagiCallbackCollection.addProcDeclCallback = addProcDecl;
+
     yagiCallbackCollection.addDomainStringCallback = addDomainString;
     yagiCallbackCollection.addDomainIntegerCallback = addDomainInteger;
     yagiCallbackCollection.addDomainElementCallback = addDomainElement;
@@ -232,6 +254,7 @@ namespace YAGICallbackConnector
 
     yagiCallbackCollection.addProgramCallback = addProgram;
     yagiCallbackCollection.addFactDeclCallback = addFact;
+    yagiCallbackCollection.addPassiveSensingDeclCallback = addPassiveSensing;
 
     //Action Decl
     yagiCallbackCollection.addActionDeclCallback = addAction;
@@ -279,6 +302,11 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addExistsCallback = addExists;
     yagiCallbackCollection.addAllCallback = addAll;
     yagiCallbackCollection.addInCallback = addIn;
+
+    //Statements
+    yagiCallbackCollection.addBlockCallback = addBlock;
+    yagiCallbackCollection.consumeStatementCallback = consumeStatement;
+
 
   }
 

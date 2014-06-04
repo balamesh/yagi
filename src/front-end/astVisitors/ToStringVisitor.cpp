@@ -266,3 +266,8 @@ void ToStringVisitor::visit(NodeConditionalAssignment* ass)
 {
   outString += "[ConditionalAssignment] ";
 }
+
+void ToStringVisitor::visit(NodePassiveSensingDecl* passiveSensingDecl)
+{
+  outString += "[PassiveSensing] ";
+}

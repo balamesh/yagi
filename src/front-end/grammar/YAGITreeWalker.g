@@ -31,7 +31,7 @@ program
 	;
 	
 block	
-	: ^(IT_BLOCK statement+)
+	: ^(IT_BLOCK ({ADD_BLOCK();}) (statement {CONSUME_STATEMENT();})+)
 	;
 	
 //******************************************************************************
@@ -84,11 +84,14 @@ var_list
 
 proc_decl
 	: ^(IT_PROC_DECL ID (^(IT_VAR_LIST var_list))? block)
+	
+	{
+	  ADD_PROC_DECL($ID->toString($ID));
+	}
 	;	
 	
 passive_sensing_decl
-	: ^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
-                
+	: ^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ({ADD_PASSIVE_SENSING_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
 	;	
 	
 assignment

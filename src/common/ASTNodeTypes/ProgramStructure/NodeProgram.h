@@ -12,6 +12,7 @@
 #include "../Assignment/NodeVariableAssignment.h"
 #include "../Assignment/NodeFluentAssignment.h"
 #include "../Declarations/ActionDecl/NodeActionDecl.h"
+#include "../Declarations/PassiveSensing/NodePassiveSensingDecl.h"
 
 class NodeProgram: public ASTNodeBase
 {
@@ -24,7 +25,9 @@ class NodeProgram: public ASTNodeBase
           || std::dynamic_pointer_cast<NodeFactDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeVariableAssignment>(line) != nullptr
           || std::dynamic_pointer_cast<NodeFluentAssignment>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeActionDecl>(line) != nullptr);
+          || std::dynamic_pointer_cast<NodeActionDecl>(line) != nullptr
+          || std::dynamic_pointer_cast<NodePassiveSensingDecl>(line) != nullptr
+          );
     }
 
   public:
