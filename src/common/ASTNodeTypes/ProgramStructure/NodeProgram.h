@@ -30,7 +30,7 @@ class NodeProgram: public ASTNodeBase
   public:
     void addStatementToProgram(std::shared_ptr<ASTNodeBase> statement)
     {
-      program.push_back(statement);
+      program.insert(std::begin(program), statement);
     }
 
     NodeProgram();
@@ -38,18 +38,17 @@ class NodeProgram: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      std::for_each(program.begin(), program.end(),
-          [&visitor](std::shared_ptr<ASTNodeBase> stmt)
+      std::for_each(program.begin(), program.end(), [&visitor](std::shared_ptr<ASTNodeBase> stmt)
+      {
+        //safety net to check if only valid YAGI lines and not any
+        //garbage resulting from a bug is considered a line...
+          if (!TypeOk(stmt))
           {
-            //safety net to check if only valid YAGI lines and not any
-            //garbage resulting from a bug is considered a line...
-            if (!TypeOk(stmt))
-            {
-              throw std::runtime_error("Invalid node type left on program-level of AST!");
-            }
+            throw std::runtime_error("Invalid node type left on program-level of AST!");
+          }
 
-            stmt->accept(visitor);
-          });
+          stmt->accept(visitor);
+        });
 
       visitor->visit(this);
     }

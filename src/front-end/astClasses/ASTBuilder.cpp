@@ -17,77 +17,78 @@ ASTBuilder::~ASTBuilder()
   // TODO Auto-generated destructor stub
 }
 
-void ASTBuilder::addDomainElement(const std::string& domainElement)
-{
-  auto domain = std::dynamic_pointer_cast<NodeDomainStringElements>(ast.back());
-  auto stringNode = std::make_shared<NodeString>();
-  stringNode->setString(domainElement);
-
-  domain->addStringToDomain(stringNode);
-}
 void ASTBuilder::addDomainStringElementsNode()
 {
   auto domainStringElements = std::make_shared<NodeDomainStringElements>();
-  ast.push_back(domainStringElements);
+  ast.push(domainStringElements);
 }
 
 void ASTBuilder::addDomainIntegerNode()
 {
   auto domainInteger = std::make_shared<NodeDomainInteger>();
-  ast.push_back(domainInteger);
-}
-
-void ASTBuilder::addID(const std::string& id)
-{
-  auto idNode = std::make_shared<NodeID>(id);
-  ast.push_front(idNode);
+  ast.push(domainInteger);
 }
 
 void ASTBuilder::addDomainStringNode()
 {
   auto domainString = std::make_shared<NodeDomainString>();
-  ast.push_back(domainString);
+  ast.push(domainString);
+}
+
+void ASTBuilder::addDomainElement(const std::string& domainElement)
+{
+  auto domain = getFrontElement<NodeDomainStringElements>();
+  auto stringNode = std::make_shared<NodeString>();
+  stringNode->setString(domainElement);
+
+  domain->addStringToDomain(stringNode);
 }
 
 void ASTBuilder::consumeDomain()
 {
-  auto fluent = std::dynamic_pointer_cast<NodeFluentDecl>(ast.front());
-  auto fact = std::dynamic_pointer_cast<NodeFactDecl>(ast.front());
+  auto domain = getFrontElement<NodeDomainBase>();
+  if (domain == nullptr)
+    throw std::runtime_error("consumeDomain needs domain!");
+
+  ast.pop();
+
+  auto fluent = getFrontElement<NodeFluentDecl>();
+  auto fact = getFrontElement<NodeFactDecl>();
 
   if (fluent == nullptr && fact == nullptr)
     throw std::runtime_error("consumeDomain needs fluent or fact!");
 
-  ast.pop_front();
-
-  auto domain = std::dynamic_pointer_cast<NodeDomainBase>(ast.front());
-  if (domain == nullptr)
-    throw std::runtime_error("consumeDomain needs domain!");
-
-  ast.pop_front();
+  ast.pop();
 
   if (fluent != nullptr)
   {
     fluent->addDomain(domain);
-    ast.push_front(fluent);
+    ast.push(fluent);
   }
   else
   {
     fact->addDomain(domain);
-    ast.push_front(fact);
+    ast.push(fact);
   }
+}
+
+void ASTBuilder::addID(const std::string& id)
+{
+  auto idNode = std::make_shared<NodeID>(id);
+  ast.push(idNode);
 }
 
 void ASTBuilder::addProgram()
 {
   auto programNode = std::make_shared<NodeProgram>();
 
-  std::for_each(ast.begin(), ast.end(), [&programNode](std::shared_ptr<ASTNodeBase> statement)
+  while (!ast.empty())
   {
-    programNode->addStatementToProgram(statement);
-  });
+    programNode->addStatementToProgram(ast.top());
+    ast.pop();
+  }
 
-  ast.clear();
-  ast.push_back(programNode);
+  ast.push(programNode);
 }
 
 void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
@@ -95,7 +96,7 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
   auto fluentDeclNode = std::make_shared<NodeFluentDecl>();
 
   fluentDeclNode->setFluentName(std::make_shared<NodeID>(fluentName));
-  ast.push_front(fluentDeclNode);
+  ast.push(fluentDeclNode);
 }
 
 void ASTBuilder::addFactDeclNode(const std::string& factName)
@@ -103,7 +104,7 @@ void ASTBuilder::addFactDeclNode(const std::string& factName)
   auto factDeclNode = std::make_shared<NodeFactDecl>();
   factDeclNode->setFactName(std::make_shared<NodeID>(factName));
 
-  ast.push_front(factDeclNode);
+  ast.push(factDeclNode);
 }
 
 void ASTBuilder::addVarNode(const std::string& varName)
@@ -111,13 +112,13 @@ void ASTBuilder::addVarNode(const std::string& varName)
   auto varNode = std::make_shared<NodeVariable>();
   varNode->setVarName(varName);
 
-  ast.push_front(varNode);
+  ast.push(varNode);
 }
 
 void ASTBuilder::addVarListNode()
 {
   auto varList = std::make_shared<NodeVarList>();
-  ast.push_front(varList);
+  ast.push(varList);
 }
 
 void ASTBuilder::addIntNode(const std::string& intVal)
@@ -125,7 +126,7 @@ void ASTBuilder::addIntNode(const std::string& intVal)
   auto intNode = std::make_shared<NodeInteger>();
   intNode->setValueFromString(intVal);
 
-  ast.push_front(intNode);
+  ast.push(intNode);
 }
 
 void ASTBuilder::addStringNode(const std::string& stringVal)
@@ -133,32 +134,32 @@ void ASTBuilder::addStringNode(const std::string& stringVal)
   auto stringNode = std::make_shared<NodeString>();
   stringNode->setString(stringVal);
 
-  ast.push_front(stringNode);
+  ast.push(stringNode);
 }
 
 void ASTBuilder::addValueExpressionNode()
 {
   auto valExpr = std::make_shared<NodeValueExpression>();
 
-  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  auto rhs = getFrontElement<ASTNodeBase>();
   if (rhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for ValExpr rhs!");
-  ast.pop_front();
+  ast.pop();
 
-  auto lhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  auto lhs = getFrontElement<ASTNodeBase>();
   if (lhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for ValExpr lhs!");
-  ast.pop_front();
+  ast.pop();
 
-  auto op = std::dynamic_pointer_cast<NodeValueExpressionOperator>(ast.front());
+  auto op = getFrontElement<NodeValueExpressionOperator>();
   if (op == nullptr)
     throw std::runtime_error("No NodeValueExpressionOperator for ValExpr!");
-  ast.pop_front();
+  ast.pop();
 
   valExpr->setOperator(op);
   valExpr->setLhs(lhs);
   valExpr->setRhs(rhs);
-  ast.push_front(valExpr);
+  ast.push(valExpr);
 }
 
 void ASTBuilder::addExprOperator(const std::string& op)
@@ -166,20 +167,20 @@ void ASTBuilder::addExprOperator(const std::string& op)
   auto opNode = std::make_shared<NodeValueExpressionOperator>();
   opNode->fromString(op);
 
-  ast.push_front(opNode);
+  ast.push(opNode);
 }
 
 void ASTBuilder::addVarAssign()
 {
   //get rhs of assignment
-  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
-  ast.pop_front();
+  auto rhs = getFrontElement<ASTNodeBase>();
+  ast.pop();
 
   //get var
-  auto var = std::dynamic_pointer_cast<NodeVariable>(ast.front());
+  auto var = getFrontElement<NodeVariable>();
   if (var == nullptr)
     throw std::runtime_error("No NodeVariable for VarAssign!");
-  ast.pop_front();
+  ast.pop();
 
   auto varAss = std::make_shared<NodeVariableAssignment>();
   varAss->setVariable(var);
@@ -196,7 +197,7 @@ void ASTBuilder::addVarAssign()
   else
     varAss->setValExpr(recursiveValExpr);
 
-  ast.push_front(varAss);
+  ast.push(varAss);
 
 }
 
@@ -208,16 +209,16 @@ void ASTBuilder::addPatternMatch()
 void ASTBuilder::addTuple()
 {
   auto tuple = std::make_shared<NodeTuple>();
-  ast.push_front(tuple);
+  ast.push(tuple);
 }
 void ASTBuilder::consumeTuple()
 {
   //get tuple
-  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
-  ast.pop_front();
+  auto tuple = getFrontElement<NodeTuple>();
+  ast.pop();
 
   //get set
-  auto set = std::dynamic_pointer_cast<NodeSet>(ast.front());
+  auto set = getFrontElement<NodeSet>();
   if (set == nullptr)
     throw std::runtime_error("No NodeSet for consumeTuple!");
 
@@ -226,11 +227,11 @@ void ASTBuilder::consumeTuple()
 void ASTBuilder::consumeTupleVal()
 {
   //get tuple val
-  auto val = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
-  ast.pop_front();
+  auto val = getFrontElement<ASTNodeBase>();
+  ast.pop();
 
   //get tuple
-  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  auto tuple = getFrontElement<NodeTuple>();
   if (tuple == nullptr)
     throw std::runtime_error("No NodeTuple for consumeTupleVal!");
 
@@ -239,48 +240,48 @@ void ASTBuilder::consumeTupleVal()
 void ASTBuilder::addSet()
 {
   auto set = std::make_shared<NodeSet>();
-  ast.push_front(set);
+  ast.push(set);
 }
 void ASTBuilder::addSetExpr()
 {
   auto setExpr = std::make_shared<NodeSetExpression>();
 
-  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  auto rhs = getFrontElement<ASTNodeBase>();
   if (rhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for SetExpr rhs!");
-  ast.pop_front();
+  ast.pop();
 
-  auto lhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
+  auto lhs = getFrontElement<ASTNodeBase>();
   if (lhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for SetExpr lhs!");
-  ast.pop_front();
+  ast.pop();
 
-  auto op = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
+  auto op = getFrontElement<NodeSetExpressionOperator>();
   if (op == nullptr)
     throw std::runtime_error("No NodeSetExpressionOperator for SetExpr!");
-  ast.pop_front();
+  ast.pop();
 
   setExpr->setOperator(op);
   setExpr->setLhs(lhs);
   setExpr->setRhs(rhs);
-  ast.push_front(setExpr);
+  ast.push(setExpr);
 }
 
 void ASTBuilder::addFluentAssign(const std::string& fluentName)
 {
   //get rhs of assignment
-  auto rhs = std::dynamic_pointer_cast<ASTNodeBase>(ast.front());
-  ast.pop_front();
+  auto rhs = getFrontElement<ASTNodeBase>();
+  ast.pop();
 
   //build lhs
   auto fluentAss = std::make_shared<NodeFluentAssignment>();
   fluentAss->setFluentName(std::make_shared<NodeID>(fluentName));
 
   //get op
-  auto assOp = std::dynamic_pointer_cast<NodeSetExpressionOperator>(ast.front());
+  auto assOp = getFrontElement<NodeSetExpressionOperator>();
   if (assOp == nullptr)
     throw std::runtime_error("No assignment operator for fluent assign!");
-  ast.pop_front();
+  ast.pop();
 
   fluentAss->setOperator(assOp);
 
@@ -297,7 +298,7 @@ void ASTBuilder::addFluentAssign(const std::string& fluentName)
   else
     fluentAss->setSetExpr(recursiveSetExpr);
 
-  ast.push_front(fluentAss);
+  ast.push(fluentAss);
 }
 
 void ASTBuilder::addAssignmentOp(const std::string& op)
@@ -305,7 +306,7 @@ void ASTBuilder::addAssignmentOp(const std::string& op)
   auto opNode = std::make_shared<NodeSetExpressionOperator>();
   opNode->fromString(op);
 
-  ast.push_front(opNode);
+  ast.push(opNode);
 }
 
 void ASTBuilder::addAtomConnective(const std::string& connective)
@@ -313,7 +314,7 @@ void ASTBuilder::addAtomConnective(const std::string& connective)
   auto conn = std::make_shared<NodeAtomConnective>();
   conn->fromString(connective);
 
-  ast.push_front(conn);
+  ast.push(conn);
 }
 
 void ASTBuilder::addFormulaConnective(const std::string& connective)
@@ -321,7 +322,7 @@ void ASTBuilder::addFormulaConnective(const std::string& connective)
   auto conn = std::make_shared<NodeFormulaConnective>();
   conn->fromString(connective);
 
-  ast.push_front(conn);
+  ast.push(conn);
 }
 
 void ASTBuilder::addConstant(const std::string& constant)
@@ -329,13 +330,13 @@ void ASTBuilder::addConstant(const std::string& constant)
   auto truthVal = std::make_shared<NodeConstant>();
   truthVal->fromString(constant);
 
-  ast.push_front(truthVal);
+  ast.push(truthVal);
 }
 
 void ASTBuilder::addAtom()
 {
   //an atom can be just "true" or "false..
-  auto elem = ast.front();
+  auto elem = getFrontElement<ASTNodeBase>();
 
   if (std::dynamic_pointer_cast<NodeConstant>(elem) != nullptr)
   {
@@ -369,8 +370,8 @@ void ASTBuilder::addAtom()
   else
     atom->setRightOperand(elem);
 
-  ast.pop_front();
-  auto leftOperand = ast.front();
+  ast.pop();
+  auto leftOperand = getFrontElement<ASTNodeBase>();
 
   //sanity check
   //TODO: needs refactoring!
@@ -396,25 +397,25 @@ void ASTBuilder::addAtom()
   else
     atom->setLeftOperand(leftOperand);
 
-  ast.pop_front();
+  ast.pop();
 
-  auto connective = std::dynamic_pointer_cast<NodeAtomConnective>(ast.front());
+  auto connective = getFrontElement<NodeAtomConnective>();
   if (connective == nullptr)
   {
     throw std::runtime_error("Atom connective is no NodeAtomConnective!");
   }
 
-  ast.pop_front();
+  ast.pop();
   atom->setConnective(connective);
 
-  ast.push_front(atom);
+  ast.push(atom);
 }
 
 void ASTBuilder::addNegation()
 {
   //get formula to negate
-  auto formula = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
-  ast.pop_front();
+  auto formula = getFrontElement<NodeFormulaBase>();
+  ast.pop();
 
   if (formula == nullptr)
   {
@@ -424,13 +425,13 @@ void ASTBuilder::addNegation()
   auto formulaNegate = std::make_shared<NodeNegation>();
   formulaNegate->setFormula(formula);
 
-  ast.push_front(formulaNegate);
+  ast.push(formulaNegate);
 }
 void ASTBuilder::addConnectedFormula()
 {
   //we have something of the form <formula_connective> <atom> <formula>
   //an atom can be just "true" or "false..
-  auto rhs = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  auto rhs = getFrontElement<NodeFormulaBase>();
 
   //sanity check
   if (rhs == nullptr)
@@ -440,10 +441,10 @@ void ASTBuilder::addConnectedFormula()
 
   auto compoundFormula = std::make_shared<NodeCompoundFormula>();
   compoundFormula->setRightOperand(rhs);
-  ast.pop_front();
+  ast.pop();
 
-  auto lhs_atom = std::dynamic_pointer_cast<NodeAtom>(ast.front());
-  auto lhs_constant = std::dynamic_pointer_cast<NodeConstant>(ast.front());
+  auto lhs_atom = getFrontElement<NodeAtom>();
+  auto lhs_constant = getFrontElement<NodeConstant>();
 
   //sanity check
   if (lhs_atom == nullptr && lhs_constant == nullptr)
@@ -451,19 +452,19 @@ void ASTBuilder::addConnectedFormula()
     throw std::runtime_error("Compound formula lhs is neither an atom nor a constant!");
   }
 
-  compoundFormula->setLeftOperand(std::dynamic_pointer_cast<NodeFormulaBase>(ast.front()));
-  ast.pop_front();
+  compoundFormula->setLeftOperand(getFrontElement<NodeFormulaBase>());
+  ast.pop();
 
-  auto connective = std::dynamic_pointer_cast<NodeFormulaConnective>(ast.front());
+  auto connective = getFrontElement<NodeFormulaConnective>();
   if (connective == nullptr)
   {
     throw std::runtime_error("Atom connective is no NodeFormulaConnective!");
   }
 
-  ast.pop_front();
+  ast.pop();
   compoundFormula->setConnective(connective);
 
-  ast.push_front(compoundFormula);
+  ast.push(compoundFormula);
 
 }
 void ASTBuilder::addExists()
@@ -483,27 +484,27 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   std::shared_ptr<NodeSetExpression> setExpr = nullptr;
 
   //we have something of the form <tuple> <setexpr> <formula>?
-  auto formula = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  auto formula = getFrontElement<NodeFormulaBase>();
   if (formula != nullptr) //formula is optional...
   {
     quantifiedFormula->setFormula(formula);
-    ast.pop_front();
+    ast.pop();
   }
 
-  setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
+  setExpr = getFrontElement<NodeSetExpression>();
   if (setExpr == nullptr)
   {
     //if its not already a setexpression we try to make it one...
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(ast.front());
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
     quantifiedFormula->setSetExpr(newSetExpr);
   }
   else
     quantifiedFormula->setSetExpr(setExpr);
 
-  ast.pop_front();
+  ast.pop();
 
-  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  auto tuple = getFrontElement<NodeTuple>();
 
   //sanity check
   if (tuple == nullptr)
@@ -511,10 +512,10 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
     throw std::runtime_error("Expected tuple in quantified formula!");
   }
 
-  ast.pop_front();
+  ast.pop();
   quantifiedFormula->setTuple(tuple);
 
-  ast.push_front(quantifiedFormula);
+  ast.push(quantifiedFormula);
 }
 
 void ASTBuilder::addIn()
@@ -524,19 +525,19 @@ void ASTBuilder::addIn()
   //we have something of the form <tuple> <setexpr>
 
   //TODO: find better type abstraction
-  auto setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
-  auto set = std::dynamic_pointer_cast<NodeSet>(ast.front());
-  auto id = std::dynamic_pointer_cast<NodeID>(ast.front());
+  auto setExpr = getFrontElement<NodeSetExpression>();
+  auto set = getFrontElement<NodeSet>();
+  auto id = getFrontElement<NodeID>();
 
   if (setExpr == nullptr && set == nullptr && id == nullptr)
   {
     throw std::runtime_error("Expected setexpr, set or id in in-formula!");
   }
 
-  inFormula->setSetExpr(ast.front());
-  ast.pop_front();
+  inFormula->setSetExpr(getFrontElement<ASTNodeBase>());
+  ast.pop();
 
-  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  auto tuple = getFrontElement<NodeTuple>();
 
   //sanity check
   if (tuple == nullptr)
@@ -544,22 +545,22 @@ void ASTBuilder::addIn()
     throw std::runtime_error("Expected tuple in in-formula!");
   }
 
-  ast.pop_front();
+  ast.pop();
   inFormula->setTuple(tuple);
 
-  ast.push_front(inFormula);
+  ast.push(inFormula);
 }
 
 void ASTBuilder::consumeVarNode()
 {
-  auto var = std::dynamic_pointer_cast<NodeVariable>(ast.front());
+  auto var = getFrontElement<NodeVariable>();
   if (var == nullptr)
   {
     throw std::runtime_error("Want to consume a variable when there is none!");
   }
-  ast.pop_front();
+  ast.pop();
 
-  auto varList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  auto varList = getFrontElement<NodeVarList>();
   if (varList == nullptr)
   {
     throw std::runtime_error("Want to consume variable into something thats not a varlist!");
@@ -577,27 +578,28 @@ void ASTBuilder::addForLoopAssign()
   //TODO: should be created in everycase the <setexpr> rule gets executed!
   //if it's an id we need to create a setxpr,
   //otherwise it already has been created earlier...
-  auto setExpr = std::dynamic_pointer_cast<NodeSetExpression>(ast.front());
+  auto setExpr = getFrontElement<NodeSetExpression>();
   if (setExpr == nullptr)
   {
     auto setExprNew = std::make_shared<NodeSetExpression>();
-    setExprNew->setRhs(ast.front()); //TODO: arbitrary, needs rethinking
+    setExprNew->setRhs(getFrontElement<ASTNodeBase>()); //TODO: arbitrary, needs rethinking
     forLoopAssign->setSetExpr(setExprNew);
   }
-  else forLoopAssign->setSetExpr(setExpr);
+  else
+    forLoopAssign->setSetExpr(setExpr);
 
-  ast.pop_front();
+  ast.pop();
 
-  auto tuple = std::dynamic_pointer_cast<NodeTuple>(ast.front());
+  auto tuple = getFrontElement<NodeTuple>();
   if (tuple == nullptr)
   {
     throw std::runtime_error("No tuple to build for-loop assign!");
   }
 
-  ast.pop_front();
+  ast.pop();
   forLoopAssign->setTuple(tuple);
 
-  ast.push_front(forLoopAssign);
+  ast.push(forLoopAssign);
 }
 
 void ASTBuilder::addConditionalAssign()
@@ -605,20 +607,20 @@ void ASTBuilder::addConditionalAssign()
   auto conditionalAssign = std::make_shared<NodeConditionalAssignment>();
 
   //formula has already been created...
-  auto formula = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  auto formula = getFrontElement<NodeFormulaBase>();
   if (formula == nullptr)
   {
     throw std::runtime_error("No formula to build conditional-assign!");
   }
-  ast.pop_front();
+  ast.pop();
 
   conditionalAssign->setFormula(formula);
-  ast.push_front(conditionalAssign);
+  ast.push(conditionalAssign);
 }
 
 void ASTBuilder::addConditionalAssignElse()
 {
-  auto conditionalAssignment = std::dynamic_pointer_cast<NodeConditionalAssignment>(ast.front());
+  auto conditionalAssignment = getFrontElement<NodeConditionalAssignment>();
 
   if (conditionalAssignment == nullptr)
   {
@@ -632,15 +634,15 @@ void ASTBuilder::addConditionalAssignElse()
 
 void ASTBuilder::consumeAssignment()
 {
-  auto assignment = std::dynamic_pointer_cast<NodeAssignmentBase>(ast.front());
-  ast.pop_front();
+  auto assignment = getFrontElement<NodeAssignmentBase>();
+  ast.pop();
 
   if (assignment == nullptr)
   {
     throw std::runtime_error("Want to consume assignment when there is none!");
   }
 
-  auto consumer = ast.front();
+  auto consumer = getFrontElement<ASTNodeBase>();
 
   //Different stuff can consume assignments...
   //TODO: need better abstraction, maybe baseclass should get addAssignment()
@@ -673,7 +675,7 @@ void ASTBuilder::consumeAssignment()
 void ASTBuilder::addEffect()
 {
   auto effect = std::make_shared<NodeActionEffect>();
-  ast.push_front(effect);
+  ast.push(effect);
 }
 
 void ASTBuilder::addActiveSensing()
@@ -681,15 +683,15 @@ void ASTBuilder::addActiveSensing()
   auto activeSensing = std::make_shared<NodeActiveSensing>();
 
   //there must be a varlist for active sensing
-  auto varList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  auto varList = getFrontElement<NodeVarList>();
   if (varList == nullptr)
   {
     throw std::runtime_error("There must be a varlist for active sensing, but there isn't!");
   }
   activeSensing->setVarList(varList);
 
-  ast.pop_front();
-  ast.push_front(activeSensing);
+  ast.pop();
+  ast.push(activeSensing);
 }
 
 void ASTBuilder::addActionDeclNode(const std::string& actionName)
@@ -698,46 +700,46 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
   actionDecl->setActionName(std::make_shared<NodeID>(actionName));
 
   //TODO: find a better type abstraction, this is ugly!
-  auto signalExpr = std::dynamic_pointer_cast<NodeValueExpression>(ast.front());
-  auto signalInt = std::dynamic_pointer_cast<NodeInteger>(ast.front());
-  auto signalString = std::dynamic_pointer_cast<NodeString>(ast.front());
-  auto signalVar = std::dynamic_pointer_cast<NodeVariable>(ast.front());
+  auto signalExpr = getFrontElement<NodeValueExpression>();
+  auto signalInt = getFrontElement<NodeInteger>();
+  auto signalString = getFrontElement<NodeString>();
+  auto signalVar = getFrontElement<NodeVariable>();
 
   if (signalExpr != nullptr || signalInt != nullptr || signalString != nullptr
       || signalVar != nullptr)
   {
-    actionDecl->setSignal(std::make_shared<NodeSignal>(ast.front()));
-    ast.pop_front();
+    actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<ASTNodeBase>()));
+    ast.pop();
   }
 
-  auto activeSensing = std::dynamic_pointer_cast<NodeActiveSensing>(ast.front());
+  auto activeSensing = getFrontElement<NodeActiveSensing>();
   if (activeSensing != nullptr)
   {
     actionDecl->setActiveSensing(activeSensing);
-    ast.pop_front();
+    ast.pop();
   }
 
-  auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(ast.front());
+  auto actionEffect = getFrontElement<NodeActionEffect>();
   if (actionEffect != nullptr)
   {
     actionDecl->setActionEffect(actionEffect);
-    ast.pop_front();
+    ast.pop();
   }
 
-  auto actionPrecondition = std::dynamic_pointer_cast<NodeFormulaBase>(ast.front());
+  auto actionPrecondition = getFrontElement<NodeFormulaBase>();
   if (actionPrecondition != nullptr)
   {
     actionDecl->setActionPrecondition(std::make_shared<NodeActionPrecondition>(actionPrecondition));
-    ast.pop_front();
+    ast.pop();
   }
 
-  auto paramList = std::dynamic_pointer_cast<NodeVarList>(ast.front());
+  auto paramList = getFrontElement<NodeVarList>();
   if (paramList != nullptr)
   {
     actionDecl->setVarList(paramList);
-    ast.pop_front();
+    ast.pop();
   }
 
-  ast.push_front(actionDecl);
+  ast.push(actionDecl);
 
 }

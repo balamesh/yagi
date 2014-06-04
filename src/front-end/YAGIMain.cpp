@@ -119,6 +119,8 @@ bool execute(const std::string& line)
 
   auto langAST = psr->program(psr);
   std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+  pYAGITreeWalker treePsr = nullptr;
+  pANTLR3_COMMON_TREE_NODE_STREAM nodes = nullptr;
 
   if (psr->pParser->rec->state->errorCount > 0)
   {
@@ -128,10 +130,8 @@ bool execute(const std::string& line)
   }
   else
   {
-    pANTLR3_COMMON_TREE_NODE_STREAM nodes = antlr3CommonTreeNodeStreamNewTree(langAST.tree,
-    ANTLR3_SIZE_HINT); // sIZE HINT WILL SOON BE DEPRECATED!!
+    nodes = antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT);
 
-    pYAGITreeWalker treePsr;
     treePsr = YAGITreeWalkerNew(nodes);
     treePsr->program(treePsr);
 
@@ -147,6 +147,18 @@ bool execute(const std::string& line)
   {
     psr->free(psr);
     psr = NULL;
+  }
+
+  if (nodes)
+  {
+    nodes->free(nodes);
+    nodes = nullptr;
+  }
+
+  if (treePsr)
+  {
+    treePsr->free(treePsr);
+    treePsr = nullptr;
   }
 
   if (tstream)

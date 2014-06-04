@@ -11,7 +11,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
-#include <deque>
+#include <stack>
 #include <algorithm>
 
 #include "../../common/ASTNodeTypes/ASTNodeBase.h"
@@ -56,6 +56,19 @@ class ASTBuilder
   private:
     void addQuantifiedFormula(Quantifier quant);
 
+    template<typename T> std::shared_ptr<T> getFrontElement()
+    {
+      if (ast.size())
+      {
+        //if ast is empty behaviour is undefined!!
+        return std::dynamic_pointer_cast<T>(ast.top());
+      }
+      else
+      {
+        return nullptr;
+      }
+    }
+
   public:
     static ASTBuilder& getInstance()
     {
@@ -65,7 +78,10 @@ class ASTBuilder
 
     void reset()
     {
-      ast.clear();
+      while (!ast.empty())
+      {
+        ast.pop();
+      }
     }
 
     void addDomainElement(const std::string& domainElement);
@@ -124,7 +140,7 @@ class ASTBuilder
 
     std::shared_ptr<ASTNodeBase> getAST()
     {
-      return (ast.size() > 0 ? ast.front() : nullptr);
+      return (ast.size() > 0 ? ast.top() : nullptr);
     }
 
   private:
@@ -134,7 +150,7 @@ class ASTBuilder
     ASTBuilder();
     virtual ~ASTBuilder();
 
-    std::deque<std::shared_ptr<ASTNodeBase>> ast;
+    std::stack<std::shared_ptr<ASTNodeBase>> ast;
 };
 
 #endif /* ASTBUILDER_H_ */
