@@ -241,6 +241,61 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addProcDecl((char*) procName->chars);
   }
 
+  void consumeValue()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addValueList()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addActionExec(pANTLR3_STRING actionToExecName)
+  {
+    //ASTBuilder::getInstance().addActionExec((char*) actionToExecName->chars);
+  }
+
+  void addTest()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addChoose()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void consumeBlock()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addPick()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addForLoop()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addConditional()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addWhileLoop()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
+  void addSearch()
+  {
+    //ASTBuilder::getInstance().consumeStatement();
+  }
+
   void connectCallbacks()
   {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
@@ -306,6 +361,17 @@ namespace YAGICallbackConnector
     //Statements
     yagiCallbackCollection.addBlockCallback = addBlock;
     yagiCallbackCollection.consumeStatementCallback = consumeStatement;
+    yagiCallbackCollection.consumeValueCallback = consumeValue;
+    yagiCallbackCollection.addValueListCallback = addValueList;
+    yagiCallbackCollection.addActionExecCallback = addActionExec;
+    yagiCallbackCollection.addTestCallback = addTest;
+    yagiCallbackCollection.addChooseCallback = addChoose;
+    yagiCallbackCollection.consumeBlockCallback = consumeBlock;
+    yagiCallbackCollection.addPickCallback = addPick;
+    yagiCallbackCollection.addForLoopCallback = addForLoop;
+    yagiCallbackCollection.addConditionalCallback = addConditional;
+    yagiCallbackCollection.addWhileLoopCallback = addWhileLoop;
+    yagiCallbackCollection.addSearchCallback = addSearch;
 
 
   }

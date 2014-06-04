@@ -77,6 +77,17 @@ extern "C"
       //Statements
       void (*addBlockCallback)();
       void (*consumeStatementCallback)();
+      void (*consumeValueCallback)();
+      void (*addValueListCallback)();
+      void (*addActionExecCallback)(pANTLR3_STRING actionToExecName);
+      void (*addTestCallback)();
+      void (*addChooseCallback)();
+      void (*consumeBlockCallback)();
+      void (*addPickCallback)();
+      void (*addForLoopCallback)();
+      void (*addConditionalCallback)();
+      void (*addWhileLoopCallback)();
+      void (*addSearchCallback)();
   };
 
   extern struct YAGICallbackCollection yagiCallbackCollection;
@@ -147,6 +158,17 @@ extern "C"
 #define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
 #define CONSUME_STATEMENT() yagiCallbackCollection.consumeStatementCallback()
 #define ADD_PROC_DECL(x) yagiCallbackCollection.addProcDeclCallback(x)
+#define CONSUME_VALUE() yagiCallbackCollection.consumeValueCallback()
+#define ADD_VALUE_LIST() yagiCallbackCollection.addValueListCallback()
+#define ADD_ACTION_EXEC(x) yagiCallbackCollection.addActionExecCallback(x)
+#define ADD_TEST() yagiCallbackCollection.addTestCallback()
+#define ADD_CHOOSE() yagiCallbackCollection.addChooseCallback()
+#define CONSUME_BLOCK() yagiCallbackCollection.consumeBlockCallback()
+#define ADD_PICK() yagiCallbackCollection.addPickCallback()
+#define ADD_FOR_LOOP() yagiCallbackCollection.addForLoopCallback()
+#define ADD_CONDITIONAL() yagiCallbackCollection.addConditionalCallback()
+#define ADD_WHILE_LOOP() yagiCallbackCollection.addWhileLoopCallback()
+#define ADD_SEARCH() yagiCallbackCollection.addSearchCallback()
 
 #ifdef __cplusplus
 }

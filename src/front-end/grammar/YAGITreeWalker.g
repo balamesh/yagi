@@ -117,38 +117,69 @@ statement
 
 action_exec
 	: ^(IT_ACTION_EXEC ID ^(IT_VALUE_LIST value_list))
+	
+	{
+	  ADD_ACTION_EXEC($ID->toString($ID));
+	}
 	;	
 	
 value_list	
-	: value+
+	: ({ADD_VALUE_LIST();}) (value {CONSUME_VALUE();})+
 	;
 	
 test	
 	: ^(IT_TEST formula)
+	
+	{
+	  ADD_TEST();
+	}
 	;	
 	
 choose	
-	: ^(IT_CHOOSE block block+)
+	: ^(IT_CHOOSE ({ADD_CHOOSE();}) (block {CONSUME_BLOCK();})+)
 	;	
 	
 pick	
 	: ^(IT_PICK tuple setexpr block)
+	
+	{
+	  ADD_PICK();
+	}
+	
 	;	
 	
 for_loop	
 	: ^(IT_FORALL tuple setexpr block)
+	
+	{
+	  ADD_FOR_LOOP();
+	}
 	;
 
 conditional
 	: ^(IT_CONDITIONAL formula ^(IT_BLOCK block) block?)
+	
+	{
+	  ADD_CONDITIONAL();
+	}
+	
 	;
 	
 while_loop
 	: ^(IT_WHILE formula block)
+	
+	{
+	  ADD_WHILE_LOOP();
+	}
 	;	
 	
 search	
 	: ^(IT_SEARCH block)
+
+	{
+	  ADD_SEARCH();
+	}
+	
 	;
 	
 	
