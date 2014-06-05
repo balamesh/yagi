@@ -33,7 +33,16 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 #include "../../common/ASTNodeTypes/Declarations/PassiveSensing/NodePassiveSensingDecl.h"
-
+#include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
+#include "../../common/ASTNodeTypes/Statements/NodeActionExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
+#include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodePick.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
+#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
+#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 
 class ToStringVisitor: public ASTNodeVisitorBase
 {
@@ -85,6 +94,17 @@ class ToStringVisitor: public ASTNodeVisitorBase
     virtual void visit(NodeActionPrecondition* actionPrecondition) override;
 
     virtual void visit(NodeActiveSensing* activeSensing) override;
+
+    virtual void visit(NodeProcDecl* procDecl) override;
+    virtual void visit(NodeActionExecution* actionExecution) override;
+    virtual void visit(NodeBlock* block) override;
+    virtual void visit(NodeChoose* choose) override;
+    virtual void visit(NodeConditional* conditional) override;
+    virtual void visit(NodeForLoop* forLoop) override;
+    virtual void visit(NodePick* pick) override;
+    virtual void visit(NodeSearch* search) override;
+    virtual void visit(NodeTest* test) override;
+    virtual void visit(NodeWhileLoop* whileLoop) override;
 };
 
 #endif /* TOSTRINGVISITOR_H_ */

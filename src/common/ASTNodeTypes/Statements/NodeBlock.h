@@ -36,12 +36,11 @@ class NodeBlock: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
-
       std::for_each(std::begin(statements_), std::end(statements_),
           [&visitor](std::shared_ptr<NodeStatementBase> stmt)
           { stmt->accept(visitor);});
+
+      visitor->visit(this);
     }
 };
 

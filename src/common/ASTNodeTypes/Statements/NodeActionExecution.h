@@ -46,8 +46,10 @@ class NodeActionExecution: public NodeStatementBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      actionToExecName_->accept(visitor);
+      parameters_->accept(visitor);
+
+      visitor->visit(this);
     }
 };
 

@@ -32,8 +32,9 @@ class NodeSearch: public NodeStatementBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      block_->accept(visitor);
+
+      visitor->visit(this);
     }
 };
 

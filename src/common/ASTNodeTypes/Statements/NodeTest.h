@@ -34,8 +34,9 @@ class NodeTest: public NodeStatementBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      formula_->accept(visitor);
+
+      visitor->visit(this);
     }
 };
 

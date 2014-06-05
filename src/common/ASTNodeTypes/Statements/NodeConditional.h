@@ -57,8 +57,11 @@ class NodeConditional: public NodeStatementBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      formula_->accept(visitor);
+      ifBlock_->accept(visitor);
+      if (elseBlock_ != nullptr) elseBlock_->accept(visitor);
+
+      visitor->visit(this);
     }
 };
 

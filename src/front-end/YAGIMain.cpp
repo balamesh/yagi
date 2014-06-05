@@ -124,11 +124,8 @@ bool execute(const std::string& line)
 
   if (psr->pParser->rec->state->errorCount > 0)
   {
-    std::cout << "The parser returned " << psr->pParser->rec->state->errorCount
-        << " error(s), tree walking aborted." << std::endl;
-//    fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n",
-//        psr->pParser->rec->state->errorCount);
-
+    //TODO: this leaks memory!
+    return true;
   }
   else
   {

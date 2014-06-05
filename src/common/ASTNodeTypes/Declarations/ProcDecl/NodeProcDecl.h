@@ -60,14 +60,14 @@ class NodeProcDecl: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement!!
-      //visitor->visit(this);
-
       procName_->accept(visitor);
+
       if (argList_ != nullptr)
         argList_->accept(visitor);
 
       block_->accept(visitor);
+
+      visitor->visit(this);
     }
 };
 

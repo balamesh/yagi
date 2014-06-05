@@ -271,3 +271,44 @@ void ToStringVisitor::visit(NodePassiveSensingDecl* passiveSensingDecl)
 {
   outString += "[PassiveSensing] ";
 }
+
+void ToStringVisitor::visit(NodeProcDecl* procDecl)
+{
+  outString += "[ProcDecl] ";
+}
+void ToStringVisitor::visit(NodeActionExecution* actionExecution)
+{
+  outString += "[ActionExec] ";
+}
+void ToStringVisitor::visit(NodeBlock* block)
+{
+  outString += "[Block] ";
+}
+void ToStringVisitor::visit(NodeChoose* choose)
+{
+  outString += "[Choose] ";
+}
+void ToStringVisitor::visit(NodeConditional* conditional)
+{
+  outString += "[Conditional] ";
+}
+void ToStringVisitor::visit(NodeForLoop* forLoop)
+{
+  outString += "[ForLoop] ";
+}
+void ToStringVisitor::visit(NodePick* pick)
+{
+  outString += "[Pick] ";
+}
+void ToStringVisitor::visit(NodeSearch* search)
+{
+  outString += "[Search] ";
+}
+void ToStringVisitor::visit(NodeTest* test)
+{
+  outString += "[Test] ";
+}
+void ToStringVisitor::visit(NodeWhileLoop* whileLoop)
+{
+  outString += "[WhileLoop] ";
+}

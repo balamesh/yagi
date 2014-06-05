@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 #include "NodeStatementBase.h"
 #include "NodeBlock.h"
@@ -35,8 +36,11 @@ class NodeChoose: public NodeStatementBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      //TODO: implement this
-      //visitor->visit(this);
+      std::for_each(std::begin(blocks_), std::end(blocks_),
+          [&visitor](std::shared_ptr<NodeBlock> block)
+          { block->accept(visitor);});
+
+      visitor->visit(this);
     }
 };
 

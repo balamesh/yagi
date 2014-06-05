@@ -44,6 +44,16 @@ class NodeActiveSensing;
 class NodeForLoopAssignment;
 class NodeConditionalAssignment;
 class NodePassiveSensingDecl;
+class NodeProcDecl;
+class NodeActionExecution;
+class NodeBlock;
+class NodeChoose;
+class NodeConditional;
+class NodeForLoop;
+class NodePick;
+class NodeSearch;
+class NodeTest;
+class NodeWhileLoop;
 
 class ASTNodeVisitorBase
 {
@@ -112,6 +122,18 @@ class ASTNodeVisitorBase
     virtual void visit(NodeOperatorIn* operatorIn) = 0;
     virtual void visit(NodeQuantifiedFormula* quantifiedFormula) = 0;
     virtual void visit(NodeConstant* constant) = 0;
+
+    //Statements
+    virtual void visit(NodeProcDecl* procDecl) = 0;
+    virtual void visit(NodeActionExecution* actionExecution) = 0;
+    virtual void visit(NodeBlock* block) = 0;
+    virtual void visit(NodeChoose* choose) = 0;
+    virtual void visit(NodeConditional* conditional) = 0;
+    virtual void visit(NodeForLoop* forLoop) = 0;
+    virtual void visit(NodePick* pick) = 0;
+    virtual void visit(NodeSearch* search) = 0;
+    virtual void visit(NodeTest* test) = 0;
+    virtual void visit(NodeWhileLoop* whileLoop) = 0;
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */
