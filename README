@@ -1,0 +1,5 @@
+To build YAGI, do the following:
+
+1. Download 'libantlr3c-3.4.tar.gz' from http://www.antlr3.org/download/C/
+2. Unpack, ./configure, make, make install
+3. In the YAGI root dir, run 'cmake .' and 'make'
