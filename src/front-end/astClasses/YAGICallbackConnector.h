@@ -243,57 +243,57 @@ namespace YAGICallbackConnector
 
   void consumeValue()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().consumeValue();
   }
 
   void addValueList()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addValueList();
   }
 
   void addActionExec(pANTLR3_STRING actionToExecName)
   {
-    //ASTBuilder::getInstance().addActionExec((char*) actionToExecName->chars);
+    ASTBuilder::getInstance().addActionExec((char*) actionToExecName->chars);
   }
 
   void addTest()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addTest();
   }
 
   void addChoose()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addChoose();
   }
 
   void consumeBlock()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().consumeBlock();
   }
 
   void addPick()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addPick();
   }
 
   void addForLoop()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addForLoop();
   }
 
   void addConditional()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addConditional();
   }
 
   void addWhileLoop()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addWhileLoop();
   }
 
   void addSearch()
   {
-    //ASTBuilder::getInstance().consumeStatement();
+    ASTBuilder::getInstance().addSearch();
   }
 
   void connectCallbacks()
@@ -372,7 +372,6 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addConditionalCallback = addConditional;
     yagiCallbackCollection.addWhileLoopCallback = addWhileLoop;
     yagiCallbackCollection.addSearchCallback = addSearch;
-
 
   }
 

@@ -53,6 +53,16 @@
 #include "../../common/ASTNodeTypes/Declarations/PassiveSensing/NodePassiveSensingDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
+#include "../../common/ASTNodeTypes/Statements/NodeActionExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
+#include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
+#include "../../common/ASTNodeTypes/Statements/NodePick.h"
+#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
+
 
 class ASTBuilder
 {
@@ -146,6 +156,17 @@ class ASTBuilder
     //Statements
     void addBlock();
     void consumeStatement();
+    void consumeValue();
+    void addValueList();
+    void addActionExec(const std::string& actionToExecName);
+    void addTest();
+    void addChoose();
+    void consumeBlock();
+    void addPick();
+    void addForLoop();
+    void addConditional();
+    void addWhileLoop();
+    void addSearch();
 
     std::shared_ptr<ASTNodeBase> getAST()
     {

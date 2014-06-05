@@ -157,7 +157,7 @@ for_loop
 	;
 
 conditional
-	: ^(IT_CONDITIONAL formula ^(IT_BLOCK block) block?)
+	: ^(IT_CONDITIONAL formula block block?)
 	
 	{
 	  ADD_CONDITIONAL();

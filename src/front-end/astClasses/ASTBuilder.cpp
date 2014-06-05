@@ -814,3 +814,218 @@ void ASTBuilder::addProcDecl(const std::string& procName)
 
   ast.push(procDecl);
 }
+
+void ASTBuilder::consumeValue()
+{
+  //get value
+  auto val = getFrontElement<ASTNodeBase>();
+  ast.pop();
+
+  //get val_list
+  auto valList = getFrontElement<NodeValueList>();
+  if (valList == nullptr)
+    throw std::runtime_error("No ValueList for consumeValue!");
+
+  valList->addValue(val);
+}
+
+void ASTBuilder::addValueList()
+{
+  auto valList = std::make_shared<NodeValueList>();
+  ast.push(valList);
+}
+
+void ASTBuilder::addActionExec(const std::string& actionToExecName)
+{
+  auto actionExec = std::make_shared<NodeActionExecution>();
+  actionExec->setActionToExecName(std::make_shared<NodeID>(actionToExecName));
+
+  auto execParams = getFrontElement<NodeValueList>();
+  if (execParams == nullptr)
+  {
+    throw std::runtime_error("There must be a value list for an action execution!");
+  }
+  ast.pop();
+
+  actionExec->setParameters(execParams);
+  ast.push(actionExec);
+}
+
+void ASTBuilder::addTest()
+{
+  auto test = std::make_shared<NodeTest>();
+
+  auto formula = getFrontElement<NodeFormulaBase>();
+  if (formula == nullptr)
+  {
+    throw std::runtime_error("There must be a formula to test!");
+  }
+  ast.pop();
+
+  test->setFormula(formula);
+  ast.push(test);
+}
+
+void ASTBuilder::addChoose()
+{
+  auto choose = std::make_shared<NodeChoose>();
+  ast.push(choose);
+
+}
+
+void ASTBuilder::consumeBlock()
+{
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("Want to consume block when there is none!");
+  }
+  ast.pop();
+
+  //Get the consumer
+  auto choose = getFrontElement<NodeChoose>();
+  if (choose == nullptr)
+  {
+    throw std::runtime_error("Invalid type of the consumer of a block!");
+  }
+
+  choose->addBlock(block);
+}
+
+void ASTBuilder::addPick()
+{
+  auto pick = std::make_shared<NodePick>();
+
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("No block for pick!");
+  }
+  ast.pop();
+
+  auto setexpr = getFrontElement<NodeSetExpression>();
+  if (setexpr == nullptr)
+  {
+    throw std::runtime_error("No setexpr for pick!");
+  }
+  ast.pop();
+
+  auto tuple = getFrontElement<NodeTuple>();
+  if (tuple == nullptr)
+  {
+    throw std::runtime_error("No tuple for pick!");
+  }
+  ast.pop();
+
+  pick->setBlock(block);
+  pick->setSetExpr(setexpr);
+  pick->setTuple(tuple);
+
+  ast.push(pick);
+}
+
+void ASTBuilder::addForLoop()
+{
+  auto forLoop = std::make_shared<NodeForLoop>();
+
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("No block for for-loop!");
+  }
+  ast.pop();
+
+  auto setexpr = getFrontElement<NodeSetExpression>();
+  if (setexpr == nullptr)
+  {
+    throw std::runtime_error("No setexpr for for-loop!");
+  }
+  ast.pop();
+
+  auto tuple = getFrontElement<NodeTuple>();
+  if (tuple == nullptr)
+  {
+    throw std::runtime_error("No tuple for for-loop!");
+  }
+  ast.pop();
+
+  forLoop->setBlock(block);
+  forLoop->setSetExpr(setexpr);
+  forLoop->setTuple(tuple);
+
+  ast.push(forLoop);
+}
+
+void ASTBuilder::addConditional()
+{
+  auto conditional = std::make_shared<NodeConditional>();
+
+  auto block1 = getFrontElement<NodeBlock>();
+  if (block1 == nullptr)
+  {
+    throw std::runtime_error("No block for conditional!");
+  }
+  ast.pop();
+
+  auto block2 = getFrontElement<NodeBlock>();
+  if (block2 == nullptr) //if without else
+  {
+    conditional->setIfBlock(block1);
+  }
+  else //if + else
+  {
+    conditional->setIfBlock(block2);
+    conditional->setElseBlock(block1);
+    ast.pop();
+  }
+
+  auto formula = getFrontElement<NodeFormulaBase>();
+  if (formula == nullptr)
+  {
+    throw std::runtime_error("No formula for conditional!");
+  }
+  ast.pop();
+
+  conditional->setFormula(formula);
+
+  ast.push(conditional);
+}
+void ASTBuilder::addWhileLoop()
+{
+  auto whileLoop = std::make_shared<NodeWhileLoop>();
+
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("No block for while-loop!");
+  }
+  ast.pop();
+
+  auto formula = getFrontElement<NodeFormulaBase>();
+  if (formula == nullptr)
+  {
+    throw std::runtime_error("No formula for while-loop!");
+  }
+  ast.pop();
+
+  whileLoop->setFormula(formula);
+  whileLoop->setBlock(block);
+
+  ast.push(whileLoop);
+
+}
+void ASTBuilder::addSearch()
+{
+  auto search = std::make_shared<NodeSearch>();
+
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("No block for search!");
+  }
+  ast.pop();
+
+  search->setBlock(block);
+
+  ast.push(search);
+}

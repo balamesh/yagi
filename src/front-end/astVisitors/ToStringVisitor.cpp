@@ -32,7 +32,7 @@ void ToStringVisitor::visit(NodeDomainStringElements* domainStringElements)
 
 void ToStringVisitor::visit(NodeFluentDecl* fluentDecl)
 {
-  outString += "[FluentDecl] ";
+  outString = "[FluentDecl] " + outString;
 }
 
 void ToStringVisitor::visit(NodeFactDecl* factDecl)

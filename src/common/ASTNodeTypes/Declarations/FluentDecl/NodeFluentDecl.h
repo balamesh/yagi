@@ -35,8 +35,6 @@ class NodeFluentDecl: public ASTNodeBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      visitor->visit(this);
-
       fluentName_->accept(visitor);
 
       std::for_each(std::begin(domains_), std::end(domains_),
@@ -45,6 +43,7 @@ class NodeFluentDecl: public ASTNodeBase
             domain->accept(visitor);
           });
 
+      visitor->visit(this);
     }
 
     const std::vector<std::shared_ptr<NodeDomainBase> >& getDomains() const

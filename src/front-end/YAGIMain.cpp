@@ -118,18 +118,22 @@ bool execute(const std::string& line)
   }
 
   auto langAST = psr->program(psr);
-  std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+
   pYAGITreeWalker treePsr = nullptr;
   pANTLR3_COMMON_TREE_NODE_STREAM nodes = nullptr;
 
   if (psr->pParser->rec->state->errorCount > 0)
   {
-    fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n",
-        psr->pParser->rec->state->errorCount);
+    std::cout << "The parser returned " << psr->pParser->rec->state->errorCount
+        << " error(s), tree walking aborted." << std::endl;
+//    fprintf(stderr, "The parser returned %d errors, tree walking aborted.\n",
+//        psr->pParser->rec->state->errorCount);
 
   }
   else
   {
+    std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+
     nodes = antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT);
 
     treePsr = YAGITreeWalkerNew(nodes);

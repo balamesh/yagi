@@ -34,11 +34,11 @@ class NodeDomainStringElements: public NodeDomainBase
 
     virtual void accept(ASTNodeVisitorBase* visitor) override
     {
-      visitor->visit(this);
-
       std::for_each(std::begin(domainElements_), std::end(domainElements_),
           [&visitor](std::shared_ptr<NodeString> str)
           { str->accept(visitor);});
+
+      visitor->visit(this);
     }
 };
 
