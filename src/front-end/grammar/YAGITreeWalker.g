@@ -116,7 +116,7 @@ statement
 	;
 
 action_exec
-	: ^(IT_ACTION_EXEC ID ^(IT_VALUE_LIST value_list))
+	: ^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?)
 	
 	{
 	  ADD_ACTION_EXEC($ID->toString($ID));

@@ -220,7 +220,8 @@ void ASTBuilder::addVarAssign()
 
 void ASTBuilder::addPatternMatch()
 {
-  //TODO
+  auto patternMatching = std::make_shared<NodePatternMatching>();
+  ast.push(patternMatching);
 }
 
 void ASTBuilder::addTuple()
@@ -512,6 +513,8 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   if (setExpr == nullptr)
   {
     //if its not already a setexpression we try to make it one...
+    //TODO: we need this potentially multiple times, either put in
+    //a method or change the inheritance structure!
     auto newSetExpr = std::make_shared<NodeSetExpression>();
     newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
     quantifiedFormula->setSetExpr(newSetExpr);
@@ -801,6 +804,7 @@ void ASTBuilder::addProcDecl(const std::string& procName)
   {
     throw std::runtime_error("There must be a block for a proc decl!");
   }
+  procDecl->setBlock(block);
 
   ast.pop();
 
@@ -841,13 +845,12 @@ void ASTBuilder::addActionExec(const std::string& actionToExecName)
   actionExec->setActionToExecName(std::make_shared<NodeID>(actionToExecName));
 
   auto execParams = getFrontElement<NodeValueList>();
-  if (execParams == nullptr)
+  if (execParams != nullptr)
   {
-    throw std::runtime_error("There must be a value list for an action execution!");
+    actionExec->setParameters(execParams);
+    ast.pop();
   }
-  ast.pop();
 
-  actionExec->setParameters(execParams);
   ast.push(actionExec);
 }
 
@@ -906,7 +909,14 @@ void ASTBuilder::addPick()
   auto setexpr = getFrontElement<NodeSetExpression>();
   if (setexpr == nullptr)
   {
-    throw std::runtime_error("No setexpr for pick!");
+    //if its not already a setexpression we try to make it one...
+    auto newSetExpr = std::make_shared<NodeSetExpression>();
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
+    pick->setSetExpr(newSetExpr);
+  }
+  else
+  {
+    pick->setSetExpr(setexpr);
   }
   ast.pop();
 
@@ -918,7 +928,6 @@ void ASTBuilder::addPick()
   ast.pop();
 
   pick->setBlock(block);
-  pick->setSetExpr(setexpr);
   pick->setTuple(tuple);
 
   ast.push(pick);
@@ -938,8 +947,16 @@ void ASTBuilder::addForLoop()
   auto setexpr = getFrontElement<NodeSetExpression>();
   if (setexpr == nullptr)
   {
-    throw std::runtime_error("No setexpr for for-loop!");
+    //if its not already a setexpression we try to make it one...
+    auto newSetExpr = std::make_shared<NodeSetExpression>();
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
+    forLoop->setSetExpr(newSetExpr);
   }
+  else
+  {
+    forLoop->setSetExpr(setexpr);
+  }
+
   ast.pop();
 
   auto tuple = getFrontElement<NodeTuple>();
@@ -950,7 +967,6 @@ void ASTBuilder::addForLoop()
   ast.pop();
 
   forLoop->setBlock(block);
-  forLoop->setSetExpr(setexpr);
   forLoop->setTuple(tuple);
 
   ast.push(forLoop);

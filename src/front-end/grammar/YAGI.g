@@ -189,7 +189,7 @@ statement
 action_exec
 	:	ID TOKEN_OPEN_PAREN (value_list)? TOKEN_CLOSE_PAREN TOKEN_EOL
 		
-		-> ^(IT_ACTION_EXEC ID ^(IT_VALUE_LIST value_list))
+		-> ^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?)
 	;	
 	
 value_list	
@@ -226,7 +226,7 @@ conditional
 	:	TOKEN_IF TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN TOKEN_THEN block 
 		(TOKEN_ELSE block)? TOKEN_END_IF
 		
-		-> ^(IT_CONDITIONAL formula ^(IT_BLOCK block) block?)
+		-> ^(IT_CONDITIONAL formula block block?)
 	;
 	
 while_loop
@@ -331,8 +331,8 @@ tuple
 	
 tuple_val 
 	:	STRING
-	|     TOKEN_PATTERN_MATCHING
-	|     var
+	|	TOKEN_PATTERN_MATCHING
+	|     	var
 	;	
 	
 //******************************************************************************
@@ -352,16 +352,7 @@ valexpr
 	:	value (expr_op^ value)* 
 	;
 
-//not sure which version is better, depends on how to transform it into a treegrammar
-//valexpr	:	(a=value->$a) 
-//		  (
-//		    expr_op b=value
-//		    -> ^(expr_op $valexpr $b) 
-//		  )* 
-//	;
 
-
-		
 expr_op
 	:	TOKEN_PLUS -> IT_PLUS 
 	      | TOKEN_MINUS -> IT_MINUS

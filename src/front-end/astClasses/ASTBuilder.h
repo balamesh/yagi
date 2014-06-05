@@ -62,6 +62,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
 #include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 #include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 
 
 class ASTBuilder
@@ -73,7 +74,7 @@ class ASTBuilder
     {
       if (ast.size())
       {
-        //if ast is empty behaviour is undefined!!
+        //if ast is empty behaviour is (potentially) undefined!!
         return std::dynamic_pointer_cast<T>(ast.top());
       }
       else

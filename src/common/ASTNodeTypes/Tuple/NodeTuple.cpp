@@ -28,9 +28,9 @@ bool NodeTuple::isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& tupleVal)
   if (var != nullptr)
     return true;
 
-  //TODO
-  //  auto intVal = std::dynamic_pointer_cast<NodeSet>(valueToAssign);
-  //  if (intVal != nullptr) return true;
+  auto patternMatching = std::dynamic_pointer_cast<NodePatternMatching>(tupleVal);
+  if (patternMatching != nullptr)
+    return true;
 
   return false;
 }
