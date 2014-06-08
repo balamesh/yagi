@@ -19,6 +19,7 @@ class NodeTest: public NodeStatementBase
     std::shared_ptr<NodeFormulaBase> formula_;
 
   public:
+    DEFINE_VISITABLE()
     NodeTest();
     virtual ~NodeTest();
 
@@ -32,12 +33,12 @@ class NodeTest: public NodeStatementBase
       formula_ = formula;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      formula_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      formula_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODETEST_H_ */

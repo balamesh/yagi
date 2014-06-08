@@ -17,7 +17,7 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Statements/NodeBlock.h"
 
-class NodeProcDecl: public ASTNodeBase
+class NodeProcDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> procName_;
@@ -25,6 +25,7 @@ class NodeProcDecl: public ASTNodeBase
     std::shared_ptr<NodeBlock> block_;
 
   public:
+    DEFINE_VISITABLE()
     NodeProcDecl();
     virtual ~NodeProcDecl();
 
@@ -58,17 +59,17 @@ class NodeProcDecl: public ASTNodeBase
       procName_ = procName;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      procName_->accept(visitor);
-
-      if (argList_ != nullptr)
-        argList_->accept(visitor);
-
-      block_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      procName_->accept(visitor);
+//
+//      if (argList_ != nullptr)
+//        argList_->accept(visitor);
+//
+//      block_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEPROCDECL_H_ */

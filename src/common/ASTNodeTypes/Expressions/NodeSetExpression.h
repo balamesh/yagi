@@ -15,25 +15,26 @@
 
 #include <memory>
 
-class NodeSetExpression: public ASTNodeBase
+class NodeSetExpression: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeSetExpressionOperator> operator_;
-    std::shared_ptr<ASTNodeBase> lhs_;
-    std::shared_ptr<ASTNodeBase> rhs_;
+    std::shared_ptr<ASTNodeBase<>> lhs_;
+    std::shared_ptr<ASTNodeBase<>> rhs_;
 
   public:
+    DEFINE_VISITABLE()
     NodeSetExpression();
     virtual ~NodeSetExpression();
 
-    static bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
+    static bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& valueToAssign);
 
-    const std::shared_ptr<ASTNodeBase>& getLhs() const
+    const std::shared_ptr<ASTNodeBase<>>& getLhs() const
     {
       return lhs_;
     }
 
-    void setLhs(const std::shared_ptr<ASTNodeBase>& lhs)
+    void setLhs(const std::shared_ptr<ASTNodeBase<>>& lhs)
     {
       if (isPassedTypeValid(lhs))
         this->lhs_ = lhs;
@@ -52,12 +53,12 @@ class NodeSetExpression: public ASTNodeBase
       operator_ = _operator;
     }
 
-    const std::shared_ptr<ASTNodeBase>& getRhs() const
+    const std::shared_ptr<ASTNodeBase<>>& getRhs() const
     {
       return rhs_;
     }
 
-    void setRhs(const std::shared_ptr<ASTNodeBase>& rhs)
+    void setRhs(const std::shared_ptr<ASTNodeBase<>>& rhs)
     {
       if (isPassedTypeValid(rhs))
         this->rhs_ = rhs;
@@ -65,14 +66,14 @@ class NodeSetExpression: public ASTNodeBase
         throw std::runtime_error("Invalid Type passed to SetExpression (rhs)!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      if (operator_ != nullptr) operator_->accept(visitor);
-      if (lhs_ != nullptr) lhs_->accept(visitor);
-      if (rhs_ != nullptr) rhs_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      if (operator_ != nullptr) operator_->accept(visitor);
+//      if (lhs_ != nullptr) lhs_->accept(visitor);
+//      if (rhs_ != nullptr) rhs_->accept(visitor);
+//    }
 };
 
 #endif /* NODESETEXPRESSION_H_ */

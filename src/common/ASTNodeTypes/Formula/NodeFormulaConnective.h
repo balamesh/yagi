@@ -18,12 +18,13 @@ enum class FormulaConnective
   And, Or, Implies, Unknown
 };
 
-class NodeFormulaConnective: public ASTNodeBase
+class NodeFormulaConnective: public ASTNodeBase<>
 {
   private:
     FormulaConnective formularConnective_;
 
   public:
+    DEFINE_VISITABLE()
     NodeFormulaConnective();
     virtual ~NodeFormulaConnective();
 
@@ -49,10 +50,10 @@ class NodeFormulaConnective: public ASTNodeBase
       formularConnective_ = formularConnective;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEFORMULACONNECTIVE_H_ */

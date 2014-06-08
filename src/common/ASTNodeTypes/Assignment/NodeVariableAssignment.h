@@ -21,6 +21,7 @@ class NodeVariableAssignment: public NodeAssignmentBase
     std::shared_ptr<NodeValueExpression> valExpr_;
 
   public:
+    DEFINE_VISITABLE()
     NodeVariableAssignment();
     virtual ~NodeVariableAssignment();
 
@@ -44,13 +45,13 @@ class NodeVariableAssignment: public NodeAssignmentBase
       variable_ = variable;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      variable_->accept(visitor);
-      valExpr_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      variable_->accept(visitor);
+//      valExpr_->accept(visitor);
+//    }
 };
 
 #endif /* NODEVARIABLEASSIGNMENT_H_ */

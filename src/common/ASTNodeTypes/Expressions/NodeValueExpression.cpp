@@ -21,7 +21,7 @@ NodeValueExpression::~NodeValueExpression()
   // TODO Auto-generated destructor stub
 }
 
-bool NodeValueExpression::isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign)
+bool NodeValueExpression::isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& valueToAssign)
 {
   //type must be either String, Integer, Variable or NodeValueExpression
   auto stringVal = std::dynamic_pointer_cast<NodeString>(valueToAssign);

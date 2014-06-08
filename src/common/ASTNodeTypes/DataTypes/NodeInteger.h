@@ -12,12 +12,13 @@
 
 #include "../ASTNodeBase.h"
 
-class NodeInteger: public ASTNodeBase
+class NodeInteger: public ASTNodeBase<>
 {
   private:
     int value_;
 
   public:
+    DEFINE_VISITABLE()
     NodeInteger();
     virtual ~NodeInteger();
 
@@ -34,11 +35,6 @@ class NodeInteger: public ASTNodeBase
     void setValueFromString(std::string val)
     {
       value_ = std::stoi(val);
-    }
-
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
     }
 };
 

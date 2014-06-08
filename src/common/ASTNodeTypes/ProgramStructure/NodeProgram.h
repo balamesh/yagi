@@ -16,12 +16,12 @@
 #include "../Declarations/PassiveSensing/NodePassiveSensingDecl.h"
 #include "../Statements/NodeStatementBase.h"
 
-class NodeProgram: public ASTNodeBase
+class NodeProgram: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<ASTNodeBase>> program;
+    std::vector<std::shared_ptr<ASTNodeBase<>>> program;
 
-    static bool TypeOk(std::shared_ptr<ASTNodeBase> line)
+    static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
     {
       return (std::dynamic_pointer_cast<NodeFluentDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeFactDecl>(line) != nullptr
@@ -35,7 +35,8 @@ class NodeProgram: public ASTNodeBase
     }
 
   public:
-    void addStatementToProgram(std::shared_ptr<ASTNodeBase> statement)
+    DEFINE_VISITABLE()
+    void addStatementToProgram(std::shared_ptr<ASTNodeBase<>> statement)
     {
       program.insert(std::begin(program), statement);
     }
@@ -43,24 +44,24 @@ class NodeProgram: public ASTNodeBase
     NodeProgram();
     virtual ~NodeProgram();
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      std::for_each(program.begin(), program.end(), [&visitor](std::shared_ptr<ASTNodeBase> stmt)
-      {
-        //safety net to check if only valid YAGI lines and not any
-        //garbage resulting from a bug is considered a line...
-          if (!TypeOk(stmt))
-          {
-            throw std::runtime_error("Invalid node type left on program-level of AST!");
-          }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      std::for_each(program.begin(), program.end(), [&visitor](std::shared_ptr<ASTNodeBase> stmt)
+//      {
+//        //safety net to check if only valid YAGI lines and not any
+//        //garbage resulting from a bug is considered a line...
+//          if (!TypeOk(stmt))
+//          {
+//            throw std::runtime_error("Invalid node type left on program-level of AST!");
+//          }
+//
+//          stmt->accept(visitor);
+//        });
+//
+//      visitor->visit(this);
+//    }
 
-          stmt->accept(visitor);
-        });
-
-      visitor->visit(this);
-    }
-
-    const std::vector<std::shared_ptr<ASTNodeBase> >& getProgram() const
+    const std::vector<std::shared_ptr<ASTNodeBase<> > >& getProgram() const
     {
       return program;
     }

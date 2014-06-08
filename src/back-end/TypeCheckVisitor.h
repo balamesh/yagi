@@ -1,26 +1,25 @@
 /*
- * ToStringVisitor.h
+ * TypeCheckVisitor.h
  *
- *  Created on: May 22, 2014
+ *  Created on: Jun 7, 2014
  *      Author: cmaier
  */
 
-#ifndef TOSTRINGVISITOR_H_
-#define TOSTRINGVISITOR_H_
+#ifndef TYPECHECKVISITOR_H_
+#define TYPECHECKVISITOR_H_
 
-#include <iostream>
-#include <memory>
 #include <vector>
+#include <algorithm>
 
-#include "../../common/ASTNodeVisitorBase.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
-#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
-#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
-#include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
-#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
-#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../common/ASTNodeVisitorBase.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../common/ASTNodeTypes/Identifier/NodeID.h"
+#include "../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
+#include "../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
+#include "../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 //#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
@@ -46,44 +45,33 @@
 //#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
 //#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 
-class ToStringVisitor: public ASTNodeVisitorBase,
+class TypeCheckVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
-    public Visitor<NodeDomainInteger>,
-    public Visitor<NodeDomainString>,
     public Visitor<NodeDomainStringElements>,
-    public Visitor<NodeID>,
     public Visitor<NodeProgram>,
-    public Visitor<NodeString>,
     public Visitor<NodeFactDecl>
 {
   private:
-    std::string astString_;
+    bool hasTypeError_;
+    std::string errorText;
 
   public:
+
     void visit(NodeProgram& program)
     {
+      hasTypeError_ = false;
+
       std::for_each(program.getProgram().begin(), program.getProgram().end(),
           [this](std::shared_ptr<ASTNodeBase<>> stmt)
           {
-            //safety net to check if only valid YAGI lines and not any
-            //garbage resulting from a bug is considered a line...
-//            if (!TypeOk(stmt))
-//            {
-//              throw std::runtime_error("Invalid node type left on program-level of AST!");
-//            }
-            astString_ += "^(";
             stmt->accept(*this);
-            astString_ += ")";
           });
     }
 
     void visit(NodeFluentDecl& fluentDecl)
     {
-      astString_ += "[FluentDecl] ";
-      fluentDecl.getFluentName()->accept(*this);
-
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
-          [this](std::shared_ptr<ASTNodeBase<>> domain)
+          [this,&fluentDecl](std::shared_ptr<NodeDomainBase> domain)
           {
             domain->accept(*this);
           });
@@ -91,53 +79,34 @@ class ToStringVisitor: public ASTNodeVisitorBase,
 
     void visit(NodeFactDecl& factDecl)
     {
-      astString_ += "[FactDecl] ";
-
-      factDecl.getFactName()->accept(*this);
-
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
-          [this](std::shared_ptr<ASTNodeBase<>> domain)
+          [this,&factDecl](std::shared_ptr<NodeDomainBase> domain)
           {
             domain->accept(*this);
           });
     }
 
-    void visit(NodeDomainInteger& domainInt)
+    void visit(NodeDomainStringElements& domain) override
     {
-      astString_ += "[Domain INTEGER] ";
+      std::vector<std::string> vals;
+
+      //TODO: just a dummy to check if it all works as expected
+      if (domain.getDomainElements().size() <= 3)
+      {
+        hasTypeError_ = true;
+        errorText = "A domain with all elements enumerated has to have more than 3 values! ;-)";
+      }
     }
 
-    void visit(NodeDomainString& domainString)
+    const std::string& getErrorText() const
     {
-      astString_ += "[Domain STRING] ";
+      return errorText;
     }
 
-    void visit(NodeID& id)
+    bool hasTypeError() const
     {
-      astString_ += "[ID=" + id.getId() + "] ";
-    }
-
-    void visit(NodeString& str)
-    {
-      astString_ += "[String=" + str.getString() + "] ";
-    }
-
-    void visit(NodeDomainStringElements& domainStringElems)
-    {
-      astString_ +=  "^([Domain] ";
-
-      std::for_each(std::begin(domainStringElems.getDomainElements()),
-          std::end(domainStringElems.getDomainElements()),
-          [this](std::shared_ptr<ASTNodeBase<>>elem)
-          {
-            elem->accept(*this);
-          });
-    }
-
-    const std::string& getAstString() const
-    {
-      return astString_;
+      return hasTypeError_;
     }
 };
 
-#endif /* TOSTRINGVISITOR_H_ */
+#endif /* TYPECHECKVISITOR_H_ */

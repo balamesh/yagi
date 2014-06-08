@@ -17,6 +17,7 @@ class NodeSearch: public NodeStatementBase
     std::shared_ptr<NodeBlock> block_;
 
   public:
+    DEFINE_VISITABLE()
     NodeSearch();
     virtual ~NodeSearch();
 
@@ -30,12 +31,12 @@ class NodeSearch: public NodeStatementBase
       block_ = block;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      block_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      block_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODESEARCH_H_ */

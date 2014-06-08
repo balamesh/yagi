@@ -21,6 +21,7 @@ class NodeActionExecution: public NodeStatementBase
     std::shared_ptr<NodeValueList> parameters_;
 
   public:
+    DEFINE_VISITABLE()
     NodeActionExecution();
     virtual ~NodeActionExecution();
 
@@ -44,13 +45,13 @@ class NodeActionExecution: public NodeStatementBase
       parameters_ = parameters;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      actionToExecName_->accept(visitor);
-      parameters_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      actionToExecName_->accept(visitor);
+//      parameters_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEACTIONEXECUTION_H_ */

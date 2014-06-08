@@ -18,12 +18,13 @@ enum class AtomConnective
     Eq, Neq, Ge, Gt, Le, Lt, Unknown
 };
 
-class NodeAtomConnective: public ASTNodeBase
+class NodeAtomConnective: public ASTNodeBase<>
 {
   private:
     AtomConnective atomConnective_;
 
   public:
+    DEFINE_VISITABLE()
     NodeAtomConnective();
     virtual ~NodeAtomConnective();
 
@@ -56,10 +57,10 @@ class NodeAtomConnective: public ASTNodeBase
         throw std::runtime_error("Invalid atom connective string '" + connString + "'!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODECONNECTIVE_H_ */

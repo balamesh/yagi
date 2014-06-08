@@ -18,6 +18,7 @@ class NodeNegation: public NodeFormulaBase
     std::shared_ptr<NodeFormulaBase> formula_;
 
   public:
+    DEFINE_VISITABLE()
     NodeNegation();
     virtual ~NodeNegation();
 
@@ -31,12 +32,12 @@ class NodeNegation: public NodeFormulaBase
       formula_ = formula;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      formula_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      formula_->accept(visitor);
+//    }
 };
 
 #endif /* NODENEGATION_H_ */

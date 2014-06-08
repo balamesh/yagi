@@ -23,6 +23,7 @@ class NodeFluentAssignment: public NodeAssignmentBase
     std::shared_ptr<NodeSetExpression> setExpr_;
 
   public:
+    DEFINE_VISITABLE()
     NodeFluentAssignment();
     virtual ~NodeFluentAssignment();
 
@@ -57,14 +58,14 @@ class NodeFluentAssignment: public NodeAssignmentBase
       setExpr_ = setExpr;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      fluentName_->accept(visitor);
-      operator_->accept(visitor);
-      setExpr_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      fluentName_->accept(visitor);
+//      operator_->accept(visitor);
+//      setExpr_->accept(visitor);
+//    }
 };
 
 #endif /* NODEFLUENTASSIGNMENT_H_ */

@@ -24,6 +24,7 @@ class NodeConditionalAssignment: public NodeAssignmentBase
     bool buildElseBlock_;
 
   public:
+    DEFINE_VISITABLE()
     NodeConditionalAssignment();
     virtual ~NodeConditionalAssignment();
 
@@ -75,20 +76,20 @@ class NodeConditionalAssignment: public NodeAssignmentBase
       buildElseBlock_ = buildElseBlock;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      formula_->accept(visitor);
-
-      std::for_each(std::begin(assignmentsIf_), std::end(assignmentsIf_),
-          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-          { assignment->accept(visitor);});
-
-      std::for_each(std::begin(assignmentsElse_), std::end(assignmentsElse_),
-          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-          { assignment->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      formula_->accept(visitor);
+//
+//      std::for_each(std::begin(assignmentsIf_), std::end(assignmentsIf_),
+//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
+//          { assignment->accept(visitor);});
+//
+//      std::for_each(std::begin(assignmentsElse_), std::end(assignmentsElse_),
+//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
+//          { assignment->accept(visitor);});
+//    }
 };
 
 #endif /* NODECONDITIONALASSIGNMENT_H_ */

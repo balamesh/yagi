@@ -13,13 +13,14 @@
 class NodeDomainString: public NodeDomainBase
 {
   public:
+    DEFINE_VISITABLE()
     NodeDomainString();
     virtual ~NodeDomainString();
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEDOMAINSTRING_H_ */

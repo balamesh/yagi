@@ -20,7 +20,7 @@
 #include "../../Identifier/NodeID.h"
 #include "NodeActiveSensing.h"
 
-class NodeActionDecl: public ASTNodeBase
+class NodeActionDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> actionName_;
@@ -30,6 +30,7 @@ class NodeActionDecl: public ASTNodeBase
     std::shared_ptr<NodeActiveSensing> activeSensing_;
     std::shared_ptr<NodeSignal> signal_;
   public:
+    DEFINE_VISITABLE()
     NodeActionDecl();
     virtual ~NodeActionDecl();
 
@@ -84,17 +85,17 @@ class NodeActionDecl: public ASTNodeBase
       varList_ = varList;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      actionName_->accept(visitor);
-      if (varList_ != nullptr) varList_->accept(visitor);
-      if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
-      if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
-      if (activeSensing_ != nullptr) activeSensing_->accept(visitor);
-      if (signal_ != nullptr) signal_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      actionName_->accept(visitor);
+//      if (varList_ != nullptr) varList_->accept(visitor);
+//      if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
+//      if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
+//      if (activeSensing_ != nullptr) activeSensing_->accept(visitor);
+//      if (signal_ != nullptr) signal_->accept(visitor);
+//    }
 
     const std::shared_ptr<NodeActiveSensing>& getActiveSensing() const
     {

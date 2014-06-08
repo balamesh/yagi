@@ -20,6 +20,7 @@ class NodeWhileLoop: public NodeStatementBase
     std::shared_ptr<NodeBlock> block_;
 
   public:
+    DEFINE_VISITABLE()
     NodeWhileLoop();
     virtual ~NodeWhileLoop();
 
@@ -43,13 +44,13 @@ class NodeWhileLoop: public NodeStatementBase
       formula_ = formula;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      formula_->accept(visitor);
-      block_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      formula_->accept(visitor);
+//      block_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEWHILELOOP_H_ */

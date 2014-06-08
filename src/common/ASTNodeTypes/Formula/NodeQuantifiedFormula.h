@@ -29,6 +29,7 @@ class NodeQuantifiedFormula: public NodeFormulaBase
     std::shared_ptr<NodeFormulaBase> formula_;
 
   public:
+    DEFINE_VISITABLE()
     NodeQuantifiedFormula();
     virtual ~NodeQuantifiedFormula();
 
@@ -72,16 +73,16 @@ class NodeQuantifiedFormula: public NodeFormulaBase
       setExpr_ = setExpr;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      tuple_->accept(visitor);
-      setExpr_->accept(visitor);
-
-      if (formula_ != nullptr)
-        formula_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      tuple_->accept(visitor);
+//      setExpr_->accept(visitor);
+//
+//      if (formula_ != nullptr)
+//        formula_->accept(visitor);
+//    }
 };
 
 #endif /* NODEQUANTIFIEDFORMULA_H_ */

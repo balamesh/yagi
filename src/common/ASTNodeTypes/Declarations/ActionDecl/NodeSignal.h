@@ -13,35 +13,36 @@
 
 #include "../../ASTNodeBase.h"
 
-class NodeSignal: public ASTNodeBase
+class NodeSignal: public ASTNodeBase<>
 {
   private:
-    std::shared_ptr<ASTNodeBase> signalData_;
+    std::shared_ptr<ASTNodeBase<>> signalData_;
   public:
+    DEFINE_VISITABLE()
     NodeSignal();
-    NodeSignal(const std::shared_ptr<ASTNodeBase>& signalExpr) :
+    NodeSignal(const std::shared_ptr<ASTNodeBase<>>& signalExpr) :
         signalData_(signalExpr)
     {
     }
 
     virtual ~NodeSignal();
 
-    const std::shared_ptr<ASTNodeBase>& getSignalData() const
+    const std::shared_ptr<ASTNodeBase<>>& getSignalData() const
     {
       return signalData_;
     }
 
-    void setSignalData(const std::shared_ptr<ASTNodeBase>& signalData)
+    void setSignalData(const std::shared_ptr<ASTNodeBase<>>& signalData)
     {
       signalData_ = signalData;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      signalData_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      signalData_->accept(visitor);
+//    }
 };
 
 #endif /* NODESIGNAL_H_ */

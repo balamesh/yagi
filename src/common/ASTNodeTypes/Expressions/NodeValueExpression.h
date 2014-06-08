@@ -16,24 +16,25 @@
 
 #include <memory>
 
-class NodeValueExpression: public ASTNodeBase
+class NodeValueExpression: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeValueExpressionOperator> operator_;
-    std::shared_ptr<ASTNodeBase> lhs_;
-    std::shared_ptr<ASTNodeBase> rhs_;
+    std::shared_ptr<ASTNodeBase<>> lhs_;
+    std::shared_ptr<ASTNodeBase<>> rhs_;
   public:
+    DEFINE_VISITABLE()
     NodeValueExpression();
     virtual ~NodeValueExpression();
 
-    static bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& valueToAssign);
+    static bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& valueToAssign);
 
-    const std::shared_ptr<ASTNodeBase>& getLhs() const
+    const std::shared_ptr<ASTNodeBase<>>& getLhs() const
     {
       return lhs_;
     }
 
-    void setLhs(const std::shared_ptr<ASTNodeBase>& lhs)
+    void setLhs(const std::shared_ptr<ASTNodeBase<>>& lhs)
     {
       if (isPassedTypeValid(lhs))
         this->lhs_ = lhs;
@@ -42,12 +43,12 @@ class NodeValueExpression: public ASTNodeBase
             "Invalid Type passed to ValueExpression (lhs)!");
     }
 
-    const std::shared_ptr<ASTNodeBase>& getRhs() const
+    const std::shared_ptr<ASTNodeBase<>>& getRhs() const
     {
       return rhs_;
     }
 
-    void setRhs(const std::shared_ptr<ASTNodeBase>& rhs)
+    void setRhs(const std::shared_ptr<ASTNodeBase<>>& rhs)
     {
       if (isPassedTypeValid(rhs))
         this->rhs_ = rhs;
@@ -56,14 +57,14 @@ class NodeValueExpression: public ASTNodeBase
             "Invalid Type passed to ValueExpression (rhs)!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      if (operator_ != nullptr) operator_->accept(visitor);
-      if (lhs_ != nullptr) lhs_->accept(visitor);
-      if (rhs_ != nullptr) rhs_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      if (operator_ != nullptr) operator_->accept(visitor);
+//      if (lhs_ != nullptr) lhs_->accept(visitor);
+//      if (rhs_ != nullptr) rhs_->accept(visitor);
+//    }
 
     const std::shared_ptr<NodeValueExpressionOperator>& getOperator() const
     {

@@ -11,11 +11,12 @@
 #include "../../ASTNodeTypes/ASTNodeBase.h"
 #include <string>
 
-class NodeVariable: public ASTNodeBase
+class NodeVariable: public ASTNodeBase<>
 {
   private:
     std::string varName_;
   public:
+    DEFINE_VISITABLE()
     NodeVariable(std::string varName) :
         varName_(varName)
     {
@@ -33,10 +34,10 @@ class NodeVariable: public ASTNodeBase
       varName_ = varName;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 
 };
 

@@ -17,18 +17,19 @@
 #include <memory>
 #include <algorithm>
 
-class NodeTuple: public ASTNodeBase
+class NodeTuple: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<ASTNodeBase>> tupleValues_;
+    std::vector<std::shared_ptr<ASTNodeBase<>>> tupleValues_;
 
-    bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& tupleVal);
+    bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& tupleVal);
 
   public:
+    DEFINE_VISITABLE()
     NodeTuple();
     virtual ~NodeTuple();
 
-    void addTupleValue(std::shared_ptr<ASTNodeBase> tupleVal)
+    void addTupleValue(std::shared_ptr<ASTNodeBase<>> tupleVal)
     {
       if (isPassedTypeValid(tupleVal))
         tupleValues_.push_back(tupleVal);
@@ -36,7 +37,7 @@ class NodeTuple: public ASTNodeBase
         throw std::runtime_error("Invalid Type passed as TupleValue");
     }
 
-    const std::vector<std::shared_ptr<ASTNodeBase>>& getTupleValues() const
+    const std::vector<std::shared_ptr<ASTNodeBase<>>>& getTupleValues() const
     {
       return tupleValues_;
     }
@@ -46,14 +47,14 @@ class NodeTuple: public ASTNodeBase
 //      tupleValues_ = tupleValues;
 //    }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      std::for_each(std::begin(tupleValues_), std::end(tupleValues_),
-          [&visitor](std::shared_ptr<ASTNodeBase> tupleVal)
-          { tupleVal->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      std::for_each(std::begin(tupleValues_), std::end(tupleValues_),
+//          [&visitor](std::shared_ptr<ASTNodeBase> tupleVal)
+//          { tupleVal->accept(visitor);});
+//    }
 };
 
 #endif /* NODETUPLE_H_ */

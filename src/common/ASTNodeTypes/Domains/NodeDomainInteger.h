@@ -13,13 +13,14 @@
 class NodeDomainInteger: public NodeDomainBase
 {
   public:
+    DEFINE_VISITABLE()
     NodeDomainInteger();
     virtual ~NodeDomainInteger();
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEDOMAININTEGER_H_ */

@@ -22,6 +22,7 @@ class NodeCompoundFormula: public NodeFormulaBase
     std::shared_ptr<NodeFormulaBase> rightOperand_;
 
   public:
+    DEFINE_VISITABLE()
     NodeCompoundFormula();
     virtual ~NodeCompoundFormula();
 
@@ -55,14 +56,14 @@ class NodeCompoundFormula: public NodeFormulaBase
       rightOperand_ = rightOperand;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      connective_->accept(visitor);
-      leftOperand_->accept(visitor);
-      rightOperand_->accept(visitor);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      connective_->accept(visitor);
+//      leftOperand_->accept(visitor);
+//      rightOperand_->accept(visitor);
+//    }
 };
 
 #endif /* NODECOMPOUNDFORMULA_H_ */

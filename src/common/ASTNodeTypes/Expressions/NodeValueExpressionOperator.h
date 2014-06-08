@@ -18,12 +18,13 @@ enum class ValueExprOperator
   Plus, Minus, Unknown
 };
 
-class NodeValueExpressionOperator: public ASTNodeBase
+class NodeValueExpressionOperator: public ASTNodeBase<>
 {
   private:
     ValueExprOperator operator_;
 
   public:
+    DEFINE_VISITABLE()
     NodeValueExpressionOperator();
     virtual ~NodeValueExpressionOperator();
 
@@ -47,10 +48,10 @@ class NodeValueExpressionOperator: public ASTNodeBase
         throw std::runtime_error("Invalid operator string '" + opString + "'!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODEVALUEEXPRESSIONOPERATOR_H_ */

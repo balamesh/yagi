@@ -158,12 +158,12 @@ void ASTBuilder::addValueExpressionNode()
 {
   auto valExpr = std::make_shared<NodeValueExpression>();
 
-  auto rhs = getFrontElement<ASTNodeBase>();
+  auto rhs = getFrontElement<ASTNodeBase<>>();
   if (rhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for ValExpr rhs!");
   ast.pop();
 
-  auto lhs = getFrontElement<ASTNodeBase>();
+  auto lhs = getFrontElement<ASTNodeBase<>>();
   if (lhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for ValExpr lhs!");
   ast.pop();
@@ -190,7 +190,7 @@ void ASTBuilder::addExprOperator(const std::string& op)
 void ASTBuilder::addVarAssign()
 {
   //get rhs of assignment
-  auto rhs = getFrontElement<ASTNodeBase>();
+  auto rhs = getFrontElement<ASTNodeBase<>>();
   ast.pop();
 
   //get var
@@ -245,7 +245,7 @@ void ASTBuilder::consumeTuple()
 void ASTBuilder::consumeTupleVal()
 {
   //get tuple val
-  auto val = getFrontElement<ASTNodeBase>();
+  auto val = getFrontElement<ASTNodeBase<>>();
   ast.pop();
 
   //get tuple
@@ -264,12 +264,12 @@ void ASTBuilder::addSetExpr()
 {
   auto setExpr = std::make_shared<NodeSetExpression>();
 
-  auto rhs = getFrontElement<ASTNodeBase>();
+  auto rhs = getFrontElement<ASTNodeBase<>>();
   if (rhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for SetExpr rhs!");
   ast.pop();
 
-  auto lhs = getFrontElement<ASTNodeBase>();
+  auto lhs = getFrontElement<ASTNodeBase<>>();
   if (lhs == nullptr)
     throw std::runtime_error("No ASTNodeBase for SetExpr lhs!");
   ast.pop();
@@ -288,7 +288,7 @@ void ASTBuilder::addSetExpr()
 void ASTBuilder::addFluentAssign(const std::string& fluentName)
 {
   //get rhs of assignment
-  auto rhs = getFrontElement<ASTNodeBase>();
+  auto rhs = getFrontElement<ASTNodeBase<>>();
   ast.pop();
 
   //build lhs
@@ -354,7 +354,7 @@ void ASTBuilder::addConstant(const std::string& constant)
 void ASTBuilder::addAtom()
 {
   //an atom can be just "true" or "false..
-  auto elem = getFrontElement<ASTNodeBase>();
+  auto elem = getFrontElement<ASTNodeBase<>>();
 
   if (std::dynamic_pointer_cast<NodeConstant>(elem) != nullptr)
   {
@@ -389,7 +389,7 @@ void ASTBuilder::addAtom()
     atom->setRightOperand(elem);
 
   ast.pop();
-  auto leftOperand = getFrontElement<ASTNodeBase>();
+  auto leftOperand = getFrontElement<ASTNodeBase<>>();
 
   //sanity check
   //TODO: needs refactoring!
@@ -516,7 +516,7 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
     //TODO: we need this potentially multiple times, either put in
     //a method or change the inheritance structure!
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
     quantifiedFormula->setSetExpr(newSetExpr);
   }
   else
@@ -554,7 +554,7 @@ void ASTBuilder::addIn()
     throw std::runtime_error("Expected setexpr, set or id in in-formula!");
   }
 
-  inFormula->setSetExpr(getFrontElement<ASTNodeBase>());
+  inFormula->setSetExpr(getFrontElement<ASTNodeBase<>>());
   ast.pop();
 
   auto tuple = getFrontElement<NodeTuple>();
@@ -602,7 +602,7 @@ void ASTBuilder::addForLoopAssign()
   if (setExpr == nullptr)
   {
     auto setExprNew = std::make_shared<NodeSetExpression>();
-    setExprNew->setRhs(getFrontElement<ASTNodeBase>()); //TODO: arbitrary, needs rethinking
+    setExprNew->setRhs(getFrontElement<ASTNodeBase<>>()); //TODO: arbitrary, needs rethinking
     forLoopAssign->setSetExpr(setExprNew);
   }
   else
@@ -662,7 +662,7 @@ void ASTBuilder::consumeAssignment()
     throw std::runtime_error("Want to consume assignment when there is none!");
   }
 
-  auto consumer = getFrontElement<ASTNodeBase>();
+  auto consumer = getFrontElement<ASTNodeBase<>>();
 
   //Different stuff can consume assignments...
   //TODO: need better abstraction, maybe baseclass should get addAssignment()
@@ -733,7 +733,7 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
   if (signalExpr != nullptr || signalInt != nullptr || signalString != nullptr
       || signalVar != nullptr)
   {
-    actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<ASTNodeBase>()));
+    actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<ASTNodeBase<>>()));
     ast.pop();
   }
 
@@ -822,7 +822,7 @@ void ASTBuilder::addProcDecl(const std::string& procName)
 void ASTBuilder::consumeValue()
 {
   //get value
-  auto val = getFrontElement<ASTNodeBase>();
+  auto val = getFrontElement<ASTNodeBase<>>();
   ast.pop();
 
   //get val_list
@@ -911,7 +911,7 @@ void ASTBuilder::addPick()
   {
     //if its not already a setexpression we try to make it one...
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
     pick->setSetExpr(newSetExpr);
   }
   else
@@ -949,7 +949,7 @@ void ASTBuilder::addForLoop()
   {
     //if its not already a setexpression we try to make it one...
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase>());
+    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
     forLoop->setSetExpr(newSetExpr);
   }
   else

@@ -10,17 +10,12 @@
 
 #include "../ASTNodeBase.h"
 
-class NodePatternMatching: public ASTNodeBase
+class NodePatternMatching: public ASTNodeBase<>
 {
   public:
+    DEFINE_VISITABLE()
     NodePatternMatching();
     virtual ~NodePatternMatching();
-
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      //TODO: implement this
-      //visitor->visit(this);
-    }
 };
 
 #endif /* NODEPATTERNMATCHING_H_ */

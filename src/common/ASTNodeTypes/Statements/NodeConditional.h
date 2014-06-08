@@ -22,6 +22,7 @@ class NodeConditional: public NodeStatementBase
     std::shared_ptr<NodeBlock> elseBlock_;
 
   public:
+    DEFINE_VISITABLE()
     NodeConditional();
     virtual ~NodeConditional();
 
@@ -55,14 +56,14 @@ class NodeConditional: public NodeStatementBase
       ifBlock_ = ifBlock;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      formula_->accept(visitor);
-      ifBlock_->accept(visitor);
-      if (elseBlock_ != nullptr) elseBlock_->accept(visitor);
-
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      formula_->accept(visitor);
+//      ifBlock_->accept(visitor);
+//      if (elseBlock_ != nullptr) elseBlock_->accept(visitor);
+//
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODECONDITIONAL_H_ */

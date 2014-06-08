@@ -18,6 +18,7 @@ class NodeConstant: public NodeFormulaBase
   private:
     bool truthValue_;
   public:
+    DEFINE_VISITABLE()
     NodeConstant();
     virtual ~NodeConstant();
 
@@ -41,10 +42,10 @@ class NodeConstant: public NodeFormulaBase
         throw std::runtime_error("Invalid atom connective string '" + truthVal + "'!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODECONSTANT_H_ */

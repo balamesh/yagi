@@ -12,19 +12,15 @@
 
 #include "../ASTNodeBase.h"
 
-class NodeString: public ASTNodeBase
+class NodeString: public ASTNodeBase<>
 {
   private:
     std::string string_;
 
   public:
+    DEFINE_VISITABLE()
     NodeString();
     virtual ~NodeString();
-
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
 
     const std::string& getString() const
     {

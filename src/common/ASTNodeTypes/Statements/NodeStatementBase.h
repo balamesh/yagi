@@ -10,7 +10,7 @@
 
 #include "../ASTNodeBase.h"
 
-class NodeStatementBase: public ASTNodeBase
+class NodeStatementBase: public ASTNodeBase<>
 {
   public:
     NodeStatementBase();

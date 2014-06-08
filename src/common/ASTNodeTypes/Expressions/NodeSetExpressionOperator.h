@@ -18,12 +18,13 @@ enum class SetExprOperator
   Assign, AddAssign, RemoveAssign, Unknown
 };
 
-class NodeSetExpressionOperator: public ASTNodeBase
+class NodeSetExpressionOperator: public ASTNodeBase<>
 {
   private:
     SetExprOperator operator_;
 
   public:
+    DEFINE_VISITABLE()
     NodeSetExpressionOperator();
     virtual ~NodeSetExpressionOperator();
 
@@ -49,10 +50,10 @@ class NodeSetExpressionOperator: public ASTNodeBase
         throw std::runtime_error("Invalid set expression operator string '" + opString + "'!");
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//    }
 };
 
 #endif /* NODESETEXPRESSIONOPERATOR_H_ */

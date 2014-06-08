@@ -15,12 +15,13 @@
 #include "../../ASTNodeTypes/ASTNodeBase.h"
 #include "../../ASTNodeTypes/Variables/NodeVariable.h"
 
-class NodeVarList: public ASTNodeBase
+class NodeVarList: public ASTNodeBase<>
 {
   private:
     std::vector<std::shared_ptr<NodeVariable>> variables_;
 
   public:
+    DEFINE_VISITABLE()
     NodeVarList();
     virtual ~NodeVarList();
 
@@ -34,14 +35,14 @@ class NodeVarList: public ASTNodeBase
       variables_.push_back(variable);
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      std::for_each(std::begin(variables_), std::end(variables_),
-          [&visitor](std::shared_ptr<NodeVariable> variable)
-          { variable->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      std::for_each(std::begin(variables_), std::end(variables_),
+//          [&visitor](std::shared_ptr<NodeVariable> variable)
+//          { variable->accept(visitor);});
+//    }
 };
 
 #endif /* NODEVARLIST_H_ */

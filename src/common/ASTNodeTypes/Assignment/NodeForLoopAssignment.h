@@ -23,6 +23,7 @@ class NodeForLoopAssignment: public NodeAssignmentBase
     std::vector<std::shared_ptr<NodeAssignmentBase>> assignments_;
 
   public:
+    DEFINE_VISITABLE()
     NodeForLoopAssignment();
     virtual ~NodeForLoopAssignment();
 
@@ -56,17 +57,17 @@ class NodeForLoopAssignment: public NodeAssignmentBase
       tuple_ = tuple;
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      tuple_->accept(visitor);
-      setExpr_->accept(visitor);
-
-      std::for_each(std::begin(assignments_), std::end(assignments_),
-          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-          { assignment->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      tuple_->accept(visitor);
+//      setExpr_->accept(visitor);
+//
+//      std::for_each(std::begin(assignments_), std::end(assignments_),
+//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
+//          { assignment->accept(visitor);});
+//    }
 };
 
 #endif /* NODEFORLOOPASSIGNMENT_H_ */

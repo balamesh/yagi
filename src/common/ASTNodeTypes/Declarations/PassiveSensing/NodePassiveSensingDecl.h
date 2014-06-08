@@ -17,13 +17,14 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Assignment/NodeAssignmentBase.h"
 
-class NodePassiveSensingDecl: public ASTNodeBase
+class NodePassiveSensingDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> passiveSensingName_;
     std::shared_ptr<NodeVarList> argList_;
     std::vector<std::shared_ptr<NodeAssignmentBase>> assignments_;
   public:
+    DEFINE_VISITABLE()
     NodePassiveSensingDecl();
     virtual ~NodePassiveSensingDecl();
 
@@ -57,18 +58,18 @@ class NodePassiveSensingDecl: public ASTNodeBase
       assignments_.push_back(assignment);
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      passiveSensingName_->accept(visitor);
-      if (argList_ != nullptr)
-        argList_->accept(visitor);
-
-      std::for_each(std::begin(assignments_), std::end(assignments_),
-          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-          { assignment->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      passiveSensingName_->accept(visitor);
+//      if (argList_ != nullptr)
+//        argList_->accept(visitor);
+//
+//      std::for_each(std::begin(assignments_), std::end(assignments_),
+//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
+//          { assignment->accept(visitor);});
+//    }
 };
 
 #endif /* NODEPASSIVESENSINGDECL_H_ */

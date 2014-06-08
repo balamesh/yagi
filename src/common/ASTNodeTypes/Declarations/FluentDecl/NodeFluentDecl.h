@@ -17,7 +17,7 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Domains/NodeDomainBase.h"
 
-class NodeFluentDecl: public ASTNodeBase
+class NodeFluentDecl: public ASTNodeBase<>
 {
 
   private:
@@ -25,25 +25,13 @@ class NodeFluentDecl: public ASTNodeBase
     std::vector<std::shared_ptr<NodeDomainBase>> domains_;
 
   public:
+    DEFINE_VISITABLE()
     NodeFluentDecl();
     virtual ~NodeFluentDecl();
 
     void addDomain(std::shared_ptr<NodeDomainBase> domain)
     {
       domains_.push_back(domain);
-    }
-
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      fluentName_->accept(visitor);
-
-      std::for_each(std::begin(domains_), std::end(domains_),
-          [&visitor](std::shared_ptr<NodeDomainBase> domain)
-          {
-            domain->accept(visitor);
-          });
-
-      visitor->visit(this);
     }
 
     const std::vector<std::shared_ptr<NodeDomainBase> >& getDomains() const

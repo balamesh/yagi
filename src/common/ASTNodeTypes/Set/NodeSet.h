@@ -14,12 +14,13 @@
 #include "../ASTNodeBase.h"
 #include "../../ASTNodeTypes/Tuple/NodeTuple.h"
 
-class NodeSet: public ASTNodeBase
+class NodeSet: public ASTNodeBase<>
 {
   private:
     std::vector<std::shared_ptr<NodeTuple>> tuples_;
 
   public:
+    DEFINE_VISITABLE()
     NodeSet();
     virtual ~NodeSet();
 
@@ -37,14 +38,14 @@ class NodeSet: public ASTNodeBase
 //      tuples_ = tuples;
 //    }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
-    {
-      visitor->visit(this);
-
-      std::for_each(std::begin(tuples_), std::end(tuples_),
-          [&visitor](std::shared_ptr<NodeTuple> tuple)
-          { tuple->accept(visitor);});
-    }
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      std::for_each(std::begin(tuples_), std::end(tuples_),
+//          [&visitor](std::shared_ptr<NodeTuple> tuple)
+//          { tuple->accept(visitor);});
+//    }
 };
 
 #endif /* NODESET_H_ */

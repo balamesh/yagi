@@ -169,7 +169,7 @@ class ASTBuilder
     void addWhileLoop();
     void addSearch();
 
-    std::shared_ptr<ASTNodeBase> getAST()
+    std::shared_ptr<ASTNodeBase<>> getAST()
     {
       return (ast.size() > 0 ? ast.top() : nullptr);
     }
@@ -181,7 +181,7 @@ class ASTBuilder
     ASTBuilder();
     virtual ~ASTBuilder();
 
-    std::stack<std::shared_ptr<ASTNodeBase>> ast;
+    std::stack<std::shared_ptr<ASTNodeBase<>>> ast;
 };
 
 #endif /* ASTBUILDER_H_ */

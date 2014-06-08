@@ -19,6 +19,7 @@
 #include <readline/history.h>
 
 #include "astVisitors/ToStringVisitor.h"
+#include "../back-end/TypeCheckVisitor.h"
 
 //#pragma GCC diagnostic error "-Wuninitialized"
 //    foo(a);         /* error is given for this one */
@@ -138,8 +139,17 @@ bool execute(const std::string& line)
 
     auto ast = ASTBuilder::getInstance().getAST();
 
-    auto toStringVisitor = std::make_shared<ToStringVisitor>();
-    ast->accept(toStringVisitor.get());
+    ToStringVisitor toStringVisitor;
+    ast->accept(toStringVisitor);
+    std::cout << "C++ AST: " << toStringVisitor.getAstString() << std::endl;
+
+    TypeCheckVisitor typeCheck;
+    ast->accept(typeCheck);
+
+    if (typeCheck.hasTypeError())
+      std::cout << "Typechecker: " << typeCheck.getErrorText() << std::endl;
+    else
+      std::cout << "Typechecker: No typechecking errors! :-)" << std::endl;
 
     ASTBuilder::getInstance().reset();
   }

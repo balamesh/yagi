@@ -17,7 +17,7 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Domains/NodeDomainBase.h"
 
-class NodeFactDecl: public ASTNodeBase
+class NodeFactDecl: public ASTNodeBase<>
 {
 
   private:
@@ -25,6 +25,7 @@ class NodeFactDecl: public ASTNodeBase
     std::vector<std::shared_ptr<NodeDomainBase>> domains_;
 
   public:
+    DEFINE_VISITABLE()
     NodeFactDecl();
     virtual ~NodeFactDecl();
 
@@ -38,17 +39,27 @@ class NodeFactDecl: public ASTNodeBase
       domains_.push_back(domain);
     }
 
-    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    virtual void accept(ASTNodeVisitorBase* visitor) override
+//    {
+//      visitor->visit(this);
+//
+//      factName_->accept(visitor);
+//
+//      std::for_each(std::begin(domains_), std::end(domains_),
+//          [&visitor](std::shared_ptr<NodeDomainBase> domain)
+//          {
+//            domain->accept(visitor);
+//          });
+//    }
+
+    const std::vector<std::shared_ptr<NodeDomainBase> >& getDomains() const
     {
-      visitor->visit(this);
+      return domains_;
+    }
 
-      factName_->accept(visitor);
-
-      std::for_each(std::begin(domains_), std::end(domains_),
-          [&visitor](std::shared_ptr<NodeDomainBase> domain)
-          {
-            domain->accept(visitor);
-          });
+    const std::shared_ptr<NodeID>& getFactName() const
+    {
+      return factName_;
     }
 };
 
