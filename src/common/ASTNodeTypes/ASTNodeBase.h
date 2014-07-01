@@ -5,7 +5,6 @@
  *      Author: cmaier
  */
 //Alexandrescu's implementation of the visitor pattern
-
 #ifndef ASTNODEBASE_H_
 #define ASTNODEBASE_H_
 
@@ -37,15 +36,14 @@ class ASTNodeBase
       // Apply the Acyclic Visitor
       if (Visitor<T>* p = dynamic_cast<Visitor<T>*>(&guest))
       {
-        p->visit(visited);
-        return;
+        return p->visit(visited);
       }
-      CatchAll<R, T>::OnUnknownVisitor(visited, guest);
+      return CatchAll<R, T>::OnUnknownVisitor(visited, guest);
     }
 };
 
 #define DEFINE_VISITABLE() \
 virtual ReturnType accept(ASTNodeVisitorBase& guest) \
-{  acceptImpl(*this, guest); }
+{  return acceptImpl(*this, guest); }
 
 #endif /* ASTNODEBASE_H_ */

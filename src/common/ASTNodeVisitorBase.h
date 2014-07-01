@@ -26,6 +26,7 @@ class Visitor
   public:
     typedef R ReturnType; // Available for clients
     virtual ReturnType visit(T&) = 0;
+    virtual ~Visitor() {};
 };
 
 #endif /* ASTNODEVISITORBASE_H_ */

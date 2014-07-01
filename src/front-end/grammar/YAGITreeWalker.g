@@ -42,27 +42,26 @@ declaration
 	|	fact_decl
 	|	action_decl
 	| 	proc_decl
-    	|   	passive_sensing_decl
+    	|   	exo_event_decl
+    	|	sensing_decl
 	|	assignment
 	;
 
 fluent_decl
-	: ^(IT_FLUENT_DECL ID ({ADD_FLUENT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})+) 
+	: ^(IT_FLUENT_DECL ID ({ADD_FLUENT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})*) 
 	;	
 	
 fact_decl
-	: ^(IT_FACT_DECL ID ({ADD_FACT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})+) 
+	: ^(IT_FACT_DECL ID ({ADD_FACT_DECL($ID->toString($ID));}) (domain {CONSUME_DOMAIN();})*) 
 	;
 	
 domain	
-	:	TOKEN_DOMAIN_INT {ADD_DOMAIN_INTEGER();}
-		  | TOKEN_DOMAIN_STR {ADD_DOMAIN_STRING();}
-		  | ^(IT_STRING_SET {ADD_DOMAIN_STRING_ELEMENTS();} (st=STRING {ADD_DOMAIN_ELEMENT($st->toString($st));})+)
+	: TOKEN_DOMAIN_STR {ADD_DOMAIN_STRING();}
+	| ^(IT_STRING_SET {ADD_DOMAIN_STRING_ELEMENTS();} (st=STRING {ADD_DOMAIN_ELEMENT($st->toString($st));})+)
 	;
 	
 action_decl
-	: ^(IT_ACTION_DECL ID (^(IT_VAR_LIST var_list))? formula_outerMost? effect? active_sensing? (^(IT_SIGNAL valexpr))? )
-	
+	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list?) (^(IT_EXTERNAL_VARS var_list))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? ) 	
 	{
 	    ADD_ACTION_DECL($ID->toString($ID));
         }
@@ -71,10 +70,6 @@ action_decl
 	
 effect	
 	: ^(IT_EFFECT ({ADD_EFFECT();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
-	;
-	
-active_sensing	
-	: ^(IT_SENSING ^(IT_VAR_LIST var_list) ({ADD_ACTIVE_SENSING();}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))	
 	;
 	
 var_list
@@ -89,10 +84,19 @@ proc_decl
 	  ADD_PROC_DECL($ID->toString($ID));
 	}
 	;	
-	
-passive_sensing_decl
-	: ^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ({ADD_PASSIVE_SENSING_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
+
+//^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ({ADD_PASSIVE_SENSING_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
+exo_event_decl
+	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) ({ADD_EXO_EVENT_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
 	;	
+	
+sensing_decl	
+	: ^(IT_SENSING ID ^(IT_VAR_LIST var_list?) (^(IT_VAR_LIST var_list))? formula)
+	
+	{
+	  ADD_SENSING_DECL($ID->toString($ID));
+	}
+	;
 	
 assignment
 	:	assign
@@ -105,7 +109,7 @@ assignment
 //Statements
 //******************************************************************************
 statement
-	:	action_exec
+	:	action_exec_fluent_query
 	|	test
 	|	choose
 	| 	pick
@@ -115,12 +119,9 @@ statement
     	| 	search
 	;
 
-action_exec
-	: ^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?)
-	
-	{
-	  ADD_ACTION_EXEC($ID->toString($ID));
-	}
+action_exec_fluent_query
+	: 	^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_ACTION_EXEC($ID->toString($ID));}
+	|	^(IT_FLUENT_QUERY ID) 				    { ADD_FLUENT_QUERY($ID->toString($ID));}
 	;	
 	
 value_list	
@@ -199,7 +200,7 @@ ass_op
         ;
     
 for_loop_assign
-	: ^(IT_ASSIGN_ALL tuple setexpr ({ADD_FOR_LOOP_ASSIGN();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
+	: ^(IT_FORALLASSIGN tuple setexpr ({ADD_FOR_LOOP_ASSIGN();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
 	;
 	
 conditional_assign
@@ -250,7 +251,7 @@ atom_connector
 //Sets
 //******************************************************************************
 setexpr	:	^(expr_op setexpr setexpr) {ADD_SETEXPR();}
-	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})+)
+	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})*)
 	|	ID {ADD_ID($ID->toString($ID));}
 	;
 	
@@ -259,12 +260,13 @@ setexpr	:	^(expr_op setexpr setexpr) {ADD_SETEXPR();}
 //Tuples
 //****************************************************************************** 
 tuple	
-	:	^(IT_TUPLE ({ADD_TUPLE();}) (tuple_val {CONSUME_TUPLE_VAL();})+)
+	:	^(IT_TUPLE ({ADD_TUPLE();}) (tuple_val {CONSUME_TUPLE_VAL();})*)
 	;
 	
 tuple_val 
 	:	STRING {ADD_STRING($STRING->toString($STRING));}
 	|     	TOKEN_PATTERN_MATCHING {ADD_PATTERN_MATCH();}
+	|	TOKEN_INCOMPLETE_KNOWLEDGE {ADD_INCOMPLETE_KNOWLEDGE();}
 	|     	var
 	;
 	
@@ -279,14 +281,12 @@ var
 	;
 
 value	
-	:	INT {ADD_INT($INT->toString($INT));}
-	|	STRING {ADD_STRING($STRING->toString($STRING));}
+	:	STRING {ADD_STRING($STRING->toString($STRING));}
 	|	var
 	;
 
 valexpr	
 	:	^(expr_op valexpr valexpr) {ADD_VALEXPR();}
-	|	INT {ADD_INT($INT->toString($INT));}
 	|	STRING {ADD_STRING($STRING->toString($STRING));}
 	|	var
 	;
