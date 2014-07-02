@@ -182,7 +182,7 @@ TOKEN_FOR_EACH
   IT_PROC_DECL;
   IT_SEARCH;
   IT_PICK;
-  IT_ACTION_EXEC;
+  IT_PROC_EXEC;
   IT_FLUENT_QUERY;
   IT_VALUE_LIST;
   IT_CONDITIONAL;
@@ -304,7 +304,7 @@ assignment
 //Statements
 //******************************************************************************	
 statement
-	:	action_exec_fluent_query
+	:	proc_exec_fluent_query
 	|	test
 	|	choose
 	| 	pick
@@ -314,10 +314,10 @@ statement
     	| 	search
 	;
 	
-action_exec_fluent_query
+proc_exec_fluent_query
 	:	ID 
 		(
-		  TOKEN_OPEN_PAREN value_list? TOKEN_CLOSE_PAREN TOKEN_EOL -> ^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?)
+		  TOKEN_OPEN_PAREN value_list? TOKEN_CLOSE_PAREN TOKEN_EOL -> ^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?)
 		| TOKEN_EOL 						   -> ^(IT_FLUENT_QUERY ID)
 		)
 	;	

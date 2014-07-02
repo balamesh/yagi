@@ -51,9 +51,14 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addFluentDeclNode((char*) fluentName->chars);
   }
 
-  void addPassiveSensing(pANTLR3_STRING passSensName)
+  void addExoEvent(pANTLR3_STRING exoEventName)
   {
-    ASTBuilder::getInstance().addPassiveSensingDeclNode((char*) passSensName->chars);
+    ASTBuilder::getInstance().addExoEventDeclNode((char*) exoEventName->chars);
+  }
+
+  void addSensingDecl(pANTLR3_STRING sensingName)
+  {
+    ASTBuilder::getInstance().addSensingDeclNode((char*) sensingName->chars);
   }
 
   void addFact(pANTLR3_STRING factName)
@@ -84,11 +89,6 @@ namespace YAGICallbackConnector
   void addVarAssignCallback()
   {
     ASTBuilder::getInstance().addVarAssign();
-  }
-
-  void addInt(pANTLR3_STRING intVal)
-  {
-    ASTBuilder::getInstance().addIntNode((char*) intVal->chars);
   }
 
   void addString(pANTLR3_STRING stringVal)
@@ -148,6 +148,11 @@ namespace YAGICallbackConnector
   void addPatternMatch()
   {
     ASTBuilder::getInstance().addPatternMatch();
+  }
+
+  void addIncompleteKnowledge()
+  {
+    ASTBuilder::getInstance().addIncompleteKnowledge();
   }
 
   void addTuple()
@@ -251,9 +256,9 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addValueList();
   }
 
-  void addActionExec(pANTLR3_STRING actionToExecName)
+  void addProcExec(pANTLR3_STRING procName)
   {
-    ASTBuilder::getInstance().addActionExec((char*) actionToExecName->chars);
+    ASTBuilder::getInstance().addProcExec((char*) procName->chars);
   }
 
   void addTest()
@@ -302,24 +307,22 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addProcDeclCallback = addProcDecl;
 
     yagiCallbackCollection.addDomainStringCallback = addDomainString;
-    yagiCallbackCollection.addDomainIntegerCallback = addDomainInteger;
     yagiCallbackCollection.addDomainElementCallback = addDomainElement;
     yagiCallbackCollection.addDomainStringElementsCallback = addDomainStringElements;
     yagiCallbackCollection.consumeDomainCallback = consumeDomain;
 
     yagiCallbackCollection.addProgramCallback = addProgram;
     yagiCallbackCollection.addFactDeclCallback = addFact;
-    yagiCallbackCollection.addPassiveSensingDeclCallback = addPassiveSensing;
+    yagiCallbackCollection.addSensingDeclCallback = addSensingDecl;
 
     //Action Decl
     yagiCallbackCollection.addActionDeclCallback = addAction;
     yagiCallbackCollection.addEffectCallback = addEffect;
-    yagiCallbackCollection.addActiveSensingCallback = addActiveSensing;
+    yagiCallbackCollection.addExoEventDeclCallback = addExoEvent;
 
     //Variables
     yagiCallbackCollection.addVarCallback = addVar;
     yagiCallbackCollection.addVarListCallback = addVarList;
-    yagiCallbackCollection.addIntCallback = addInt;
     yagiCallbackCollection.addStringCallback = addString;
     yagiCallbackCollection.consumeVariableCallback = consumeVariable;
     yagiCallbackCollection.addIDCallback = addID;
@@ -337,6 +340,7 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addForLoopAssignCallback = addForLoopAssign;
     yagiCallbackCollection.addConditionalAssignCallback = addConditionalAssign;
     yagiCallbackCollection.addConditionalAssignElseCallback = addConditionalAssignElse;
+    yagiCallbackCollection.addIncompleteKnowledgeCallback = addIncompleteKnowledge;
 
     //Tuples
     yagiCallbackCollection.addTupleCallback = addTuple;
@@ -363,7 +367,7 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.consumeStatementCallback = consumeStatement;
     yagiCallbackCollection.consumeValueCallback = consumeValue;
     yagiCallbackCollection.addValueListCallback = addValueList;
-    yagiCallbackCollection.addActionExecCallback = addActionExec;
+    yagiCallbackCollection.addProcExecCallback = addProcExec;
     yagiCallbackCollection.addTestCallback = addTest;
     yagiCallbackCollection.addChooseCallback = addChoose;
     yagiCallbackCollection.consumeBlockCallback = consumeBlock;

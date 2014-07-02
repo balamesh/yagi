@@ -109,7 +109,7 @@ assignment
 //Statements
 //******************************************************************************
 statement
-	:	action_exec_fluent_query
+	:	proc_exec_fluent_query
 	|	test
 	|	choose
 	| 	pick
@@ -119,8 +119,8 @@ statement
     	| 	search
 	;
 
-action_exec_fluent_query
-	: 	^(IT_ACTION_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_ACTION_EXEC($ID->toString($ID));}
+proc_exec_fluent_query
+	: 	^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_PROC_EXEC($ID->toString($ID));}
 	|	^(IT_FLUENT_QUERY ID) 				    { ADD_FLUENT_QUERY($ID->toString($ID));}
 	;	
 	

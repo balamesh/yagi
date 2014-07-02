@@ -22,24 +22,22 @@ fluent detectedPerson[{"p1","p2","p3"}][{"r1","r2","r3"}];
 fact office [{"p1","p2","p3"}][{"r1","r2","r3"}];
 office = {<"p1","r1">, <"p1","r2">, <"p2","r2">, <"p3","r3">};
 
-//passive sensing to initiate transportation
+//exogenous event to initiate transportation
 //of object $o from $sender to $receiver
-passive-sensing receiveRequest($o, $sender, $receiver)
+exogenous-event receiveRequest($o, $sender, $receiver)
   //add request
   request += {<$o,$sender,$receiver>};
-end passive-sensing
+end exogenous-event
 
-//active-sensing action to detect a person
-action detectPerson( )
-
-//we want to sense a value to $p
-sensing($p): 
-  
+//"setting" action to detect a person, i.e.
+//$p gets its value from an external src
+action detectPerson() external $p
+effect:
   //remove person
   detectedPerson -= {<$p, _>};
 
   //add the sensed person + room tuple to the fluent
-  assign all <$r> in at
+  foreach <$r> in at
     detectedPerson += {<$p, $r>};
   end for	
   
@@ -57,7 +55,7 @@ effect:
   at = {<$r>};
     
   //everything he carries also moves to $r
-  assign all <$o> in carry
+  foreach <$o> in carry
     is_at -= {<$o,_>};
     is_at += {<$o,$r>};
   end for
@@ -121,7 +119,7 @@ proc serve($object, $sender, $receiver)
   end pick	
 end proc
 
-proc main
+proc main()
   //serve a random request
   pick <$x> from request such
     serve($x);

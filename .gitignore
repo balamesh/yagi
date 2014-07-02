@@ -5,3 +5,5 @@ Default/
 .project
 .settings/
 antlr-3.5.2-complete.jar
+/YAGI Unit Tests
+.directory

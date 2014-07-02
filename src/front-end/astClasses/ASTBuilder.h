@@ -107,11 +107,12 @@ class ASTBuilder
     void addFluentDeclNode(const std::string& fluentName);
     void addProgram();
     void addFactDeclNode(const std::string& factName);
-    void addPassiveSensingDeclNode(const std::string& passSensName);
+    void addExoEventDeclNode(const std::string& passSensName);
     void addVarNode(const std::string& varName);
     void addVarListNode();
     void addID(const std::string& id);
     void addProcDecl(const std::string& procName);
+    void addSensingDeclNode(const std::string& sensingName);
 
     //Action Decl
     void addActionDeclNode(const std::string& actionName);
@@ -135,6 +136,7 @@ class ASTBuilder
     void addConditionalAssignElse();
 
     void addPatternMatch();
+    void addIncompleteKnowledge();
     void addTuple();
     void consumeTuple();
     void consumeTupleVal();
@@ -159,7 +161,7 @@ class ASTBuilder
     void consumeStatement();
     void consumeValue();
     void addValueList();
-    void addActionExec(const std::string& actionToExecName);
+    void addProcExec(const std::string& procName);
     void addTest();
     void addChoose();
     void consumeBlock();

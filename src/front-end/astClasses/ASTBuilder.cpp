@@ -99,8 +99,9 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
   ast.push(fluentDeclNode);
 }
 
-void ASTBuilder::addPassiveSensingDeclNode(const std::string& passSensName)
+void ASTBuilder::addExoEventDeclNode(const std::string& passSensName)
 {
+  //TODO
   auto passiveSensingNode = std::make_shared<NodePassiveSensingDecl>();
   passiveSensingNode->setPassiveSensingName(std::make_shared<NodeID>(passSensName));
 
@@ -114,6 +115,11 @@ void ASTBuilder::addPassiveSensingDeclNode(const std::string& passSensName)
   ast.pop();
 
   ast.push(passiveSensingNode);
+}
+
+void ASTBuilder::addSensingDeclNode(const std::string& sensingName)
+{
+  //TODO
 }
 
 void ASTBuilder::addFactDeclNode(const std::string& factName)
@@ -222,6 +228,13 @@ void ASTBuilder::addPatternMatch()
 {
   auto patternMatching = std::make_shared<NodePatternMatching>();
   ast.push(patternMatching);
+}
+
+void ASTBuilder::addIncompleteKnowledge()
+{
+  //TODO
+//  auto patternMatching = std::make_shared<NodePatternMatching>();
+//  ast.push(patternMatching);
 }
 
 void ASTBuilder::addTuple()
@@ -839,10 +852,10 @@ void ASTBuilder::addValueList()
   ast.push(valList);
 }
 
-void ASTBuilder::addActionExec(const std::string& actionToExecName)
+void ASTBuilder::addProcExec(const std::string& procName)
 {
   auto actionExec = std::make_shared<NodeActionExecution>();
-  actionExec->setActionToExecName(std::make_shared<NodeID>(actionToExecName));
+  actionExec->setActionToExecName(std::make_shared<NodeID>(procName));
 
   auto execParams = getFrontElement<NodeValueList>();
   if (execParams != nullptr)

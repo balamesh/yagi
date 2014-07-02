@@ -16,33 +16,30 @@ extern "C"
 
   struct YAGICallbackCollection
   {
+      //Basic program structure
+      void (*addProgramCallback)();
+      void (*addBlockCallback)();
+      void (*consumeBlockCallback)();
+
+      //Declarations
+      void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
+      void (*addFactDeclCallback)(pANTLR3_STRING factName);
+      void (*addActionDeclCallback)(pANTLR3_STRING actionName);
+      void (*addProcDeclCallback)(pANTLR3_STRING procName);
+      void (*addExoEventDeclCallback)(pANTLR3_STRING exoEventName);
+      void (*addSensingDeclCallback)(pANTLR3_STRING sensingName);
+
+      //Domains
       void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
-      void (*addDomainIntegerCallback)();
       void (*addDomainStringCallback)();
       void (*addDomainStringElementsCallback)();
       void (*consumeDomainCallback)();
 
-      void (*addProgramCallback)();
-      void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
-      void (*addFactDeclCallback)(pANTLR3_STRING factName);
-      void (*addPassiveSensingDeclCallback)(pANTLR3_STRING passSensName);
-      void (*addProcDeclCallback)(pANTLR3_STRING procName);
-
-      void (*addActionDeclCallback)(pANTLR3_STRING actionName);
-
-      void (*addVarCallback)(pANTLR3_STRING varName);
-      void (*addVarListCallback)();
-      void (*consumeVariableCallback)();
-      void (*addIntCallback)(pANTLR3_STRING intVal);
-      void (*addStringCallback)(pANTLR3_STRING stringVal);
-      void (*addIDCallback)(pANTLR3_STRING id);
-
-      void (*addActiveSensingCallback)();
+      //Effect
       void (*addEffectCallback)();
 
-      //Expression
-      void (*addValueExpressionCallback)();
-      void (*addExprOperatorCallback)(char* op);
+      //Varlist
+      void (*addVarListCallback)();
 
       //Assignment
       void (*addVarAssignCallback)();
@@ -53,15 +50,22 @@ extern "C"
       void (*addForLoopAssignCallback)();
       void (*addConditionalAssignCallback)();
       void (*addConditionalAssignElseCallback)();
+      void (*addIncompleteKnowledgeCallback)();
 
-      //Tuples
-      void (*addTupleCallback)();
-      void (*consumeTupleValCallback)();
-      void (*consumeTupleCallback)();
+      //Statements
+      void (*addProcExecCallback)(pANTLR3_STRING procName);
+      void (*addFluentQueryCallback)(pANTLR3_STRING fluentName);
+      void (*addTestCallback)();
+      void (*addChooseCallback)();
+      void (*addPickCallback)();
+      void (*addForLoopCallback)();
+      void (*addConditionalCallback)();
+      void (*addWhileLoopCallback)();
+      void (*addSearchCallback)();
+      void (*consumeStatementCallback)();
 
-      //Sets
-      void (*addTupleSetCallback)();
-      void (*addSetExprCallback)();
+      //ValueList
+      void (*addValueListCallback)();
 
       //Formulas
       void (*addFormulaConnectiveCallback)(char* conn);
@@ -74,51 +78,54 @@ extern "C"
       void (*addAllCallback)();
       void (*addInCallback)();
 
-      //Statements
-      void (*addBlockCallback)();
-      void (*consumeStatementCallback)();
+      //Sets
+      void (*addTupleSetCallback)();
+      void (*addSetExprCallback)();
+
+      //Tuples
+      void (*addTupleCallback)();
+      void (*consumeTupleValCallback)();
+      void (*consumeTupleCallback)();
+
+      //Variables, Types, ID, Values
+      void (*addVarCallback)(pANTLR3_STRING varName);
+      void (*consumeVariableCallback)();
+      void (*addStringCallback)(pANTLR3_STRING stringVal);
+      void (*addIDCallback)(pANTLR3_STRING id);
+
+      //Values, ValExpr
+      void (*addValueExpressionCallback)();
       void (*consumeValueCallback)();
-      void (*addValueListCallback)();
-      void (*addActionExecCallback)(pANTLR3_STRING actionToExecName);
-      void (*addTestCallback)();
-      void (*addChooseCallback)();
-      void (*consumeBlockCallback)();
-      void (*addPickCallback)();
-      void (*addForLoopCallback)();
-      void (*addConditionalCallback)();
-      void (*addWhileLoopCallback)();
-      void (*addSearchCallback)();
+      void (*addExprOperatorCallback)(char* op);
+
   };
 
   extern struct YAGICallbackCollection yagiCallbackCollection;
 
-//Program Structure
+//Basic program structure
 #define ADD_PROGRAM() yagiCallbackCollection.addProgramCallback()
+#define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
+#define CONSUME_BLOCK() yagiCallbackCollection.consumeBlockCallback()
 
 //Declarations
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)
 #define ADD_FACT_DECL(x) yagiCallbackCollection.addFactDeclCallback(x)
 #define ADD_ACTION_DECL(x) yagiCallbackCollection.addActionDeclCallback(x)
-#define ADD_PASSIVE_SENSING_DECL(x) yagiCallbackCollection.addPassiveSensingDeclCallback(x)
+#define ADD_PROC_DECL(x) yagiCallbackCollection.addProcDeclCallback(x)
+#define ADD_EXO_EVENT_DECL(x) yagiCallbackCollection.addExoEventDeclCallback(x)
+#define ADD_SENSING_DECL(x) yagiCallbackCollection.addSensingDeclCallback(x)
 
 //Domains
 #define ADD_DOMAIN_ELEMENT(x) yagiCallbackCollection.addDomainElementCallback(x)
-#define ADD_DOMAIN_INTEGER() yagiCallbackCollection.addDomainIntegerCallback()
 #define ADD_DOMAIN_STRING() yagiCallbackCollection.addDomainStringCallback()
 #define ADD_DOMAIN_STRING_ELEMENTS() yagiCallbackCollection.addDomainStringElementsCallback()
 #define CONSUME_DOMAIN() yagiCallbackCollection.consumeDomainCallback()
 
-//Variables
-#define ADD_VAR(x) yagiCallbackCollection.addVarCallback(x)
-#define ADD_VAR_LIST() yagiCallbackCollection.addVarListCallback()
-#define ADD_INT(x) yagiCallbackCollection.addIntCallback(x)
-#define ADD_STRING(x) yagiCallbackCollection.addStringCallback(x)
-#define CONSUME_VAR() yagiCallbackCollection.consumeVariableCallback()
-#define ADD_ID(x) yagiCallbackCollection.addIDCallback(x)
+//Effect
+#define ADD_EFFECT() yagiCallbackCollection.addEffectCallback()
 
-//Expression
-#define ADD_EXPR_OP(x) yagiCallbackCollection.addExprOperatorCallback(x)
-#define ADD_VALEXPR() yagiCallbackCollection.addValueExpressionCallback()
+//Varlist
+#define ADD_VAR_LIST() yagiCallbackCollection.addVarListCallback()
 
 //Assignment
 #define ADD_VAR_ASSIGN() yagiCallbackCollection.addVarAssignCallback()
@@ -129,19 +136,22 @@ extern "C"
 #define ADD_FOR_LOOP_ASSIGN() yagiCallbackCollection.addForLoopAssignCallback()
 #define ADD_CONDITIONAL_ASSIGN() yagiCallbackCollection.addConditionalAssignCallback()
 #define ADD_CONDITIONAL_ASSIGN_ELSE() yagiCallbackCollection.addConditionalAssignElseCallback()
+#define ADD_INCOMPLETE_KNOWLEDGE() yagiCallbackCollection.addIncompleteKnowledgeCallback()
 
-//Tuples
-#define ADD_TUPLE() yagiCallbackCollection.addTupleCallback()
-#define CONSUME_TUPLE_VAL() yagiCallbackCollection.consumeTupleValCallback()
-#define CONSUME_TUPLE() yagiCallbackCollection.consumeTupleCallback()
+//Statements
+#define ADD_PROC_EXEC(x) yagiCallbackCollection.addProcExecCallback(x)
+#define ADD_FLUENT_QUERY(x) yagiCallbackCollection.addFluentQueryCallback(x)
+#define ADD_TEST() yagiCallbackCollection.addTestCallback()
+#define ADD_CHOOSE() yagiCallbackCollection.addChooseCallback()
+#define ADD_PICK() yagiCallbackCollection.addPickCallback()
+#define ADD_FOR_LOOP() yagiCallbackCollection.addForLoopCallback()
+#define ADD_CONDITIONAL() yagiCallbackCollection.addConditionalCallback()
+#define ADD_WHILE_LOOP() yagiCallbackCollection.addWhileLoopCallback()
+#define ADD_SEARCH() yagiCallbackCollection.addSearchCallback()
+#define CONSUME_STATEMENT() yagiCallbackCollection.consumeStatementCallback()
 
-//Sets
-#define ADD_TUPLE_SET() yagiCallbackCollection.addTupleSetCallback()
-#define ADD_SETEXPR() yagiCallbackCollection.addSetExprCallback()
-
-//Action Decl Stuff
-#define ADD_ACTIVE_SENSING() yagiCallbackCollection.addActiveSensingCallback()
-#define ADD_EFFECT() yagiCallbackCollection.addEffectCallback()
+//ValueList
+#define ADD_VALUE_LIST() yagiCallbackCollection.addValueListCallback()
 
 //Formulas
 #define ADD_ATOM_CONNECTIVE(x) yagiCallbackCollection.addAtomConnectiveCallback(x)
@@ -154,21 +164,25 @@ extern "C"
 #define ADD_ALL() yagiCallbackCollection.addAllCallback()
 #define ADD_IN() yagiCallbackCollection.addInCallback()
 
-//Statements
-#define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
-#define CONSUME_STATEMENT() yagiCallbackCollection.consumeStatementCallback()
-#define ADD_PROC_DECL(x) yagiCallbackCollection.addProcDeclCallback(x)
+//Sets
+#define ADD_TUPLE_SET() yagiCallbackCollection.addTupleSetCallback()
+#define ADD_SETEXPR() yagiCallbackCollection.addSetExprCallback()
+
+//Tuples
+#define ADD_TUPLE() yagiCallbackCollection.addTupleCallback()
+#define CONSUME_TUPLE_VAL() yagiCallbackCollection.consumeTupleValCallback()
+#define CONSUME_TUPLE() yagiCallbackCollection.consumeTupleCallback()
+
+//Variables, Types, ID
+#define ADD_VAR(x) yagiCallbackCollection.addVarCallback(x)
+#define CONSUME_VAR() yagiCallbackCollection.consumeVariableCallback()
+#define ADD_STRING(x) yagiCallbackCollection.addStringCallback(x)
+#define ADD_ID(x) yagiCallbackCollection.addIDCallback(x)
+
+//Values, ValExpr
+#define ADD_EXPR_OP(x) yagiCallbackCollection.addExprOperatorCallback(x)
+#define ADD_VALEXPR() yagiCallbackCollection.addValueExpressionCallback()
 #define CONSUME_VALUE() yagiCallbackCollection.consumeValueCallback()
-#define ADD_VALUE_LIST() yagiCallbackCollection.addValueListCallback()
-#define ADD_ACTION_EXEC(x) yagiCallbackCollection.addActionExecCallback(x)
-#define ADD_TEST() yagiCallbackCollection.addTestCallback()
-#define ADD_CHOOSE() yagiCallbackCollection.addChooseCallback()
-#define CONSUME_BLOCK() yagiCallbackCollection.consumeBlockCallback()
-#define ADD_PICK() yagiCallbackCollection.addPickCallback()
-#define ADD_FOR_LOOP() yagiCallbackCollection.addForLoopCallback()
-#define ADD_CONDITIONAL() yagiCallbackCollection.addConditionalCallback()
-#define ADD_WHILE_LOOP() yagiCallbackCollection.addWhileLoopCallback()
-#define ADD_SEARCH() yagiCallbackCollection.addSearchCallback()
 
 #ifdef __cplusplus
 }
