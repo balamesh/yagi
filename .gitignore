@@ -6,4 +6,5 @@ Default/
 .settings/
 antlr-3.5.2-complete.jar
 /YAGI Unit Tests
-.directory
+gtest_bin/
+gtest_src/
