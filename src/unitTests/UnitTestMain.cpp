@@ -4,7 +4,7 @@
  *  Created on: Jul 1, 2014
  *      Author: cmaier
  */
-#include "../../gtest_src/gtest/gtest.h"
+#include "../../gtest_src/include/gtest/gtest.h"
 #include "../front-end/astClasses/YAGICallbackConnector.h"
 
 int main(int argc, char **argv) {

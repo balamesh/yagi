@@ -15,7 +15,8 @@ ExternalProject_Add(
    URL https://googletest.googlecode.com/files/gtest-1.7.0.zip
 )
 
-include_directories(${SOURCE_DIR}/include/gtest)
+include_directories(${CMAKE_SOURCE_DIR}/gtest_src/include)
+link_directories(${CMAKE_SOURCE_DIR}/gtest_bin)
 
 set(CPP11_EXTRA_FLAGS "")
 
@@ -268,4 +269,4 @@ src/unitTests/TestFluentDecl.cc
 )
 
 target_link_libraries(yagi antlr3c readline)
-target_link_libraries(yagi-unitTests antlr3c readline ${BINARY_DIR}/gtest)
+target_link_libraries(yagi-unitTests antlr3c readline gtest)
