@@ -9,59 +9,74 @@
 
 std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromFile(const std::string& file)
 {
-  pANTLR3_INPUT_STREAM input = nullptr;
+  using InputStreamType = std::unique_ptr<std::remove_pointer<pANTLR3_INPUT_STREAM>::type, std::function<void(pANTLR3_INPUT_STREAM)>>;
+  InputStreamType input = InputStreamType(
+      antlr3FileStreamNew((pANTLR3_UINT8) file.c_str(), ANTLR3_ENC_8BIT),
+      [](pANTLR3_INPUT_STREAM stream)
+      { stream->close(stream);});
 
-  input = antlr3FileStreamNew((pANTLR3_UINT8) file.c_str(), ANTLR3_ENC_8BIT);
-
-  if (input == nullptr)
+  if (!input)
   {
     throw std::runtime_error("Can't load file '" + file + "'!");
   }
 
-  return parse(input);
+  return parse(input.get());
 }
 
 std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromText(const std::string& yagiCode)
 {
-  pANTLR3_INPUT_STREAM input = nullptr;
-  using BufferType = std::unique_ptr<char[], std::function<void(char*)>>;
-  BufferType antlrInputBuffer;
 
-  antlrInputBuffer = BufferType(strdup(yagiCode.c_str()), [](char* ptr)
+  using BufferType = std::unique_ptr<char[], std::function<void(char*)>>;
+  BufferType antlrInputBuffer = BufferType(strdup(yagiCode.c_str()), [](char* ptr)
   { free(ptr);});
 
-  input = antlr3StringStreamNew((unsigned char*) antlrInputBuffer.get(),
-  ANTLR3_ENC_8BIT, strlen(antlrInputBuffer.get()), (unsigned char*) "yagi-shell-input");
+  using InputStreamType = std::unique_ptr<std::remove_pointer<pANTLR3_INPUT_STREAM>::type, std::function<void(pANTLR3_INPUT_STREAM)>>;
+  InputStreamType input = InputStreamType(
+      antlr3StringStreamNew((unsigned char*) antlrInputBuffer.get(),
+      ANTLR3_ENC_8BIT, strlen(antlrInputBuffer.get()), (unsigned char*) "yagi-shell-input"),
+      [](pANTLR3_INPUT_STREAM stream)
+      { stream->close(stream);});
 
-  return parse(input);
+  return parse(input.get());
 }
 
 std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& input)
 {
-  pYAGILexer lxr = YAGILexerNew(input);
-  if (lxr == nullptr)
+  using LexerType = std::unique_ptr<std::remove_pointer<pYAGILexer>::type, std::function<void(pYAGILexer)>>;
+  LexerType lxr = LexerType(YAGILexerNew(input), [](pYAGILexer lxr)
+  { lxr->free(lxr);});
+
+  if (!lxr)
   {
     throw std::runtime_error("Can't create lexer!");
   }
 
-  pANTLR3_COMMON_TOKEN_STREAM tstream = antlr3CommonTokenStreamSourceNew(
-  ANTLR3_SIZE_HINT, TOKENSOURCE(lxr));
+  using StreamType = std::unique_ptr<std::remove_pointer<pANTLR3_COMMON_TOKEN_STREAM>::type, std::function<void(pANTLR3_COMMON_TOKEN_STREAM)>>;
+  StreamType tstream = StreamType(antlr3CommonTokenStreamSourceNew(
+  ANTLR3_SIZE_HINT, TOKENSOURCE(lxr)), [](pANTLR3_COMMON_TOKEN_STREAM stream)
+  { stream->free(stream);});
 
-  if (tstream == nullptr)
+  if (!tstream)
   {
     throw std::runtime_error("Can't create token stream!");
   }
 
-  pYAGIParser psr = YAGIParserNew(tstream);
-  if (psr == nullptr)
+  using ParserType = std::unique_ptr<std::remove_pointer<pYAGIParser>::type, std::function<void(pYAGIParser)>>;
+  ParserType psr = ParserType(YAGIParserNew(tstream.get()), [](pYAGIParser psr)
+  { psr->free(psr);});
+
+  if (!psr)
   {
     throw std::runtime_error("Can't create parser!");
   }
 
-  auto langAST = psr->program(psr);
+  auto langAST = psr.get()->program(psr.get());
 
-  pYAGITreeWalker treePsr = nullptr;
-  pANTLR3_COMMON_TREE_NODE_STREAM nodes = nullptr;
+  using TreeWalkerType = std::unique_ptr<std::remove_pointer<pYAGITreeWalker>::type, std::function<void(pYAGITreeWalker)>>;
+  using NodeStreamType = std::unique_ptr<std::remove_pointer<pANTLR3_COMMON_TREE_NODE_STREAM>::type, std::function<void(pANTLR3_COMMON_TREE_NODE_STREAM)>>;
+
+  TreeWalkerType treePsr = nullptr;
+  NodeStreamType nodes = nullptr;
 
   if (psr->pParser->rec->state->errorCount > 0)
   {
@@ -71,10 +86,13 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& in
   {
     std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
 
-    nodes = antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT);
+    nodes = NodeStreamType(antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT),
+        [](pANTLR3_COMMON_TREE_NODE_STREAM nodeStream)
+        { nodeStream->free(nodeStream);});
 
-    treePsr = YAGITreeWalkerNew(nodes);
-    treePsr->program(treePsr);
+    treePsr = TreeWalkerType(YAGITreeWalkerNew(nodes.get()), [](pYAGITreeWalker walker)
+    { walker->free(walker);});
+    treePsr.get()->program(treePsr.get());
 
     return ASTBuilder::getInstance().getAST();
   }
