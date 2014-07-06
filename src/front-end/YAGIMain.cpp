@@ -7,6 +7,7 @@
 #include <memory>
 #include <fstream>
 #include <streambuf>
+#include <signal.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -29,17 +30,47 @@
 bool execute(const std::string&);
 std::string parseFileName(const std::string&);
 
+std::vector<std::string> lines;
+bool sigTriggered = true;
+void doParse(int sig)
+{
+  sigTriggered = true;
+
+  std::string program = "";
+  std::for_each(std::begin(lines), std::end(lines), [&program](const std::string& line)
+  { program += " " + line;});
+
+  std::cout << program << std::endl;
+  execute(program);
+
+  lines.clear();
+}
+
 int main(int argc, char * argv[])
 {
   YAGICallbackConnector::connectCallbacks();
+  signal(SIGINT, doParse);
 
   std::string line;
+
   do
   {
-    line = readline("YAGI>> ");
+    if (sigTriggered)
+    {
+      line = readline("YAGI>> ");
+      sigTriggered = false;
+    }
+    else line = readline("...");
+
     add_history(line.c_str());
+    lines.push_back(line);
+
+    if (line == "exit")
+    {
+      break;
+    }
   }
-  while (execute(line));
+  while (true);
 
   return EXIT_SUCCESS;
 }
@@ -54,11 +85,6 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 
 bool execute(const std::string& line)
 {
-  if (line == "exit")
-  {
-    return false;
-  }
-
   std::shared_ptr<ASTNodeBase<>> ast;
 
   if (isPrefixOf(std::string { "import" }, line))
@@ -89,7 +115,8 @@ bool execute(const std::string& line)
   }
 
   //Invalid YAGI code...
-  if (ast == nullptr) return true;
+  if (ast == nullptr)
+    return true;
 
   ToStringVisitor toStringVisitor;
   ast->accept(toStringVisitor);
