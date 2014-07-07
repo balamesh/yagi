@@ -27,9 +27,6 @@ bool NodeValueExpression::isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>
   auto stringVal = std::dynamic_pointer_cast<NodeString>(valueToAssign);
   if (stringVal != nullptr) return true;
 
-  auto intVal = std::dynamic_pointer_cast<NodeInteger>(valueToAssign);
-  if (intVal != nullptr) return true;
-
   auto var = std::dynamic_pointer_cast<NodeVariable>(valueToAssign);
   if (var != nullptr) return true;
 

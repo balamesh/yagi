@@ -27,12 +27,15 @@
 //#pragma GCC diagnostic pop
 //    foo(d);         /* depends on command line options *
 
-bool execute(const std::string&);
+bool execute(const std::string&, bool);
 std::string parseFileName(const std::string&);
+bool isFromFile(const std::string&);
+bool isExit(const std::string&);
+void displayWelcome();
 
 std::vector<std::string> lines;
 bool sigTriggered = true;
-void doParse(int sig)
+void executeProgram(int sig)
 {
   sigTriggered = true;
 
@@ -40,8 +43,9 @@ void doParse(int sig)
   std::for_each(std::begin(lines), std::end(lines), [&program](const std::string& line)
   { program += " " + line;});
 
-  std::cout << program << std::endl;
-  execute(program);
+  add_history(program.c_str());
+
+  execute(program, false);
 
   lines.clear();
 }
@@ -49,30 +53,43 @@ void doParse(int sig)
 int main(int argc, char * argv[])
 {
   YAGICallbackConnector::connectCallbacks();
-  signal(SIGINT, doParse);
+  signal(SIGINT, executeProgram);
+  displayWelcome();
 
   std::string line;
 
   do
   {
+    char* buffer = nullptr;
     if (sigTriggered)
     {
-      line = readline("YAGI>> ");
+      buffer = readline("YAGI>> ");
       sigTriggered = false;
     }
-    else line = readline("...");
+    else buffer = readline(".......");
 
-    add_history(line.c_str());
+    if (buffer == nullptr) break;
+    else line = buffer;
+
     lines.push_back(line);
 
-    if (line == "exit")
+    if (isExit(line)) break;
+
+    if (isFromFile(line))
     {
-      break;
+      std::string fname = parseFileName(line);
+      execute(fname,true);
+      sigTriggered = true;
     }
   }
   while (true);
 
   return EXIT_SUCCESS;
+}
+
+bool isExit(const std::string& line)
+{
+  return (line == "exit"); //todo: trim etc. to make it more robust
 }
 
 bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
@@ -83,17 +100,20 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
   return (res.first == std::end(potentialPrefix));
 }
 
-bool execute(const std::string& line)
+bool isFromFile(const std::string& line)
+{
+  return isPrefixOf(std::string { "import" }, line);//TODO: rethink that!
+}
+
+bool execute(const std::string& line, bool isFileName)
 {
   std::shared_ptr<ASTNodeBase<>> ast;
 
-  if (isPrefixOf(std::string { "import" }, line))
+  if (isFileName)
   {
-    std::string fname = parseFileName(line);
-
     try
     {
-      ast = ANTLRParser::parseYAGICodeFromFile(fname);
+      ast = ANTLRParser::parseYAGICodeFromFile(line);
     }
     catch (std::runtime_error& error)
     {
@@ -141,4 +161,14 @@ std::string parseFileName(const std::string& importCmd)
   int last = importCmd.find_last_of('\"');
 
   return importCmd.substr(first + 1, last - first - 1);
+}
+
+void displayWelcome()
+{
+  std::cout << "*************************************************************" << std::endl;
+  std::cout << "*Welcome to the YAGI Shell!                                 *" << std::endl;
+  std::cout << "*You can enter multiline code by pressing [ENTER].          *" << std::endl;
+  std::cout << "*Press [CTRL+C] to execute the entered code                 *" << std::endl;
+  std::cout << "*Press [CTRL+D] (or enter 'exit') to quit the application   *" << std::endl;
+  std::cout << "*************************************************************" << std::endl;
 }

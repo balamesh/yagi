@@ -9,7 +9,6 @@
 #define NODEVALUEEXPRESSION_H_
 
 #include "../ASTNodeBase.h"
-#include "../DataTypes/NodeInteger.h"
 #include "../DataTypes/NodeString.h"
 #include "../Variables/NodeVariable.h"
 #include "NodeValueExpressionOperator.h"
@@ -56,15 +55,6 @@ class NodeValueExpression: public ASTNodeBase<>
         throw std::runtime_error(
             "Invalid Type passed to ValueExpression (rhs)!");
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      if (operator_ != nullptr) operator_->accept(visitor);
-//      if (lhs_ != nullptr) lhs_->accept(visitor);
-//      if (rhs_ != nullptr) rhs_->accept(visitor);
-//    }
 
     const std::shared_ptr<NodeValueExpressionOperator>& getOperator() const
     {

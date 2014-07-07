@@ -14,7 +14,7 @@ NodeActionDecl::NodeActionDecl()
   varList_ = nullptr;
   actionPrecondition_ = nullptr;
   actionEffect_ = nullptr;
-  activeSensing_ = nullptr;
+  settingVarList_ = nullptr;
   signal_ = nullptr;
 }
 

@@ -1,12 +1,12 @@
 /*
- * NodeActionExecution.h
+ * NodeProcExecution.h
  *
  *  Created on: Jun 5, 2014
  *      Author: cmaier
  */
 
-#ifndef NODEACTIONEXECUTION_H_
-#define NODEACTIONEXECUTION_H_
+#ifndef NODEPROCEXECUTION_H_
+#define NODEPROCEXECUTION_H_
 
 #include "NodeStatementBase.h"
 #include "../Identifier/NodeID.h"
@@ -14,25 +14,25 @@
 
 #include <memory>
 
-class NodeActionExecution: public NodeStatementBase
+class NodeProcExecution: public NodeStatementBase
 {
   private:
-    std::shared_ptr<NodeID> actionToExecName_;
+    std::shared_ptr<NodeID> procToExecName_;
     std::shared_ptr<NodeValueList> parameters_;
 
   public:
     DEFINE_VISITABLE()
-    NodeActionExecution();
-    virtual ~NodeActionExecution();
+    NodeProcExecution();
+    virtual ~NodeProcExecution();
 
-    const std::shared_ptr<NodeID>& getActionToExecName() const
+    const std::shared_ptr<NodeID>& getProcToExecName() const
     {
-      return actionToExecName_;
+      return procToExecName_;
     }
 
-    void setActionToExecName(const std::shared_ptr<NodeID>& actionToExecName)
+    void setProcToExecName(const std::shared_ptr<NodeID>& procToExecName)
     {
-      actionToExecName_ = actionToExecName;
+      procToExecName_ = procToExecName;
     }
 
     const std::shared_ptr<NodeValueList>& getParameters() const
@@ -54,4 +54,4 @@ class NodeActionExecution: public NodeStatementBase
 //    }
 };
 
-#endif /* NODEACTIONEXECUTION_H_ */
+#endif /* NODEPROCEXECUTION_H_ */

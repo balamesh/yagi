@@ -253,13 +253,13 @@ domain
 	;
 	
 action_decl
-	:	TOKEN_ACTION ID TOKEN_OPEN_PAREN var_list? TOKEN_CLOSE_PAREN (TOKEN_EXTERNAL var_list)?
+	:	TOKEN_ACTION ID TOKEN_OPEN_PAREN v1=var_list? TOKEN_CLOSE_PAREN (TOKEN_EXTERNAL TOKEN_OPEN_PAREN v2=var_list TOKEN_CLOSE_PAREN)?
 		(TOKEN_PRECOND formula_outerMost)?
 		effect
 		(TOKEN_SIGNAL valexpr TOKEN_EOL)?
 		TOKEN_END_ACTION
 		
-		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list?) (^(IT_EXTERNAL_VARS var_list))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? )
+		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST $v1?) (^(IT_EXTERNAL_VARS $v2))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? )
 	;
 	
 effect	
@@ -288,9 +288,9 @@ exo_event_decl
 	;	
 	
 sensing_decl	
-	:	TOKEN_SENSING ID TOKEN_OPEN_PAREN var_list? TOKEN_CLOSE_PAREN (TOKEN_EXTERNAL var_list)? formula TOKEN_END_SENSING
+	:	TOKEN_SENSING ID TOKEN_OPEN_PAREN v1=var_list? TOKEN_CLOSE_PAREN (TOKEN_EXTERNAL TOKEN_OPEN_PAREN v2=var_list TOKEN_CLOSE_PAREN)? formula TOKEN_END_SENSING
 		
-		-> ^(IT_SENSING ID ^(IT_VAR_LIST var_list?) (^(IT_VAR_LIST var_list))? formula)
+		-> ^(IT_SENSING ID ^(IT_VAR_LIST $v1?) (^(IT_EXTERNAL_VARS $v2))? formula)
 	;
 	
 assignment

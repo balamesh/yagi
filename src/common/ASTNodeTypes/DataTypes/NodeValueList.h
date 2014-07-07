@@ -13,7 +13,6 @@
 
 #include "../ASTNodeBase.h"
 #include "../Variables/NodeVariable.h"
-#include "NodeInteger.h"
 #include "NodeString.h"
 
 class NodeValueList: public ASTNodeBase<>

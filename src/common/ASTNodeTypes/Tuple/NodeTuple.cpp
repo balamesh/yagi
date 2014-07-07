@@ -32,5 +32,9 @@ bool NodeTuple::isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& tupleVal)
   if (patternMatching != nullptr)
     return true;
 
+  auto incompleteKnowledge = std::dynamic_pointer_cast<NodeIncompleteKnowledge>(tupleVal);
+  if (incompleteKnowledge != nullptr)
+    return true;
+
   return false;
 }

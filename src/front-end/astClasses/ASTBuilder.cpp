@@ -23,12 +23,6 @@ void ASTBuilder::addDomainStringElementsNode()
   ast.push(domainStringElements);
 }
 
-void ASTBuilder::addDomainIntegerNode()
-{
-  auto domainInteger = std::make_shared<NodeDomainInteger>();
-  ast.push(domainInteger);
-}
-
 void ASTBuilder::addDomainStringNode()
 {
   auto domainString = std::make_shared<NodeDomainString>();
@@ -101,25 +95,53 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
 
 void ASTBuilder::addExoEventDeclNode(const std::string& passSensName)
 {
-  //TODO
-  auto passiveSensingNode = std::make_shared<NodePassiveSensingDecl>();
-  passiveSensingNode->setPassiveSensingName(std::make_shared<NodeID>(passSensName));
+  auto exoEventDeclNode = std::make_shared<NodeExogenousEventDecl>();
+  exoEventDeclNode->setExogenousEventName(std::make_shared<NodeID>(passSensName));
 
   //there must be a varlist for passive sensing
   auto varList = getFrontElement<NodeVarList>();
   if (varList == nullptr)
   {
-    throw std::runtime_error("There must be a varlist for passive sensing, but there isn't!");
+    throw std::runtime_error("There must be a varlist for exo. event decl, but there isn't!");
   }
-  passiveSensingNode->setArgList(varList);
+  exoEventDeclNode->setArgList(varList);
   ast.pop();
 
-  ast.push(passiveSensingNode);
+  ast.push(exoEventDeclNode);
 }
 
 void ASTBuilder::addSensingDeclNode(const std::string& sensingName)
 {
-  //TODO
+  auto sensingDecl = std::make_shared<NodeSensingDecl>();
+  sensingDecl->setSensingName(std::make_shared<NodeID>(sensingName));
+
+
+  auto formula = getFrontElement<NodeFormulaBase>();
+  if (formula != nullptr)
+  {
+    sensingDecl->setFormula(formula);
+    ast.pop();
+  }
+  else throw std::runtime_error("Sensing Decl must have a formula but there is none!");
+
+  auto varList1 = getFrontElement<NodeVarList>();
+  if (varList1 != nullptr)
+  {
+    ast.pop();
+
+    //in case there are 2 consecutive <varlist> it's a setting action
+    auto varList2 = getFrontElement<NodeVarList>();
+    if (varList2 != nullptr)
+    {
+      sensingDecl->setSettingVarList(varList1);
+      sensingDecl->setVarList(varList2);
+    }
+    else
+      sensingDecl->setVarList(varList1);
+  }
+
+  ast.push(sensingDecl);
+
 }
 
 void ASTBuilder::addFactDeclNode(const std::string& factName)
@@ -142,14 +164,6 @@ void ASTBuilder::addVarListNode()
 {
   auto varList = std::make_shared<NodeVarList>();
   ast.push(varList);
-}
-
-void ASTBuilder::addIntNode(const std::string& intVal)
-{
-  auto intNode = std::make_shared<NodeInteger>();
-  intNode->setValueFromString(intVal);
-
-  ast.push(intNode);
 }
 
 void ASTBuilder::addStringNode(const std::string& stringVal)
@@ -232,9 +246,8 @@ void ASTBuilder::addPatternMatch()
 
 void ASTBuilder::addIncompleteKnowledge()
 {
-  //TODO
-//  auto patternMatching = std::make_shared<NodePatternMatching>();
-//  ast.push(patternMatching);
+  auto incompleteKnowledge = std::make_shared<NodeIncompleteKnowledge>();
+  ast.push(incompleteKnowledge);
 }
 
 void ASTBuilder::addTuple()
@@ -680,19 +693,14 @@ void ASTBuilder::consumeAssignment()
   //Different stuff can consume assignments...
   //TODO: need better abstraction, maybe baseclass should get addAssignment()
   auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(consumer);
-  auto activeSensing = std::dynamic_pointer_cast<NodeActiveSensing>(consumer);
   auto forLoopAssign = std::dynamic_pointer_cast<NodeForLoopAssignment>(consumer);
   auto conditionalAssign = std::dynamic_pointer_cast<NodeConditionalAssignment>(consumer);
-  auto passiveSensing = std::dynamic_pointer_cast<NodePassiveSensingDecl>(consumer);
+  auto passiveSensing = std::dynamic_pointer_cast<NodeExogenousEventDecl>(consumer);
 
   //TODO: put this into baseclass
   if (actionEffect != nullptr)
   {
     actionEffect->addAssignment(assignment);
-  }
-  else if (activeSensing != nullptr)
-  {
-    activeSensing->addAssignment(assignment);
   }
   else if (forLoopAssign != nullptr)
   {
@@ -716,22 +724,6 @@ void ASTBuilder::addEffect()
   ast.push(effect);
 }
 
-void ASTBuilder::addActiveSensing()
-{
-  auto activeSensing = std::make_shared<NodeActiveSensing>();
-
-  //there must be a varlist for active sensing
-  auto varList = getFrontElement<NodeVarList>();
-  if (varList == nullptr)
-  {
-    throw std::runtime_error("There must be a varlist for active sensing, but there isn't!");
-  }
-  activeSensing->setVarList(varList);
-
-  ast.pop();
-  ast.push(activeSensing);
-}
-
 void ASTBuilder::addActionDeclNode(const std::string& actionName)
 {
   auto actionDecl = std::make_shared<NodeActionDecl>();
@@ -739,21 +731,12 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
 
   //TODO: find a better type abstraction, this is ugly!
   auto signalExpr = getFrontElement<NodeValueExpression>();
-  auto signalInt = getFrontElement<NodeInteger>();
   auto signalString = getFrontElement<NodeString>();
   auto signalVar = getFrontElement<NodeVariable>();
 
-  if (signalExpr != nullptr || signalInt != nullptr || signalString != nullptr
-      || signalVar != nullptr)
+  if (signalExpr != nullptr || signalString != nullptr || signalVar != nullptr)
   {
     actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<ASTNodeBase<>>()));
-    ast.pop();
-  }
-
-  auto activeSensing = getFrontElement<NodeActiveSensing>();
-  if (activeSensing != nullptr)
-  {
-    actionDecl->setActiveSensing(activeSensing);
     ast.pop();
   }
 
@@ -771,11 +754,20 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
     ast.pop();
   }
 
-  auto paramList = getFrontElement<NodeVarList>();
-  if (paramList != nullptr)
+  auto varList1 = getFrontElement<NodeVarList>();
+  if (varList1 != nullptr)
   {
-    actionDecl->setVarList(paramList);
     ast.pop();
+
+    //in case there are 2 consecutive <varlist> it's a setting action
+    auto varList2 = getFrontElement<NodeVarList>();
+    if (varList2 != nullptr)
+    {
+      actionDecl->setSettingVarList(varList1);
+      actionDecl->setVarList(varList2);
+    }
+    else
+      actionDecl->setVarList(varList1);
   }
 
   ast.push(actionDecl);
@@ -854,17 +846,25 @@ void ASTBuilder::addValueList()
 
 void ASTBuilder::addProcExec(const std::string& procName)
 {
-  auto actionExec = std::make_shared<NodeActionExecution>();
-  actionExec->setActionToExecName(std::make_shared<NodeID>(procName));
+  auto procExec = std::make_shared<NodeProcExecution>();
+  procExec->setProcToExecName(std::make_shared<NodeID>(procName));
 
   auto execParams = getFrontElement<NodeValueList>();
   if (execParams != nullptr)
   {
-    actionExec->setParameters(execParams);
+    procExec->setParameters(execParams);
     ast.pop();
   }
 
-  ast.push(actionExec);
+  ast.push(procExec);
+}
+
+void ASTBuilder::addFluentQuery(const std::string& fluentName)
+{
+  auto fluentQuery = std::make_shared<NodeFluentQuery>();
+  fluentQuery->setFluentToQueryName(std::make_shared<NodeID>(fluentName));
+
+  ast.push(fluentQuery);
 }
 
 void ASTBuilder::addTest()

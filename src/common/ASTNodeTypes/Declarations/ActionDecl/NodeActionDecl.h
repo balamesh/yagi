@@ -18,16 +18,15 @@
 #include "NodeActionEffect.h"
 #include "NodeSignal.h"
 #include "../../Identifier/NodeID.h"
-#include "NodeActiveSensing.h"
 
 class NodeActionDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> actionName_;
     std::shared_ptr<NodeVarList> varList_;
+    std::shared_ptr<NodeVarList> settingVarList_;
     std::shared_ptr<NodeActionPrecondition> actionPrecondition_;
     std::shared_ptr<NodeActionEffect> actionEffect_;
-    std::shared_ptr<NodeActiveSensing> activeSensing_;
     std::shared_ptr<NodeSignal> signal_;
   public:
     DEFINE_VISITABLE()
@@ -93,18 +92,18 @@ class NodeActionDecl: public ASTNodeBase<>
 //      if (varList_ != nullptr) varList_->accept(visitor);
 //      if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
 //      if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
-//      if (activeSensing_ != nullptr) activeSensing_->accept(visitor);
+//      if (settingVarList_ != nullptr) settingVarList_->accept(visitor);
 //      if (signal_ != nullptr) signal_->accept(visitor);
 //    }
 
-    const std::shared_ptr<NodeActiveSensing>& getActiveSensing() const
+    const std::shared_ptr<NodeVarList>& getSettingVarList() const
     {
-      return activeSensing_;
+      return settingVarList_;
     }
 
-    void setActiveSensing(const std::shared_ptr<NodeActiveSensing>& activeSensing)
+    void setSettingVarList(const std::shared_ptr<NodeVarList>& settingVarList)
     {
-      activeSensing_ = activeSensing;
+      settingVarList_ = settingVarList;
     }
 };
 

@@ -24,10 +24,8 @@ class ASTNodeBase
 {
   public:
     typedef R ReturnType;
-    virtual ~ASTNodeBase()
-    {
-    }
-    ;
+    virtual ~ASTNodeBase() {}
+
     virtual R accept(ASTNodeVisitorBase &) = 0;
   protected:
     template<class T>

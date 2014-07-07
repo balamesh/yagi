@@ -1,12 +1,12 @@
 /*
- * NodePassiveSensingDecl.h
+ * NodeExogenousEventDecl.h
  *
  *  Created on: Jun 4, 2014
  *      Author: cmaier
  */
 
-#ifndef NODEPASSIVESENSINGDECL_H_
-#define NODEPASSIVESENSINGDECL_H_
+#ifndef NODEEXOGENOUSEVENTDECL_H_
+#define NODEEXOGENOUSEVENTDECL_H_
 
 #include <string>
 #include <memory>
@@ -17,16 +17,16 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Assignment/NodeAssignmentBase.h"
 
-class NodePassiveSensingDecl: public ASTNodeBase<>
+class NodeExogenousEventDecl: public ASTNodeBase<>
 {
   private:
-    std::shared_ptr<NodeID> passiveSensingName_;
+    std::shared_ptr<NodeID> exoEventName_;
     std::shared_ptr<NodeVarList> argList_;
     std::vector<std::shared_ptr<NodeAssignmentBase>> assignments_;
   public:
     DEFINE_VISITABLE()
-    NodePassiveSensingDecl();
-    virtual ~NodePassiveSensingDecl();
+    NodeExogenousEventDecl();
+    virtual ~NodeExogenousEventDecl();
 
     const std::shared_ptr<NodeVarList>& getArgList() const
     {
@@ -43,14 +43,14 @@ class NodePassiveSensingDecl: public ASTNodeBase<>
       return assignments_;
     }
 
-    const std::shared_ptr<NodeID>& getPassiveSensingName() const
+    const std::shared_ptr<NodeID>& getExogenousEventName() const
     {
-      return passiveSensingName_;
+      return exoEventName_;
     }
 
-    void setPassiveSensingName(const std::shared_ptr<NodeID>& passiveSensingName)
+    void setExogenousEventName(const std::shared_ptr<NodeID>& exoEgentName)
     {
-      passiveSensingName_ = passiveSensingName;
+      exoEventName_ = exoEgentName;
     }
 
     void addAssignment(const std::shared_ptr<NodeAssignmentBase>& assignment)
@@ -72,4 +72,4 @@ class NodePassiveSensingDecl: public ASTNodeBase<>
 //    }
 };
 
-#endif /* NODEPASSIVESENSINGDECL_H_ */
+#endif /* NODEEXOGENOUSEVENTDECL_H_ */

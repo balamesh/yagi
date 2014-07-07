@@ -12,6 +12,7 @@
 #include "../../ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../ASTNodeTypes/Variables/NodeVariable.h"
 #include "../../ASTNodeTypes/DataTypes/NodePatternMatching.h"
+#include "../../ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
 
 #include <vector>
 #include <memory>

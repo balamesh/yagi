@@ -23,7 +23,6 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
-#include "../../common/ASTNodeTypes/DataTypes/NodeInteger.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
@@ -43,18 +42,18 @@
 #include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
-
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActiveSensing.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeConditionalAssignment.h"
 #include "../../common/ASTNodeTypes/Assignment/NodeForLoopAssignment.h"
-#include "../../common/ASTNodeTypes/Declarations/PassiveSensing/NodePassiveSensingDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
-#include "../../common/ASTNodeTypes/Statements/NodeActionExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
 #include "../../common/ASTNodeTypes/Statements/NodeTest.h"
 #include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
 #include "../../common/ASTNodeTypes/Statements/NodePick.h"
@@ -63,6 +62,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 #include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
 
 
 class ASTBuilder
@@ -117,7 +117,6 @@ class ASTBuilder
     //Action Decl
     void addActionDeclNode(const std::string& actionName);
     void addEffect();
-    void addActiveSensing();
 
     //Variables
     void addIntNode(const std::string& intVal);
@@ -162,6 +161,7 @@ class ASTBuilder
     void consumeValue();
     void addValueList();
     void addProcExec(const std::string& procName);
+    void addFluentQuery(const std::string& fluentName);
     void addTest();
     void addChoose();
     void consumeBlock();

@@ -31,11 +31,6 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addDomainStringNode();
   }
 
-  void addDomainInteger()
-  {
-    ASTBuilder::getInstance().addDomainIntegerNode();
-  }
-
   void addDomainStringElements()
   {
     ASTBuilder::getInstance().addDomainStringElementsNode();
@@ -117,12 +112,6 @@ namespace YAGICallbackConnector
   void addAction(pANTLR3_STRING actionName)
   {
     ASTBuilder::getInstance().addActionDeclNode((char*) actionName->chars);
-  }
-
-  void addActiveSensing()
-  {
-    ASTBuilder::getInstance().addActiveSensing();
-
   }
 
   void addID(pANTLR3_STRING id)
@@ -261,6 +250,11 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addProcExec((char*) procName->chars);
   }
 
+  void addFluentQuery(pANTLR3_STRING fluentName)
+  {
+    ASTBuilder::getInstance().addFluentQuery((char*) fluentName->chars);
+  }
+
   void addTest()
   {
     ASTBuilder::getInstance().addTest();
@@ -368,6 +362,7 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.consumeValueCallback = consumeValue;
     yagiCallbackCollection.addValueListCallback = addValueList;
     yagiCallbackCollection.addProcExecCallback = addProcExec;
+    yagiCallbackCollection.addFluentQueryCallback = addFluentQuery;
     yagiCallbackCollection.addTestCallback = addTest;
     yagiCallbackCollection.addChooseCallback = addChoose;
     yagiCallbackCollection.consumeBlockCallback = consumeBlock;
