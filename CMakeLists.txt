@@ -1,4 +1,4 @@
-#Based on a nice template provided by Karlheinz Wohlmuth.
+#Based on a nice template provided by Karlheinz Wohlmuth <khwhth@gmail.com>.
 project(yagi)
 cmake_minimum_required(VERSION 2.6)
 
@@ -145,6 +145,8 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.cpp
 src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
+src/unitTests/UnitTestHelper.h
+src/utils/Any.h
 )
 
 add_executable(yagi-unitTests
@@ -270,6 +272,8 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.cpp
 src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
+src/unitTests/UnitTestHelper.h
+src/utils/Any.h
 )
 
 target_link_libraries(yagi antlr3c readline)

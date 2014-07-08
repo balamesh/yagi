@@ -30,11 +30,11 @@ class ANTLRParser
   private:
     ANTLRParser();
     virtual ~ANTLRParser();
-    static std::shared_ptr<ASTNodeBase<>> parse(const pANTLR3_INPUT_STREAM& input);
+    static std::shared_ptr<ASTNodeBase<>> parse(const pANTLR3_INPUT_STREAM& input, bool printCAST=false);
 
   public:
-    static std::shared_ptr<ASTNodeBase<>> parseYAGICodeFromText(const std::string& yagiCode);
-    static std::shared_ptr<ASTNodeBase<>> parseYAGICodeFromFile(const std::string& file);
+    static std::shared_ptr<ASTNodeBase<>> parseYAGICodeFromText(const std::string& yagiCode, bool printCAST=false);
+    static std::shared_ptr<ASTNodeBase<>> parseYAGICodeFromFile(const std::string& file, bool printCAST=false);
 };
 
 #endif /* ANTLRPARSER_H_ */

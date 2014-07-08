@@ -57,7 +57,7 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
 
   public:
 
-    void visit(NodeProgram& program)
+    container::Any visit(NodeProgram& program)
     {
       hasTypeError_ = false;
 
@@ -66,27 +66,33 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
           {
             stmt->accept(*this);
           });
+
+      return container::Any{};
     }
 
-    void visit(NodeFluentDecl& fluentDecl)
+    container::Any visit(NodeFluentDecl& fluentDecl)
     {
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
           [this,&fluentDecl](std::shared_ptr<NodeDomainBase> domain)
           {
             domain->accept(*this);
           });
+
+      return container::Any{};
     }
 
-    void visit(NodeFactDecl& factDecl)
+    container::Any visit(NodeFactDecl& factDecl)
     {
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
           [this,&factDecl](std::shared_ptr<NodeDomainBase> domain)
           {
             domain->accept(*this);
           });
+
+      return container::Any{};
     }
 
-    void visit(NodeDomainStringElements& domain) override
+    container::Any visit(NodeDomainStringElements& domain) override
     {
       std::vector<std::string> vals;
 
@@ -96,6 +102,8 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
         hasTypeError_ = true;
         errorText = "A domain with all elements enumerated has to have more than 3 values! ;-)";
       }
+
+      return container::Any{};
     }
 
     const std::string& getErrorText() const

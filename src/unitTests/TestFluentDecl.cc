@@ -5,8 +5,28 @@
  *      Author: cmaier
  */
 #include "../../gtest_src/include/gtest/gtest.h"
+#include "UnitTestHelper.h"
 
-TEST(FluentDeclTest, Simple)
+TEST(FluentDeclTest, fluentUserDomain)
 {
-  EXPECT_EQ(1,1);
+  auto ast = yagi::unitTestHelper::tryParse("src/samples/FluentDeclTest/fluentUserDomain.y");
+  if (!ast)
+    return;
+  EXPECT_TRUE(true);
+}
+
+TEST(FluentDeclTest, fluentStringDomain)
+{
+  auto ast = yagi::unitTestHelper::tryParse("src/samples/FluentDeclTest/fluentStringDomain.y");
+  if (!ast)
+    return;
+  EXPECT_TRUE(true);
+}
+
+TEST(FluentDeclTest, fluentZeroArity)
+{
+  auto ast = yagi::unitTestHelper::tryParse("src/samples/FluentDeclTest/fluentZeroArity.y");
+  if (!ast)
+    return;
+  EXPECT_TRUE(true);
 }

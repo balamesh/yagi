@@ -10,6 +10,7 @@
 #define ASTNODEVISITORBASE_H_
 
 #include <string>
+#include "../utils/Any.h"
 
 class ASTNodeVisitorBase
 {
@@ -20,7 +21,7 @@ class ASTNodeVisitorBase
     ;
 };
 
-template<class T, typename R = void>
+template<class T, typename R = container::Any>
 class Visitor
 {
   public:

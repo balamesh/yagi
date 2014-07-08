@@ -56,14 +56,12 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeString>,
     public Visitor<NodeFactDecl>
 {
-  private:
-    std::string astString_;
-
   public:
-    void visit(NodeProgram& program)
+    container::Any visit(NodeProgram& program)
     {
+      std::string astString = "";
       std::for_each(program.getProgram().begin(), program.getProgram().end(),
-          [this](std::shared_ptr<ASTNodeBase<>> stmt)
+          [this, &astString](std::shared_ptr<ASTNodeBase<>> stmt)
           {
             //safety net to check if only valid YAGI lines and not any
             //garbage resulting from a bug is considered a line...
@@ -71,72 +69,73 @@ class ToStringVisitor: public ASTNodeVisitorBase,
 //            {
 //              throw std::runtime_error("Invalid node type left on program-level of AST!");
 //            }
-            astString_ += "^(";
-            stmt->accept(*this);
-            astString_ += ")";
+            astString += "^(" + stmt->accept(*this).get<std::string>() + ")";
           });
+
+      return container::Any {astString };
     }
 
-    void visit(NodeFluentDecl& fluentDecl)
+    container::Any visit(NodeFluentDecl& fluentDecl)
     {
-      astString_ += "[FluentDecl] ";
+      std::string astString = "[FluentDecl] ";
       fluentDecl.getFluentName()->accept(*this);
 
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
-          [this](std::shared_ptr<ASTNodeBase<>> domain)
+          [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
           {
-            domain->accept(*this);
+            astString += domain->accept(*this).get<std::string>();
           });
+
+      return container::Any { astString };
     }
 
-    void visit(NodeFactDecl& factDecl)
+    container::Any visit(NodeFactDecl& factDecl)
     {
-      astString_ += "[FactDecl] ";
+      std::string astString = "[FactDecl] ";
 
       factDecl.getFactName()->accept(*this);
 
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
-          [this](std::shared_ptr<ASTNodeBase<>> domain)
+          [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
           {
-            domain->accept(*this);
+            astString += domain->accept(*this).get<std::string>();
           });
+
+      return container::Any { astString };
     }
 
-    void visit(NodeDomainInteger& domainInt)
+    container::Any visit(NodeDomainInteger& domainInt)
     {
-      astString_ += "[Domain INTEGER] ";
+      return container::Any { std::string { "[Domain INTEGER] " } };
     }
 
-    void visit(NodeDomainString& domainString)
+    container::Any visit(NodeDomainString& domainString)
     {
-      astString_ += "[Domain STRING] ";
+      return container::Any { std::string { "[Domain STRING] " } };
     }
 
-    void visit(NodeID& id)
+    container::Any visit(NodeID& id)
     {
-      astString_ += "[ID=" + id.getId() + "] ";
+      return container::Any { "[ID=" + id.getId() + "] " };
     }
 
-    void visit(NodeString& str)
+    container::Any visit(NodeString& str)
     {
-      astString_ += "[String=" + str.getString() + "] ";
+      return container::Any { "[String=" + str.getString() + "] " };
     }
 
-    void visit(NodeDomainStringElements& domainStringElems)
+    container::Any visit(NodeDomainStringElements& domainStringElems)
     {
-      astString_ +=  "^([Domain] ";
+      std::string astString = "^([Domain] ";
 
       std::for_each(std::begin(domainStringElems.getDomainElements()),
           std::end(domainStringElems.getDomainElements()),
-          [this](std::shared_ptr<ASTNodeBase<>>elem)
+          [this, &astString](std::shared_ptr<ASTNodeBase<>>elem)
           {
-            elem->accept(*this);
+            astString += elem->accept(*this).get<std::string>();
           });
-    }
 
-    const std::string& getAstString() const
-    {
-      return astString_;
+      return container::Any { astString };
     }
 };
 

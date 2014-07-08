@@ -19,7 +19,7 @@ struct DefaultCatchAll
     }
 };
 
-template<typename R = void, template<typename, class > class CatchAll = DefaultCatchAll>
+template<typename R = container::Any, template<typename, class > class CatchAll = DefaultCatchAll>
 class ASTNodeBase
 {
   public:

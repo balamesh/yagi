@@ -7,7 +7,8 @@
 
 #include "ANTLRParser.h"
 
-std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromFile(const std::string& file)
+std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromFile(const std::string& file,
+    bool printCAST)
 {
   using InputStreamType = std::unique_ptr<std::remove_pointer<pANTLR3_INPUT_STREAM>::type, std::function<void(pANTLR3_INPUT_STREAM)>>;
   InputStreamType input = InputStreamType(
@@ -20,10 +21,11 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromFile(const std::str
     throw std::runtime_error("Can't load file '" + file + "'!");
   }
 
-  return parse(input.get());
+  return parse(input.get(), printCAST);
 }
 
-std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromText(const std::string& yagiCode)
+std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromText(const std::string& yagiCode,
+    bool printCAST)
 {
 
   using BufferType = std::unique_ptr<char[], std::function<void(char*)>>;
@@ -37,10 +39,11 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromText(const std::str
       [](pANTLR3_INPUT_STREAM stream)
       { stream->close(stream);});
 
-  return parse(input.get());
+  return parse(input.get(), printCAST);
 }
 
-std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& input)
+std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& input,
+    bool printCAST)
 {
   using LexerType = std::unique_ptr<std::remove_pointer<pYAGILexer>::type, std::function<void(pYAGILexer)>>;
   LexerType lxr = LexerType(YAGILexerNew(input), [](pYAGILexer lxr)
@@ -84,7 +87,10 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& in
   }
   else
   {
-    std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+    if (printCAST)
+    {
+      std::cout << "C AST: " << langAST.tree->toStringTree(langAST.tree)->chars << std::endl;
+    }
 
     nodes = NodeStreamType(antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT),
         [](pANTLR3_COMMON_TREE_NODE_STREAM nodeStream)

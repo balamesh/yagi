@@ -31,7 +31,7 @@ end exogenous-event
 
 //"setting" action to detect a person, i.e.
 //$p gets its value from an external src
-action detectPerson() external $p
+action detectPerson() external ($p)
 effect:
   //remove person
   detectedPerson -= {<$p, _>};

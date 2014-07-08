@@ -66,19 +66,23 @@ int main(int argc, char * argv[])
       buffer = readline("YAGI>> ");
       sigTriggered = false;
     }
-    else buffer = readline(".......");
+    else
+      buffer = readline(".......");
 
-    if (buffer == nullptr) break;
-    else line = buffer;
+    if (buffer == nullptr)
+      break;
+    else
+      line = buffer;
 
     lines.push_back(line);
 
-    if (isExit(line)) break;
+    if (isExit(line))
+      break;
 
     if (isFromFile(line))
     {
       std::string fname = parseFileName(line);
-      execute(fname,true);
+      execute(fname, true);
       sigTriggered = true;
     }
   }
@@ -102,7 +106,7 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 
 bool isFromFile(const std::string& line)
 {
-  return isPrefixOf(std::string { "import" }, line);//TODO: rethink that!
+  return isPrefixOf(std::string { "import" }, line); //TODO: rethink that!
 }
 
 bool execute(const std::string& line, bool isFileName)
@@ -113,7 +117,7 @@ bool execute(const std::string& line, bool isFileName)
   {
     try
     {
-      ast = ANTLRParser::parseYAGICodeFromFile(line);
+      ast = ANTLRParser::parseYAGICodeFromFile(line, true);
     }
     catch (std::runtime_error& error)
     {
@@ -125,7 +129,7 @@ bool execute(const std::string& line, bool isFileName)
   {
     try
     {
-      ast = ANTLRParser::parseYAGICodeFromText(line);
+      ast = ANTLRParser::parseYAGICodeFromText(line, true);
     }
     catch (std::runtime_error& error)
     {
@@ -139,8 +143,7 @@ bool execute(const std::string& line, bool isFileName)
     return true;
 
   ToStringVisitor toStringVisitor;
-  ast->accept(toStringVisitor);
-  std::cout << "C++ AST: " << toStringVisitor.getAstString() << std::endl;
+  std::cout << "C++ AST: " << ast->accept(toStringVisitor).get<std::string>() << std::endl;
 
   TypeCheckVisitor typeCheck;
   ast->accept(typeCheck);
@@ -167,7 +170,7 @@ void displayWelcome()
 {
   std::cout << "*************************************************************" << std::endl;
   std::cout << "*Welcome to the YAGI Shell!                                 *" << std::endl;
-  std::cout << "*You can enter multiline code by pressing [ENTER].          *" << std::endl;
+  std::cout << "*You can enter multiline statements by pressing [ENTER].    *" << std::endl;
   std::cout << "*Press [CTRL+C] to execute the entered code                 *" << std::endl;
   std::cout << "*Press [CTRL+D] (or enter 'exit') to quit the application   *" << std::endl;
   std::cout << "*************************************************************" << std::endl;
