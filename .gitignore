@@ -3,6 +3,7 @@ yagi/
 Default/
 .cproject
 .project
+.directory
 .settings/
 antlr-3.5.2-complete.jar
 /YAGI Unit Tests

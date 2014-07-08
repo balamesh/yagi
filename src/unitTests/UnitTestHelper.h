@@ -17,29 +17,7 @@ using ASTReturnType = std::shared_ptr<ASTNodeBase<>>;
 
 namespace unitTestHelper {
 
-ASTReturnType tryParse(const std::string& file)
-{
-  try
-  {
-    auto ast = ANTLRParser::parseYAGICodeFromFile(file);
-    if (ast == nullptr)
-    {
-      EXPECT_TRUE(false);
-      return nullptr;
-    }
-
-    return ast;
-  }
-  catch (std::runtime_error& error)
-  {
-    std::cout << "[INTERNAL ERROR]: " << error.what() << std::endl;
-    EXPECT_TRUE(false);
-    return nullptr;
-  }
-
-  EXPECT_TRUE(false);
-  return nullptr;
-}
+ASTReturnType tryParse(const std::string& file);
 
 } //end namespaces
 }
