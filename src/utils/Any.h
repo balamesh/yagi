@@ -47,7 +47,7 @@ private:
     bool haveValue_ = false;
     std::shared_ptr<HolderBase> holder_;
 
-    template<typename T> void check() const { if (empty()) throw std::runtime_error("no value set"); if (!hasType<T>()) throw std::runtime_error("invalid type"); }
+    template<typename T> void check() const { if (empty()) throw std::runtime_error("[Any] no value set"); if (!hasType<T>()) throw std::runtime_error("invalid type"); }
 };
 }
 #endif //ANY_H_

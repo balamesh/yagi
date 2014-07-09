@@ -69,10 +69,11 @@ class ToStringVisitor: public ASTNodeVisitorBase,
 //            {
 //              throw std::runtime_error("Invalid node type left on program-level of AST!");
 //            }
-            astString += "^(" + stmt->accept(*this).get<std::string>() + ")";
+            auto ret = stmt->accept(*this);
+            if (!ret.empty()) astString += "^(" + ret.get<std::string>() + ")";
           });
 
-      return container::Any {astString };
+      return container::Any { astString };
     }
 
     container::Any visit(NodeFluentDecl& fluentDecl)
@@ -83,7 +84,8 @@ class ToStringVisitor: public ASTNodeVisitorBase,
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
           [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
           {
-            astString += domain->accept(*this).get<std::string>();
+            auto ret = domain->accept(*this);
+            if (!ret.empty()) astString += ret.get<std::string>();
           });
 
       return container::Any { astString };
@@ -98,7 +100,8 @@ class ToStringVisitor: public ASTNodeVisitorBase,
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
           [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
           {
-            astString += domain->accept(*this).get<std::string>();
+            auto ret = domain->accept(*this);
+            if (!ret.empty()) astString += ret.get<std::string>();
           });
 
       return container::Any { astString };
@@ -132,7 +135,8 @@ class ToStringVisitor: public ASTNodeVisitorBase,
           std::end(domainStringElems.getDomainElements()),
           [this, &astString](std::shared_ptr<ASTNodeBase<>>elem)
           {
-            astString += elem->accept(*this).get<std::string>();
+            auto ret = elem->accept(*this);
+            if (!ret.empty()) astString += ret.get<std::string>();
           });
 
       return container::Any { astString };

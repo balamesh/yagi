@@ -14,7 +14,8 @@
 #include "astClasses/YAGICallbackConnector.h"
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
 #include "astVisitors/ToStringVisitor.h"
-#include "../back-end/TypeCheckVisitor.h"
+#include "astVisitors/TypeCheckVisitor.h"
+#include "../back-end/ASTVisitors/InterpretationVisitor.h"
 #include "ANTLRParser.h"
 
 //#pragma GCC diagnostic error "-Wuninitialized"
@@ -149,9 +150,13 @@ bool execute(const std::string& line, bool isFileName)
   ast->accept(typeCheck);
 
   if (typeCheck.hasTypeError())
+  {
     std::cout << "Typechecker: " << typeCheck.getErrorText() << std::endl;
-  else
-    std::cout << "Typechecker: No typechecking errors! :-)" << std::endl;
+    return true;
+  }
+
+  InterpretationVisitor interpreter;
+  ast->accept(interpreter);
 
   ASTBuilder::getInstance().reset();
 

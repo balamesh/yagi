@@ -11,15 +11,15 @@
 #include <vector>
 #include <algorithm>
 
-#include "../common/ASTNodeVisitorBase.h"
-#include "../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
-#include "../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
-#include "../common/ASTNodeTypes/Identifier/NodeID.h"
-#include "../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
-#include "../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
-#include "../common/ASTNodeTypes/Domains/NodeDomainString.h"
-#include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../../common/ASTNodeVisitorBase.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
+#include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 //#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
@@ -96,12 +96,12 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
     {
       std::vector<std::string> vals;
 
-      //TODO: just a dummy to check if it all works as expected
-      if (domain.getDomainElements().size() <= 3)
-      {
-        hasTypeError_ = true;
-        errorText = "A domain with all elements enumerated has to have more than 3 values! ;-)";
-      }
+//      //TODO: just a dummy to check if it all works as expected
+//      if (domain.getDomainElements().size() <= 3)
+//      {
+//        hasTypeError_ = true;
+//        errorText = "A domain with all elements enumerated has to have more than 3 values! ;-)";
+//      }
 
       return container::Any{};
     }

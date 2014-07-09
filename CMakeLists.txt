@@ -23,6 +23,12 @@ set(CPP11_EXTRA_FLAGS "")
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11 -pthread  ${CPP11_EXTRA_FLAGS} ${CMAKE_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "-pthread ${CMAKE_EXE_LINKER_FLAGS} ${CPP11_EXTRA_FLAGS}")
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+find_package(Sqlite REQUIRED)
+include_directories( ${SQLITE_INCLUDE_DIR} )
+
+
 add_executable(yagi
 src/front-end/astVisitors/ToStringVisitor.cpp
 src/front-end/YAGIMain.cpp
@@ -146,6 +152,12 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
 src/utils/Any.h
+src/back-end/ASTVisitors/InterpretationVisitor.cpp
+src/back-end/ASTVisitors/InterpretationVisitor.h
+src/back-end/Database/SQLiteConnector.cpp
+src/back-end/Database/SQLiteConnector.h
+src/front-end/astVisitors/TypeCheckVisitor.cpp
+src/front-end/astVisitors/TypeCheckVisitor.h
 )
 
 add_executable(yagi-unitTests
@@ -269,7 +281,14 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.cpp
 src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
+src/back-end/ASTVisitors/InterpretationVisitor.cpp
+src/back-end/ASTVisitors/InterpretationVisitor.h
+src/back-end/Database/SQLiteConnector.cpp
+src/back-end/Database/SQLiteConnector.h
+src/front-end/astVisitors/TypeCheckVisitor.cpp
+src/front-end/astVisitors/TypeCheckVisitor.h
 src/utils/Any.h
+
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp
 src/unitTests/UnitTestMain.cpp
@@ -280,5 +299,5 @@ src/unitTests/TestFactDecl.cc
 src/unitTests/TestFormula.cc
 )
 
-target_link_libraries(yagi antlr3c readline)
-target_link_libraries(yagi-unitTests antlr3c readline gtest)
+target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})
+target_link_libraries(yagi-unitTests antlr3c readline gtest ${SQLITE_LIBRARIES})
