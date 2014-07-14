@@ -21,6 +21,7 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
 //#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 //#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
@@ -46,6 +47,8 @@
 //#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
 //#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 
+using namespace yagi::container;
+
 class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeDomainInteger>,
@@ -54,32 +57,30 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeID>,
     public Visitor<NodeProgram>,
     public Visitor<NodeString>,
-    public Visitor<NodeFactDecl>
+    public Visitor<NodeFactDecl>,
+    public Visitor<NodeFluentQuery>
 {
   public:
-    container::Any visit(NodeProgram& program)
+    Any visit(NodeProgram& program)
     {
       std::string astString = "";
       std::for_each(program.getProgram().begin(), program.getProgram().end(),
           [this, &astString](std::shared_ptr<ASTNodeBase<>> stmt)
           {
-            //safety net to check if only valid YAGI lines and not any
-            //garbage resulting from a bug is considered a line...
-//            if (!TypeOk(stmt))
-//            {
-//              throw std::runtime_error("Invalid node type left on program-level of AST!");
-//            }
             auto ret = stmt->accept(*this);
             if (!ret.empty()) astString += "^(" + ret.get<std::string>() + ")";
           });
 
-      return container::Any { astString };
+      return Any { astString };
     }
 
-    container::Any visit(NodeFluentDecl& fluentDecl)
+    Any visit(NodeFluentDecl& fluentDecl)
     {
       std::string astString = "[FluentDecl] ";
-      fluentDecl.getFluentName()->accept(*this);
+      Any fname = fluentDecl.getFluentName()->accept(*this);
+
+      if (!fname.empty())
+        astString += fname.get<std::string>();
 
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
           [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
@@ -88,10 +89,10 @@ class ToStringVisitor: public ASTNodeVisitorBase,
             if (!ret.empty()) astString += ret.get<std::string>();
           });
 
-      return container::Any { astString };
+      return Any { astString };
     }
 
-    container::Any visit(NodeFactDecl& factDecl)
+    Any visit(NodeFactDecl& factDecl)
     {
       std::string astString = "[FactDecl] ";
 
@@ -104,30 +105,30 @@ class ToStringVisitor: public ASTNodeVisitorBase,
             if (!ret.empty()) astString += ret.get<std::string>();
           });
 
-      return container::Any { astString };
+      return Any { astString };
     }
 
-    container::Any visit(NodeDomainInteger& domainInt)
+    Any visit(NodeDomainInteger& domainInt)
     {
-      return container::Any { std::string { "[Domain INTEGER] " } };
+      return Any { std::string { "[Domain INTEGER] " } };
     }
 
-    container::Any visit(NodeDomainString& domainString)
+    Any visit(NodeDomainString& domainString)
     {
-      return container::Any { std::string { "[Domain STRING] " } };
+      return Any { std::string { "[Domain STRING] " } };
     }
 
-    container::Any visit(NodeID& id)
+    Any visit(NodeID& id)
     {
-      return container::Any { "[ID=" + id.getId() + "] " };
+      return Any { "[ID=" + id.getId() + "] " };
     }
 
-    container::Any visit(NodeString& str)
+    Any visit(NodeString& str)
     {
-      return container::Any { "[String=" + str.getString() + "] " };
+      return Any { "[String=" + str.getString() + "] " };
     }
 
-    container::Any visit(NodeDomainStringElements& domainStringElems)
+    Any visit(NodeDomainStringElements& domainStringElems)
     {
       std::string astString = "^([Domain] ";
 
@@ -139,8 +140,18 @@ class ToStringVisitor: public ASTNodeVisitorBase,
             if (!ret.empty()) astString += ret.get<std::string>();
           });
 
-      return container::Any { astString };
+      return Any { astString };
     }
+
+    Any visit(NodeFluentQuery& fluentQuery)
+    {
+      std::string astString = "[FluentQuery] ";
+      Any fname = fluentQuery.getFluentToQueryName()->accept(*this);
+      if (!fname.empty()) astString += fname.get<std::string>();
+
+      return Any { astString };
+    }
+
 };
 
 #endif /* TOSTRINGVISITOR_H_ */

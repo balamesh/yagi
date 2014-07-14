@@ -45,6 +45,8 @@
 //#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
 //#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 
+using namespace yagi::container;
+
 class TypeCheckVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeDomainStringElements>,
@@ -53,24 +55,29 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
 {
   private:
     bool hasTypeError_;
-    std::string errorText;
+    std::vector<std::string> errorTexts_;
 
   public:
 
-    container::Any visit(NodeProgram& program)
+    Any visit(NodeProgram& program)
     {
       hasTypeError_ = false;
+      errorTexts_.clear();
 
       std::for_each(program.getProgram().begin(), program.getProgram().end(),
           [this](std::shared_ptr<ASTNodeBase<>> stmt)
           {
-            stmt->accept(*this);
+            auto ret = stmt->accept(*this);
+            if (!ret.empty() && ret.hasType<std::string>())
+            {
+              errorTexts_.push_back(ret.get<std::string>());
+            }
           });
 
-      return container::Any{};
+      return Any { };
     }
 
-    container::Any visit(NodeFluentDecl& fluentDecl)
+    Any visit(NodeFluentDecl& fluentDecl)
     {
       std::for_each(std::begin(fluentDecl.getDomains()), std::end(fluentDecl.getDomains()),
           [this,&fluentDecl](std::shared_ptr<NodeDomainBase> domain)
@@ -78,10 +85,10 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
             domain->accept(*this);
           });
 
-      return container::Any{};
+      return Any { };
     }
 
-    container::Any visit(NodeFactDecl& factDecl)
+    Any visit(NodeFactDecl& factDecl)
     {
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
           [this,&factDecl](std::shared_ptr<NodeDomainBase> domain)
@@ -89,26 +96,18 @@ class TypeCheckVisitor: public ASTNodeVisitorBase,
             domain->accept(*this);
           });
 
-      return container::Any{};
+      return Any { };
     }
 
-    container::Any visit(NodeDomainStringElements& domain) override
+    Any visit(NodeDomainStringElements& domain)
     {
       std::vector<std::string> vals;
-
-//      //TODO: just a dummy to check if it all works as expected
-//      if (domain.getDomainElements().size() <= 3)
-//      {
-//        hasTypeError_ = true;
-//        errorText = "A domain with all elements enumerated has to have more than 3 values! ;-)";
-//      }
-
-      return container::Any{};
+      return Any { };
     }
 
-    const std::string& getErrorText() const
+    const std::vector<std::string>& getErrorTexts() const
     {
-      return errorText;
+      return errorTexts_;
     }
 
     bool hasTypeError() const

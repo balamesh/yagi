@@ -10,6 +10,8 @@
 
 #include "../../common/ASTNodeVisitorBase.h"
 
+using namespace yagi::container;
+
 template<class R, class Visited>
 struct DefaultCatchAll
 {
@@ -19,7 +21,7 @@ struct DefaultCatchAll
     }
 };
 
-template<typename R = container::Any, template<typename, class > class CatchAll = DefaultCatchAll>
+template<typename R = Any, template<typename, class > class CatchAll = DefaultCatchAll>
 class ASTNodeBase
 {
   public:

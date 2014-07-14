@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <stdexcept>
 
+namespace yagi {
 namespace container {
 class Any final
 {
@@ -49,5 +50,7 @@ private:
 
     template<typename T> void check() const { if (empty()) throw std::runtime_error("[Any] no value set"); if (!hasType<T>()) throw std::runtime_error("invalid type"); }
 };
+
+}
 }
 #endif //ANY_H_

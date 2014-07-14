@@ -7,8 +7,7 @@
 
 #include "InterpretationVisitor.h"
 
-InterpretationVisitor::InterpretationVisitor() :
-    db_{make_unique<SQLiteConnector>("yagiMainDB.sqlite3")}
+InterpretationVisitor::InterpretationVisitor()
 {
 
 }

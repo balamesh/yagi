@@ -151,7 +151,14 @@ bool execute(const std::string& line, bool isFileName)
 
   if (typeCheck.hasTypeError())
   {
-    std::cout << "Typechecker: " << typeCheck.getErrorText() << std::endl;
+    std::string errorText = "";
+    auto errors = typeCheck.getErrorTexts();
+    std::for_each(std::begin(errors), std::end(errors), [&errorText](const std::string& error)
+    {
+      errorText += "[ERROR] " + error + "\n";
+    });
+
+    std::cout << "Typechecker: " << errorText << std::endl;
     return true;
   }
 
@@ -176,7 +183,7 @@ void displayWelcome()
   std::cout << "*************************************************************" << std::endl;
   std::cout << "*Welcome to the YAGI Shell!                                 *" << std::endl;
   std::cout << "*You can enter multiline statements by pressing [ENTER].    *" << std::endl;
-  std::cout << "*Press [CTRL+C] to execute the entered code                 *" << std::endl;
+  std::cout << "*Press [CTRL+C] to execute the entered command              *" << std::endl;
   std::cout << "*Press [CTRL+D] (or enter 'exit') to quit the application   *" << std::endl;
   std::cout << "*************************************************************" << std::endl;
 }

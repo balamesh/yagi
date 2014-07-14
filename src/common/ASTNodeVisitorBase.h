@@ -12,6 +12,8 @@
 #include <string>
 #include "../utils/Any.h"
 
+using namespace yagi::container;
+
 class ASTNodeVisitorBase
 {
   public:
@@ -21,7 +23,7 @@ class ASTNodeVisitorBase
     ;
 };
 
-template<class T, typename R = container::Any>
+template<class T, typename R = Any>
 class Visitor
 {
   public:

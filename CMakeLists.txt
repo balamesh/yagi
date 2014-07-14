@@ -152,6 +152,9 @@ src/back-end/Database/SQLiteConnector.cpp
 src/back-end/Database/SQLiteConnector.h
 src/front-end/astVisitors/TypeCheckVisitor.cpp
 src/front-end/astVisitors/TypeCheckVisitor.h
+src/back-end/Database/DatabaseConnectorBase.h
+src/back-end/Database/DatabaseManager.cpp
+src/back-end/Database/DatabaseManager.h
 )
 
 add_executable(yagi-unitTests
@@ -276,6 +279,9 @@ src/back-end/Database/SQLiteConnector.h
 src/front-end/astVisitors/TypeCheckVisitor.cpp
 src/front-end/astVisitors/TypeCheckVisitor.h
 src/utils/Any.h
+src/back-end/Database/DatabaseConnectorBase.h
+src/back-end/Database/DatabaseManager.cpp
+src/back-end/Database/DatabaseManager.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp
