@@ -96,18 +96,18 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addVarAssign();
   }
 
-  void addForLoopAssign()
-  {
-    ASTBuilder::getInstance().addForLoopAssign();
-  }
-  void addConditionalAssign()
-  {
-    ASTBuilder::getInstance().addConditionalAssign();
-  }
-  void addConditionalAssignElse()
-  {
-    ASTBuilder::getInstance().addConditionalAssignElse();
-  }
+//  void addForLoopAssign()
+//  {
+//    ASTBuilder::getInstance().addForLoopAssign();
+//  }
+//  void addConditionalAssign()
+//  {
+//    ASTBuilder::getInstance().addConditionalAssign();
+//  }
+//  void addConditionalAssignElse()
+//  {
+//    ASTBuilder::getInstance().addConditionalAssignElse();
+//  }
 
   void addAction(pANTLR3_STRING actionName)
   {
@@ -176,10 +176,10 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
   }
 
-  void consumeAssignment()
-  {
-    ASTBuilder::getInstance().consumeAssignment();
-  }
+//  void consumeAssignment()
+//  {
+//    ASTBuilder::getInstance().consumeAssignment();
+//  }
 
   void addAtomConnective(char* connective)
   {
@@ -330,10 +330,10 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addPatternMatchCallback = addPatternMatch;
     yagiCallbackCollection.addFluentAssignCallback = addFluentAssign;
     yagiCallbackCollection.addAssignOpCallback = addAssignOp;
-    yagiCallbackCollection.consumeAssignmentCallback = consumeAssignment;
-    yagiCallbackCollection.addForLoopAssignCallback = addForLoopAssign;
-    yagiCallbackCollection.addConditionalAssignCallback = addConditionalAssign;
-    yagiCallbackCollection.addConditionalAssignElseCallback = addConditionalAssignElse;
+    //yagiCallbackCollection.consumeAssignmentCallback = consumeAssignment;
+    //yagiCallbackCollection.addForLoopAssignCallback = addForLoopAssign;
+    //yagiCallbackCollection.addConditionalAssignCallback = addConditionalAssign;
+    //yagiCallbackCollection.addConditionalAssignElseCallback = addConditionalAssignElse;
     yagiCallbackCollection.addIncompleteKnowledgeCallback = addIncompleteKnowledge;
 
     //Tuples

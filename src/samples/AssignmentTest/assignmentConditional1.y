@@ -11,5 +11,5 @@ end if
 if (false) then
   flu = {<"i">};
 else
-  flu = {<"j">}
+  flu = {<"j">};
 end if

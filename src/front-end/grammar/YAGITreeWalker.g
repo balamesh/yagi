@@ -2,9 +2,6 @@
 //Treegrammar for the YAGI programming language
 //Author: Christopher Maier
 //Date: 2014-05-19
-//Version: 0.1
-//Changelog:
-//  - 0.1: Initial version
 //******************************************************************************
 tree grammar YAGITreeWalker;
 
@@ -44,7 +41,6 @@ declaration
 	| 	proc_decl
     	|   	exo_event_decl
     	|	sensing_decl
-	|	assignment
 	;
 
 fluent_decl
@@ -69,7 +65,7 @@ action_decl
 	;
 	
 effect	
-	: ^(IT_EFFECT ({ADD_EFFECT();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
+	: ^(IT_EFFECT ({ADD_EFFECT();}) block)
 	;
 	
 var_list
@@ -85,9 +81,8 @@ proc_decl
 	}
 	;	
 
-//^(IT_PASS_SENS ID ^(IT_VAR_LIST var_list) ({ADD_PASSIVE_SENSING_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
 exo_event_decl
-	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) ({ADD_EXO_EVENT_DECL($ID->toString($ID));}) ^(IT_BLOCK (assignment{CONSUME_ASSIGNMENT();})+))
+	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) ({ADD_EXO_EVENT_DECL($ID->toString($ID));}) block)
 	;	
 	
 sensing_decl	
@@ -98,18 +93,12 @@ sensing_decl
 	}
 	;
 	
-assignment
-	:	assign
-	|	for_loop_assign
-	|	conditional_assign
-	;
-	
-	
 //******************************************************************************
 //Statements
 //******************************************************************************
 statement
-	:	proc_exec_fluent_query
+	:	id_term
+	|	var_assign
 	|	test
 	|	choose
 	| 	pick
@@ -119,9 +108,11 @@ statement
     	| 	search
 	;
 
-proc_exec_fluent_query
-	: 	^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_PROC_EXEC($ID->toString($ID));}
-	|	^(IT_FLUENT_QUERY ID) 				    { ADD_FLUENT_QUERY($ID->toString($ID));}
+id_term
+	:	
+	^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_PROC_EXEC($ID->toString($ID));}
+	|	^(IT_FLUENT_QUERY ID) 	{ ADD_FLUENT_QUERY($ID->toString($ID));}
+	| 	^(ass_op ID setexpr) {ADD_FLUENT_ASSIGN($ID->toString($ID));}
 	;	
 	
 value_list	
@@ -187,9 +178,8 @@ search
 //******************************************************************************
 //Assignments
 //******************************************************************************
-assign	
-	:	^(IT_ASSIGN var valexpr) {ADD_VAR_ASSIGN();}
-	|	^(ass_op ID setexpr) {ADD_FLUENT_ASSIGN($ID->toString($ID));}
+var_assign	
+	:	^(IT_ASSIGN var value) {ADD_VAR_ASSIGN();}
 	;
 	
 ass_op  
@@ -199,17 +189,6 @@ ass_op
                 )
         ;
     
-for_loop_assign
-	: ^(IT_FORALLASSIGN tuple setexpr ({ADD_FOR_LOOP_ASSIGN();}) ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+))
-	;
-	
-conditional_assign
-	: ^(IT_IF_ASSIGN formula ({ADD_CONDITIONAL_ASSIGN();}) 
-	  ^(IT_BLOCK (assignment {CONSUME_ASSIGNMENT();})+) 
-	 (^(IT_BLOCK ({ADD_CONDITIONAL_ASSIGN_ELSE();}) (assignment {CONSUME_ASSIGNMENT();})+))?)
-	;
-
-
 //******************************************************************************
 //Formulas
 //******************************************************************************
@@ -233,7 +212,7 @@ formula_connective
 	;
 
 atom
-	:	^(IT_ATOM_VALEXPR ^(atom_connector valexpr valexpr))
+	:	^(IT_ATOM_VALEXPR ^(atom_connector value value))
 	|	^(IT_ATOM_SETEXPR ^(atom_connector setexpr setexpr))
 	|	(TOKEN_TRUE {ADD_CONSTANT("true");} | TOKEN_FALSE {ADD_CONSTANT("false");})
 	;

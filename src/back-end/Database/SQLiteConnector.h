@@ -58,8 +58,8 @@ class SQLiteConnector
       return connected_;
     }
 
-    void createTable(const std::shared_ptr<NodeFluentDecl>& fluentDecl);
-    void createTable(const std::shared_ptr<NodeFactDecl>& factDecl);
+    void createTable(const NodeFluentDecl& fluentDecl);
+    void createTable(const NodeFactDecl& factDecl);
     void insertIntoTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set);
     void deleteFromTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set);
     std::string select(const std::string& tableName);

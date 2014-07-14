@@ -8,14 +8,14 @@
 #ifndef NODEFLUENTASSIGNMENT_H_
 #define NODEFLUENTASSIGNMENT_H_
 
-#include "NodeAssignmentBase.h"
 #include "../../ASTNodeTypes/Identifier/NodeID.h"
 #include "../../ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "NodeStatementBase.h"
 
 #include <memory>
 
-class NodeFluentAssignment: public NodeAssignmentBase
+class NodeFluentAssignment: public NodeStatementBase
 {
   private:
     std::shared_ptr<NodeID> fluentName_;
@@ -42,8 +42,7 @@ class NodeFluentAssignment: public NodeAssignmentBase
       return operator_;
     }
 
-    void setOperator(
-        const std::shared_ptr<NodeSetExpressionOperator>& _operator)
+    void setOperator(const std::shared_ptr<NodeSetExpressionOperator>& _operator)
     {
       operator_ = _operator;
     }

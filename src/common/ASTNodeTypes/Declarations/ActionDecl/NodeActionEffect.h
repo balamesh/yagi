@@ -13,23 +13,23 @@
 #include <algorithm>
 
 #include "../../ASTNodeBase.h"
-#include "../../Assignment/NodeAssignmentBase.h"
+#include "../../Statements/NodeStatementBase.h"
 
 class NodeActionEffect: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<NodeAssignmentBase>> assignments_;
+    std::vector<std::shared_ptr<NodeStatementBase>> assignments_;
   public:
     DEFINE_VISITABLE()
     NodeActionEffect();
     virtual ~NodeActionEffect();
 
-    const std::vector<std::shared_ptr<NodeAssignmentBase> >& getAssignments() const
+    const std::vector<std::shared_ptr<NodeStatementBase> >& getAssignments() const
     {
       return assignments_;
     }
 
-    void addAssignment(const std::shared_ptr<NodeAssignmentBase>& assignment)
+    void addAssignment(const std::shared_ptr<NodeStatementBase>& assignment)
     {
       assignments_.push_back(assignment);
     }

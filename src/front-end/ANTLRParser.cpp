@@ -42,12 +42,11 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parseYAGICodeFromText(const std::str
   return parse(input.get(), printCAST);
 }
 
-std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& input,
-    bool printCAST)
+std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& input, bool printCAST)
 {
   using LexerType = std::unique_ptr<std::remove_pointer<pYAGILexer>::type, std::function<void(pYAGILexer)>>;
   LexerType lxr = LexerType(YAGILexerNew(input), [](pYAGILexer lxr)
-  { lxr->free(lxr);});
+  { if (lxr) lxr->free(lxr); lxr = nullptr;});
 
   if (!lxr)
   {
@@ -57,7 +56,7 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& in
   using StreamType = std::unique_ptr<std::remove_pointer<pANTLR3_COMMON_TOKEN_STREAM>::type, std::function<void(pANTLR3_COMMON_TOKEN_STREAM)>>;
   StreamType tstream = StreamType(antlr3CommonTokenStreamSourceNew(
   ANTLR3_SIZE_HINT, TOKENSOURCE(lxr)), [](pANTLR3_COMMON_TOKEN_STREAM stream)
-  { stream->free(stream);});
+  { if (stream) stream->free(stream); stream = nullptr;});
 
   if (!tstream)
   {
@@ -66,7 +65,7 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& in
 
   using ParserType = std::unique_ptr<std::remove_pointer<pYAGIParser>::type, std::function<void(pYAGIParser)>>;
   ParserType psr = ParserType(YAGIParserNew(tstream.get()), [](pYAGIParser psr)
-  { psr->free(psr);});
+  { if (psr) psr->free(psr); psr = nullptr;});
 
   if (!psr)
   {
@@ -94,10 +93,11 @@ std::shared_ptr<ASTNodeBase<>> ANTLRParser::parse(const pANTLR3_INPUT_STREAM& in
 
     nodes = NodeStreamType(antlr3CommonTreeNodeStreamNewTree(langAST.tree, ANTLR3_SIZE_HINT),
         [](pANTLR3_COMMON_TREE_NODE_STREAM nodeStream)
-        { nodeStream->free(nodeStream);});
+        { if (nodeStream) nodeStream->free(nodeStream); nodeStream = nullptr;});
 
     treePsr = TreeWalkerType(YAGITreeWalkerNew(nodes.get()), [](pYAGITreeWalker walker)
-    { walker->free(walker);});
+    { if (walker) walker->free(walker); walker = nullptr;});
+
     treePsr.get()->program(treePsr.get());
 
     return ASTBuilder::getInstance().getAST();

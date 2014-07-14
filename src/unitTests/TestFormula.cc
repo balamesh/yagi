@@ -47,14 +47,6 @@ TEST(FormulaTest, formulaAtomValExpr2)
   EXPECT_TRUE(true);
 }
 
-TEST(FormulaTest, formulaAtomValExpr3)
-{
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/FormulaTest/formulaAtomValExpr3.y");
-  if (!ast)
-    return;
-  EXPECT_TRUE(true);
-}
-
 TEST(FormulaTest, formulaNegation)
 {
   auto ast = yagi::unitTestHelper::tryParse("src/samples/FormulaTest/formulaNegation.y");

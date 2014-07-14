@@ -10,30 +10,20 @@
 
 #include <memory>
 
-#include "NodeAssignmentBase.h"
 #include "../Variables/NodeVariable.h"
 #include "../Expressions/NodeValueExpression.h"
+#include "NodeStatementBase.h"
 
-class NodeVariableAssignment: public NodeAssignmentBase
+class NodeVariableAssignment: public NodeStatementBase
 {
   private:
     std::shared_ptr<NodeVariable> variable_;
-    std::shared_ptr<NodeValueExpression> valExpr_;
+    std::shared_ptr<ASTNodeBase<>> value_;
 
   public:
     DEFINE_VISITABLE()
     NodeVariableAssignment();
     virtual ~NodeVariableAssignment();
-
-    const std::shared_ptr<NodeValueExpression>& getValExpr() const
-    {
-      return valExpr_;
-    }
-
-    void setValExpr(const std::shared_ptr<NodeValueExpression>& valExpr)
-    {
-      valExpr_ = valExpr;
-    }
 
     const std::shared_ptr<NodeVariable>& getVariable() const
     {
@@ -52,6 +42,16 @@ class NodeVariableAssignment: public NodeAssignmentBase
 //      variable_->accept(visitor);
 //      valExpr_->accept(visitor);
 //    }
+
+    const std::shared_ptr<ASTNodeBase<> >& getValue() const
+    {
+      return value_;
+    }
+
+    void setValue(const std::shared_ptr<ASTNodeBase<> >& value)
+    {
+      value_ = value;
+    }
 };
 
 #endif /* NODEVARIABLEASSIGNMENT_H_ */

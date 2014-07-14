@@ -10,6 +10,7 @@ options
   language = C;
   output = AST;
   ASTLabelType=pANTLR3_BASE_TREE;
+  k = 1;
 }
 
 //******************************************************************************
@@ -169,7 +170,6 @@ TOKEN_FOR_EACH
   IT_SIGNAL;
   IT_SENSING;
   IT_EXTERNAL_VARS;
-  IT_IF_ASSIGN;
   IT_NOT;
   IT_AND;
   IT_OR;
@@ -187,7 +187,6 @@ TOKEN_FOR_EACH
   IT_VALUE_LIST;
   IT_CONDITIONAL;
   IT_FORALL;
-  IT_FORALLASSIGN;
   IT_WHILE;
   IT_CHOOSE;
   IT_TEST;
@@ -211,7 +210,7 @@ TOKEN_FOR_EACH
 //Basic program structure
 //******************************************************************************
 program	
-	:	(declaration | statement)+ 
+	:	(declaration | statement)+
 
 		-> ^(IT_PROGRAM declaration* statement*)
 	;
@@ -232,7 +231,6 @@ declaration
 	| 	proc_decl
     	|   	exo_event_decl
     	|	sensing_decl
-	|	assignment
 	;
 	
 fluent_decl
@@ -263,8 +261,8 @@ action_decl
 	;
 	
 effect	
-	:	TOKEN_EFFECT assignment* 
-		-> ^(IT_EFFECT ^(IT_BLOCK assignment+))
+	:	TOKEN_EFFECT block 
+		-> ^(IT_EFFECT block)
 	;
 	
 var_list
@@ -281,9 +279,9 @@ proc_decl
 	;	
 	
 exo_event_decl
-	:	TOKEN_EXO_EVENT ID TOKEN_OPEN_PAREN var_list TOKEN_CLOSE_PAREN assignment+ TOKEN_END_EXO_EVENT
+	:	TOKEN_EXO_EVENT ID TOKEN_OPEN_PAREN var_list TOKEN_CLOSE_PAREN block TOKEN_END_EXO_EVENT
                 
-                -> ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) ^(IT_BLOCK assignment+))
+                -> ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) block)
                 
 	;	
 	
@@ -292,19 +290,13 @@ sensing_decl
 		
 		-> ^(IT_SENSING ID ^(IT_VAR_LIST $v1?) (^(IT_EXTERNAL_VARS $v2))? formula)
 	;
-	
-assignment
-	:	assign TOKEN_EOL -> assign
-	|	for_loop_assign
-	|	conditional_assign
-	;
-	
-	
+		
 //******************************************************************************
 //Statements
 //******************************************************************************	
 statement
-	:	proc_exec_fluent_query
+	:	id_term
+	|	var_assign
 	|	test
 	|	choose
 	| 	pick
@@ -314,14 +306,15 @@ statement
     	| 	search
 	;
 	
-proc_exec_fluent_query
-	:	ID 
-		(
-		  TOKEN_OPEN_PAREN value_list? TOKEN_CLOSE_PAREN TOKEN_EOL -> ^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?)
-		| TOKEN_EOL 						   -> ^(IT_FLUENT_QUERY ID)
-		)
+id_term
+	:	ID (
+		     TOKEN_OPEN_PAREN value_list? TOKEN_CLOSE_PAREN TOKEN_EOL -> ^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?)
+		   | TOKEN_EOL 						      -> ^(IT_FLUENT_QUERY ID) 
+		   | ass_op setexpr TOKEN_EOL 				      -> ^(ass_op ID setexpr)
+		   
+		   )
 	;	
-	
+
 value_list	
 	:	value (TOKEN_COMMA value)* 
 	
@@ -335,9 +328,9 @@ test
 	;	
 	
 choose	
-	:	TOKEN_CHOOSE block ( TOKEN_OR block )+ TOKEN_END_CHOOSE
+	:	TOKEN_CHOOSE b1=block ( TOKEN_OR block )+ TOKEN_END_CHOOSE
 
-		-> ^(IT_CHOOSE block block+)
+		-> ^(IT_CHOOSE $b1 block+)
 	;	
 	
 pick	
@@ -353,10 +346,9 @@ for_loop
 	;
 
 conditional
-	:	TOKEN_IF TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN TOKEN_THEN block 
-		(TOKEN_ELSE block)? TOKEN_END_IF
+	:	TOKEN_IF TOKEN_OPEN_PAREN formula TOKEN_CLOSE_PAREN TOKEN_THEN b1=block (TOKEN_ELSE b2=block)? TOKEN_END_IF
 		
-		-> ^(IT_CONDITIONAL formula block block?)
+		-> ^(IT_CONDITIONAL formula $b1 $b2?) 
 	;
 	
 while_loop
@@ -375,9 +367,8 @@ search
 //******************************************************************************
 //Assignments
 //******************************************************************************
-assign	
-	:	var TOKEN_ASSIGN valexpr -> ^(IT_ASSIGN var valexpr)
-	|	ID ass_op setexpr -> ^(ass_op ID setexpr)
+var_assign	
+	:	var TOKEN_ASSIGN value TOKEN_EOL  -> ^(IT_ASSIGN var value) 
 	;
 	
 ass_op  
@@ -386,20 +377,7 @@ ass_op
                   | TOKEN_REMOVE_ASSIGN -> IT_REMOVE_ASSIGN
                 )
         ;
-        
-for_loop_assign
-	:	TOKEN_FOR_EACH tuple TOKEN_IN setexpr assignment+ TOKEN_END_FOR
-		
-		-> ^(IT_FORALLASSIGN tuple setexpr ^(IT_BLOCK assignment+))
-	;
-	
-conditional_assign
-	:	TOKEN_IF formula TOKEN_THEN ass1=assignment+ (TOKEN_ELSE ass2=assignment+)? TOKEN_END_IF
-		
-		-> ^(IT_IF_ASSIGN formula ^(IT_BLOCK $ass1) (^(IT_BLOCK $ass2))?)
-	;
-
-
+        	
 //******************************************************************************
 //Formulas
 //******************************************************************************
@@ -425,7 +403,7 @@ formula_connective
 	;
 
 atom
-	:	v1=valexpr atom_connector v2=valexpr -> ^(IT_ATOM_VALEXPR ^(atom_connector $v1 $v2))
+	:	v1=value atom_connector v2=value -> ^(IT_ATOM_VALEXPR ^(atom_connector $v1 $v2))
 	|	s1=setexpr atom_connector s2=setexpr -> ^(IT_ATOM_SETEXPR ^(atom_connector $s1 $s2))
 	|	(TOKEN_TRUE | TOKEN_FALSE)
 	;

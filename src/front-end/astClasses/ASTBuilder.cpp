@@ -98,7 +98,7 @@ void ASTBuilder::addExoEventDeclNode(const std::string& passSensName)
   auto exoEventDeclNode = std::make_shared<NodeExogenousEventDecl>();
   exoEventDeclNode->setExogenousEventName(std::make_shared<NodeID>(passSensName));
 
-  //there must be a varlist for passive sensing
+  //there must be a varlist for exo event
   auto varList = getFrontElement<NodeVarList>();
   if (varList == nullptr)
   {
@@ -115,14 +115,14 @@ void ASTBuilder::addSensingDeclNode(const std::string& sensingName)
   auto sensingDecl = std::make_shared<NodeSensingDecl>();
   sensingDecl->setSensingName(std::make_shared<NodeID>(sensingName));
 
-
   auto formula = getFrontElement<NodeFormulaBase>();
   if (formula != nullptr)
   {
     sensingDecl->setFormula(formula);
     ast.pop();
   }
-  else throw std::runtime_error("Sensing Decl must have a formula but there is none!");
+  else
+    throw std::runtime_error("Sensing Decl must have a formula but there is none!");
 
   auto varList1 = getFrontElement<NodeVarList>();
   if (varList1 != nullptr)
@@ -221,21 +221,9 @@ void ASTBuilder::addVarAssign()
 
   auto varAss = std::make_shared<NodeVariableAssignment>();
   varAss->setVariable(var);
-
-  //if it's a "simple" assignment we need to create a valexpr,
-  //otherwise it already has been created earlier...
-  auto recursiveValExpr = std::dynamic_pointer_cast<NodeValueExpression>(rhs);
-  if (recursiveValExpr == nullptr)
-  {
-    auto valExpr = std::make_shared<NodeValueExpression>();
-    valExpr->setRhs(rhs); //in case it's a simple assignment we just set RHS and leave the rest nullptr
-    varAss->setValExpr(valExpr);
-  }
-  else
-    varAss->setValExpr(recursiveValExpr);
+  varAss->setValue(rhs);
 
   ast.push(varAss);
-
 }
 
 void ASTBuilder::addPatternMatch()
@@ -615,108 +603,108 @@ void ASTBuilder::consumeVarNode()
   varList->addVariable(var);
 }
 
-void ASTBuilder::addForLoopAssign()
-{
-  auto forLoopAssign = std::make_shared<NodeForLoopAssignment>();
+//void ASTBuilder::addForLoopAssign()
+//{
+//  auto forLoopAssign = std::make_shared<NodeForLoopAssignment>();
+//
+//  //setexpr and tuple have already been created
+//
+//  //TODO: should be created in everycase the <setexpr> rule gets executed!
+//  //if it's an id we need to create a setxpr,
+//  //otherwise it already has been created earlier...
+//  auto setExpr = getFrontElement<NodeSetExpression>();
+//  if (setExpr == nullptr)
+//  {
+//    auto setExprNew = std::make_shared<NodeSetExpression>();
+//    setExprNew->setRhs(getFrontElement<ASTNodeBase<>>()); //TODO: arbitrary, needs rethinking
+//    forLoopAssign->setSetExpr(setExprNew);
+//  }
+//  else
+//    forLoopAssign->setSetExpr(setExpr);
+//
+//  ast.pop();
+//
+//  auto tuple = getFrontElement<NodeTuple>();
+//  if (tuple == nullptr)
+//  {
+//    throw std::runtime_error("No tuple to build for-loop assign!");
+//  }
+//
+//  ast.pop();
+//  forLoopAssign->setTuple(tuple);
+//
+//  ast.push(forLoopAssign);
+//}
 
-  //setexpr and tuple have already been created
+//void ASTBuilder::addConditionalAssign()
+//{
+//  auto conditionalAssign = std::make_shared<NodeConditionalAssignment>();
+//
+//  //formula has already been created...
+//  auto formula = getFrontElement<NodeFormulaBase>();
+//  if (formula == nullptr)
+//  {
+//    throw std::runtime_error("No formula to build conditional-assign!");
+//  }
+//  ast.pop();
+//
+//  conditionalAssign->setFormula(formula);
+//  ast.push(conditionalAssign);
+//}
 
-  //TODO: should be created in everycase the <setexpr> rule gets executed!
-  //if it's an id we need to create a setxpr,
-  //otherwise it already has been created earlier...
-  auto setExpr = getFrontElement<NodeSetExpression>();
-  if (setExpr == nullptr)
-  {
-    auto setExprNew = std::make_shared<NodeSetExpression>();
-    setExprNew->setRhs(getFrontElement<ASTNodeBase<>>()); //TODO: arbitrary, needs rethinking
-    forLoopAssign->setSetExpr(setExprNew);
-  }
-  else
-    forLoopAssign->setSetExpr(setExpr);
+//void ASTBuilder::addConditionalAssignElse()
+//{
+//  auto conditionalAssignment = getFrontElement<NodeConditionalAssignment>();
+//
+//  if (conditionalAssignment == nullptr)
+//  {
+//    throw std::runtime_error(
+//        "Want to build else-claus for cond. ass., but there is no cond. ass.!");
+//  }
+//
+//  conditionalAssignment->buildElseBlock(true);
+//
+//}
 
-  ast.pop();
-
-  auto tuple = getFrontElement<NodeTuple>();
-  if (tuple == nullptr)
-  {
-    throw std::runtime_error("No tuple to build for-loop assign!");
-  }
-
-  ast.pop();
-  forLoopAssign->setTuple(tuple);
-
-  ast.push(forLoopAssign);
-}
-
-void ASTBuilder::addConditionalAssign()
-{
-  auto conditionalAssign = std::make_shared<NodeConditionalAssignment>();
-
-  //formula has already been created...
-  auto formula = getFrontElement<NodeFormulaBase>();
-  if (formula == nullptr)
-  {
-    throw std::runtime_error("No formula to build conditional-assign!");
-  }
-  ast.pop();
-
-  conditionalAssign->setFormula(formula);
-  ast.push(conditionalAssign);
-}
-
-void ASTBuilder::addConditionalAssignElse()
-{
-  auto conditionalAssignment = getFrontElement<NodeConditionalAssignment>();
-
-  if (conditionalAssignment == nullptr)
-  {
-    throw std::runtime_error(
-        "Want to build else-claus for cond. ass., but there is no cond. ass.!");
-  }
-
-  conditionalAssignment->buildElseBlock(true);
-
-}
-
-void ASTBuilder::consumeAssignment()
-{
-  auto assignment = getFrontElement<NodeAssignmentBase>();
-  ast.pop();
-
-  if (assignment == nullptr)
-  {
-    throw std::runtime_error("Want to consume assignment when there is none!");
-  }
-
-  auto consumer = getFrontElement<ASTNodeBase<>>();
-
-  //Different stuff can consume assignments...
-  //TODO: need better abstraction, maybe baseclass should get addAssignment()
-  auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(consumer);
-  auto forLoopAssign = std::dynamic_pointer_cast<NodeForLoopAssignment>(consumer);
-  auto conditionalAssign = std::dynamic_pointer_cast<NodeConditionalAssignment>(consumer);
-  auto passiveSensing = std::dynamic_pointer_cast<NodeExogenousEventDecl>(consumer);
-
-  //TODO: put this into baseclass
-  if (actionEffect != nullptr)
-  {
-    actionEffect->addAssignment(assignment);
-  }
-  else if (forLoopAssign != nullptr)
-  {
-    forLoopAssign->addAssignment(assignment);
-  }
-  else if (conditionalAssign != nullptr)
-  {
-    conditionalAssign->addAssignment(assignment);
-  }
-  else if (passiveSensing != nullptr)
-  {
-    passiveSensing->addAssignment(assignment);
-  }
-  else
-    throw std::runtime_error("Don't know what the consumer for the assignment is!");
-}
+//void ASTBuilder::consumeAssignment()
+//{
+//  auto assignment = getFrontElement<NodeAssignmentBase>();
+//  ast.pop();
+//
+//  if (assignment == nullptr)
+//  {
+//    throw std::runtime_error("Want to consume assignment when there is none!");
+//  }
+//
+//  auto consumer = getFrontElement<ASTNodeBase<>>();
+//
+//  //Different stuff can consume assignments...
+//  //TODO: need better abstraction, maybe baseclass should get addAssignment()
+//  auto actionEffect = std::dynamic_pointer_cast<NodeActionEffect>(consumer);
+//  auto forLoopAssign = std::dynamic_pointer_cast<NodeForLoopAssignment>(consumer);
+//  auto conditionalAssign = std::dynamic_pointer_cast<NodeConditionalAssignment>(consumer);
+//  auto passiveSensing = std::dynamic_pointer_cast<NodeExogenousEventDecl>(consumer);
+//
+//  //TODO: put this into baseclass
+//  if (actionEffect != nullptr)
+//  {
+//    actionEffect->addAssignment(assignment);
+//  }
+//  else if (forLoopAssign != nullptr)
+//  {
+//    forLoopAssign->addAssignment(assignment);
+//  }
+//  else if (conditionalAssign != nullptr)
+//  {
+//    conditionalAssign->addAssignment(assignment);
+//  }
+//  else if (passiveSensing != nullptr)
+//  {
+//    passiveSensing->addAssignment(assignment);
+//  }
+//  else
+//    throw std::runtime_error("Don't know what the consumer for the assignment is!");
+//}
 
 void ASTBuilder::addEffect()
 {

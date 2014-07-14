@@ -1,6 +1,6 @@
 action testAction()
 precondition:
-  "a" + "b" == "b" + "b";
+  "b" == "b";
 effect:
   x = x;
 end action

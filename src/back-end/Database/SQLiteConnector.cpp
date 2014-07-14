@@ -32,16 +32,16 @@ void SQLiteConnector::connect()
   connected_ = true;
 }
 
-void SQLiteConnector::createTable(const std::shared_ptr<NodeFluentDecl>& fluentDecl)
+void SQLiteConnector::createTable(const NodeFluentDecl& fluentDecl)
 {
-  int count = fluentDecl->getDomains().size();
-  createTableInternal(fluentDecl->getFluentName()->getId(), count);
+  int count = fluentDecl.getDomains().size();
+  createTableInternal(fluentDecl.getFluentName()->getId(), count);
 }
 
-void SQLiteConnector::createTable(const std::shared_ptr<NodeFactDecl>& factDecl)
+void SQLiteConnector::createTable(const NodeFactDecl& factDecl)
 {
-  int count = factDecl->getDomains().size();
-  createTableInternal(factDecl->getFactName()->getId(), count);
+  int count = factDecl.getDomains().size();
+  createTableInternal(factDecl.getFactName()->getId(), count);
 }
 
 void SQLiteConnector::createTableInternal(const std::string& tableName, int numberOfColumns)

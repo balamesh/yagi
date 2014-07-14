@@ -15,6 +15,7 @@
 #include "../../common/ASTNodeVisitorBase.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Identifier/NodeID.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
@@ -26,6 +27,7 @@ using namespace yagi::database;
 
 class InterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
+    public Visitor<NodeFactDecl>,
     public Visitor<NodeProgram>
 {
   private:
@@ -48,8 +50,13 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
 
     container::Any visit(NodeFluentDecl& fluentDecl)
     {
+      db_.get()->createTable(fluentDecl);
+      return container::Any { };
+    }
 
-
+    container::Any visit(NodeFactDecl& factDecl)
+    {
+      db_.get()->createTable(factDecl);
       return container::Any { };
     }
 };

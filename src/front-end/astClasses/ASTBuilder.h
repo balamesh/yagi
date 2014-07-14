@@ -26,11 +26,11 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
-#include "../../common/ASTNodeTypes/Assignment/NodeVariableAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
-#include "../../common/ASTNodeTypes/Assignment/NodeFluentAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeFluentAssignment.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeFormulaBase.h"
@@ -46,8 +46,6 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionEffect.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
-#include "../../common/ASTNodeTypes/Assignment/NodeConditionalAssignment.h"
-#include "../../common/ASTNodeTypes/Assignment/NodeForLoopAssignment.h"
 #include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
@@ -129,10 +127,10 @@ class ASTBuilder
 
     //Assignment
     void addVarAssign();
-    void consumeAssignment();
-    void addForLoopAssign();
-    void addConditionalAssign();
-    void addConditionalAssignElse();
+    //void consumeAssignment();
+    //void addForLoopAssign();
+    //void addConditionalAssign();
+    //void addConditionalAssignElse();
 
     void addPatternMatch();
     void addIncompleteKnowledge();

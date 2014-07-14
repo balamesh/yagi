@@ -15,14 +15,14 @@
 
 #include "../../Variables/NodeVarList.h"
 #include "../../Identifier/NodeID.h"
-#include "../../Assignment/NodeAssignmentBase.h"
+#include "../../Statements/NodeStatementBase.h"
 
 class NodeExogenousEventDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> exoEventName_;
     std::shared_ptr<NodeVarList> argList_;
-    std::vector<std::shared_ptr<NodeAssignmentBase>> assignments_;
+    std::vector<std::shared_ptr<NodeStatementBase>> assignments_;
   public:
     DEFINE_VISITABLE()
     NodeExogenousEventDecl();
@@ -38,7 +38,7 @@ class NodeExogenousEventDecl: public ASTNodeBase<>
       argList_ = argList;
     }
 
-    const std::vector<std::shared_ptr<NodeAssignmentBase> >& getAssignments() const
+    const std::vector<std::shared_ptr<NodeStatementBase> >& getAssignments() const
     {
       return assignments_;
     }
@@ -53,7 +53,7 @@ class NodeExogenousEventDecl: public ASTNodeBase<>
       exoEventName_ = exoEgentName;
     }
 
-    void addAssignment(const std::shared_ptr<NodeAssignmentBase>& assignment)
+    void addAssignment(const std::shared_ptr<NodeStatementBase>& assignment)
     {
       assignments_.push_back(assignment);
     }
