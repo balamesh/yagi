@@ -20,6 +20,9 @@ SQLiteConnector::~SQLiteConnector()
 
 void SQLiteConnector::connect()
 {
+  if (connected_)
+    return;
+
   int rc;
 
   rc = sqlite3_open(dbName_.c_str(), &pDB_);
@@ -35,44 +38,7 @@ void SQLiteConnector::connect()
   connected_ = true;
 }
 
-void SQLiteConnector::createTable(const NodeFluentDecl& fluentDecl)
-{
-  int count = fluentDecl.getDomains().size();
-  createTableInternal(fluentDecl.getFluentName()->getId(), count);
-}
-
-void SQLiteConnector::createTable(const NodeFactDecl& factDecl)
-{
-  int count = factDecl.getDomains().size();
-  createTableInternal(factDecl.getFactName()->getId(), count);
-}
-
-void SQLiteConnector::removeTableIfExists(const std::string& tableName)
-{
-  std::string sql = "DROP TABLE IF EXISTS " + tableName;
-
-  executeSQLNonQuery(sql);
-}
-
-void SQLiteConnector::createTableInternal(const std::string& tableName, int numberOfColumns)
-{
-  removeTableIfExists(tableName);
-
-  /* Create SQL statement */
-  std::string sql = "CREATE TABLE " + tableName + "(";
-
-  for (int i = 0; i < numberOfColumns; i++)
-  {
-    if (i != numberOfColumns - 1)
-      sql += "dom" + std::to_string(i + 1) + " TEXT,";
-    else
-      sql += "dom" + std::to_string(i + 1) + " TEXT);";
-  }
-
-  executeSQLNonQuery(sql);
-}
-
-void SQLiteConnector::executeSQLNonQuery(const std::string& sqlStatement)
+void SQLiteConnector::executeNonQuery(const std::string& sqlStatement)
 {
   char *zErrMsg = nullptr;
 
@@ -88,13 +54,14 @@ void SQLiteConnector::executeSQLNonQuery(const std::string& sqlStatement)
 }
 
 //based on http://www.codeproject.com/Tips/378808/Accessing-a-SQLite-Database-with-Cplusplus
-std::vector<std::vector<std::string>> SQLiteConnector::executeSQLQuery(const std::string& sqlQuery)
+std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
+    const std::string& selectSqlStmt)
 {
 
   std::vector<std::vector<std::string>> data;
   sqlite3_stmt *statement;
 
-  if (sqlite3_prepare(db_.get(), sqlQuery.c_str(), -1, &statement, 0) == SQLITE_OK)
+  if (sqlite3_prepare(db_.get(), selectSqlStmt.c_str(), -1, &statement, 0) == SQLITE_OK)
   {
     int ctotal = sqlite3_column_count(statement);
     int res = 0;
@@ -122,29 +89,6 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeSQLQuery(const std
   }
 
   return data;
-}
-
-void SQLiteConnector::insertIntoTable(const std::string& tableName,
-    const std::shared_ptr<NodeSet>& set)
-{
-}
-void SQLiteConnector::deleteFromTable(const std::string& tableName,
-    const std::shared_ptr<NodeSet>& set)
-{
-}
-
-bool SQLiteConnector::existsTable(const std::string& tableName)
-{
-  std::string query = "SELECT * FROM sqlite_master WHERE name = '" + tableName + "' AND type='table'";
-  auto ret = executeSQLQuery(query);
-
-  return (ret.size() > 0);
-}
-
-std::vector<std::vector<std::string>> SQLiteConnector::select(const std::string& tableName)
-{
-  std::string query = "SELECT * FROM " + tableName;
-  return executeSQLQuery(query);
 }
 
 } //namespace end

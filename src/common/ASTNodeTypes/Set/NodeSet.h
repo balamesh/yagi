@@ -33,19 +33,6 @@ class NodeSet: public ASTNodeBase<>
     {
       tuples_.push_back(tuple);
     }
-//    void setTuples(const std::vector<std::shared_ptr<NodeTuple> >& tuples)
-//    {
-//      tuples_ = tuples;
-//    }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      std::for_each(std::begin(tuples_), std::end(tuples_),
-//          [&visitor](std::shared_ptr<NodeTuple> tuple)
-//          { tuple->accept(visitor);});
-//    }
 };
 
 #endif /* NODESET_H_ */

@@ -10,6 +10,7 @@
 
 #include "../Database/DatabaseConnectorBase.h"
 #include "../Database/DatabaseManager.h"
+#include "../SQLGenerator.h"
 #include <memory>
 
 #include "../../common/ASTNodeVisitorBase.h"
@@ -23,6 +24,7 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
+#include "../../common/ASTNodeTypes/Statements/NodeFluentAssignment.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -31,7 +33,8 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeFactDecl>,
     public Visitor<NodeProgram>,
-    public Visitor<NodeFluentQuery>
+    public Visitor<NodeFluentQuery>,
+    public Visitor<NodeFluentAssignment>
 {
   private:
     std::string fluentDBDataToString(std::vector<std::vector<std::string>> data)
@@ -52,7 +55,7 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
       });
 
       if (str.length() > 1)
-        return str.substr(0, str.length() - 1);
+        return str.substr(0, str.length() - 2) + "}";
       else
         return "[EMPTY]";
     }
@@ -75,14 +78,14 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeFluentDecl& fluentDecl)
     {
       auto db = DatabaseManager::getInstance().getMainDB();
-      db.get()->createTable(fluentDecl);
+      db->executeNonQuery(SQLGenerator::getInstance().createTableFromFluent(fluentDecl));
       return Any { };
     }
 
     Any visit(NodeFactDecl& factDecl)
     {
       auto db = DatabaseManager::getInstance().getMainDB();
-      db.get()->createTable(factDecl);
+      db->executeNonQuery(SQLGenerator::getInstance().createTableFromFact(factDecl));
       return Any { };
     }
 
@@ -91,16 +94,52 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
       auto db = DatabaseManager::getInstance().getMainDB();
       auto fluentName = fluentQuery.getFluentToQueryName().get()->getId();
 
-      if (!db.get()->existsTable(fluentName))
+      if (!db->executeQuery(SQLGenerator::getInstance().existsTable(fluentName)).size())
       {
         std::cout << "<<<< Fluent '" + fluentName + "' does not exist!" << std::endl;
       }
       else
       {
-        auto fluentState = db.get()->select(fluentName);
+        auto fluentState = db->executeQuery(SQLGenerator::getInstance().selectAll(fluentName));
         auto str = fluentDBDataToString(fluentState);
 
         std::cout << "<<<< " << fluentName << " = " << str << std::endl;
+      }
+
+      return Any { };
+    }
+
+    Any visit(NodeFluentAssignment& fluentAss)
+    {
+      auto db = DatabaseManager::getInstance().getMainDB();
+      auto fluentName = fluentAss.getFluentName().get()->getId();
+
+      auto rhs = fluentAss.getSetExpr();
+      auto op = fluentAss.getOperator();
+
+      //Simplest case: rhs is a <set>
+      auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs());
+      if (set != nullptr)
+      {
+        if (op->getOperator() == SetExprOperator::Assign)
+        {
+          DatabaseManager::getInstance().getMainDB()->executeNonQuery(
+              SQLGenerator::getInstance().getSqlStringClearTable(fluentName));
+        }
+
+        auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(fluentName,
+            set, op->getOperator());
+
+        std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [](const std::string& stmt)
+        {
+          DatabaseManager::getInstance().getMainDB()->executeNonQuery(stmt);
+        });
+
+        if (op->getOperator() == SetExprOperator::Unknown)
+        {
+          throw std::runtime_error("Unknown set expr. assign operator!");
+        }
+
       }
 
       return Any { };

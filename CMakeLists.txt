@@ -155,6 +155,8 @@ src/front-end/astVisitors/TypeCheckVisitor.h
 src/back-end/Database/DatabaseConnectorBase.h
 src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
+src/back-end/SQLGenerator.cpp
+src/back-end/SQLGenerator.h
 )
 
 add_executable(yagi-unitTests
@@ -282,6 +284,8 @@ src/utils/Any.h
 src/back-end/Database/DatabaseConnectorBase.h
 src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
+src/back-end/SQLGenerator.cpp
+src/back-end/SQLGenerator.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

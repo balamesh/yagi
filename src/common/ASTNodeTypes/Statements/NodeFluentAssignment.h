@@ -56,15 +56,6 @@ class NodeFluentAssignment: public NodeStatementBase
     {
       setExpr_ = setExpr;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      fluentName_->accept(visitor);
-//      operator_->accept(visitor);
-//      setExpr_->accept(visitor);
-//    }
 };
 
 #endif /* NODEFLUENTASSIGNMENT_H_ */

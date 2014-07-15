@@ -65,15 +65,6 @@ class NodeSetExpression: public ASTNodeBase<>
       else
         throw std::runtime_error("Invalid Type passed to SetExpression (rhs)!");
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      if (operator_ != nullptr) operator_->accept(visitor);
-//      if (lhs_ != nullptr) lhs_->accept(visitor);
-//      if (rhs_ != nullptr) rhs_->accept(visitor);
-//    }
 };
 
 #endif /* NODESETEXPRESSION_H_ */

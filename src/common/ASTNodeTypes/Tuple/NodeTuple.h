@@ -42,20 +42,6 @@ class NodeTuple: public ASTNodeBase<>
     {
       return tupleValues_;
     }
-
-//    void setTupleValues(const std::vector<ASTNodeBase>& tupleValues)
-//    {
-//      tupleValues_ = tupleValues;
-//    }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      std::for_each(std::begin(tupleValues_), std::end(tupleValues_),
-//          [&visitor](std::shared_ptr<ASTNodeBase> tupleVal)
-//          { tupleVal->accept(visitor);});
-//    }
 };
 
 #endif /* NODETUPLE_H_ */

@@ -10,47 +10,63 @@
 
 namespace yagi {
 namespace container {
-class Any final
+class Any
 {
 private:
+    template<typename Base, typename T>
+    using remove_if_derived_or_equal = typename std::enable_if<!std::is_base_of<Base, typename std::remove_reference<T>::type>::value>::type;
+
     struct HolderBase
     {
         virtual ~HolderBase() { }
-        virtual const std::type_info& getType() const noexcept(true) = 0;
+        virtual const std::type_info& getType() const noexcept = 0;
     };
 
     template<typename T>
-    struct Holder : HolderBase
+    struct Holder final : HolderBase
     {
-        explicit Holder(T t): t_{std::move(t)} { }
-        const std::type_info& getType() const noexcept(true) override { return typeid(t_); }
+        template<typename H, typename = remove_if_derived_or_equal<Holder, H>>
+        explicit Holder(H &&h): t_{std::forward<H>(h)} { }
+
+        const std::type_info& getType() const noexcept override { return typeid(t_); }
         T t_;
     };
 
 public:
-    Any(): holder_{nullptr} { }
-    template<typename T, typename = typename std::enable_if<!std::is_same<typename std::remove_reference<T>::type, Any>::value>::type> explicit Any(T &&t): haveValue_{true}, holder_{std::make_shared<Holder<typename std::remove_reference<T>::type>>(std::forward<T>(t))} { }
-    Any(const Any &other): haveValue_{other.haveValue_}, holder_{other.holder_} { }
-    Any(Any &&other): haveValue_{std::move(other.haveValue_)}, holder_{std::move(other.holder_)} { other.haveValue_ = false; }
-    ~Any() { }
-    Any& operator=(const Any &other) { haveValue_ = other.haveValue_; holder_ = other.holder_; return *this; }
-    Any& operator=(Any &&other) { haveValue_ = std::move(other.haveValue_); holder_ = std::move(other.holder_); other.haveValue_ = false; return *this; }
+    Any() = default;
+    Any(const Any &) = default;
+    Any(Any &&other) noexcept: haveValue_{std::move(other.haveValue_)}, holder_{std::move(other.holder_)} { other.haveValue_ = false; }
+    template<typename T, typename = remove_if_derived_or_equal<Any, T>>
+    explicit Any(T &&t): haveValue_{true}, holder_{std::make_shared<Holder<typename std::remove_reference<T>::type>>(std::forward<T>(t))} { }
+    virtual ~Any() = default;
 
-    template<typename T> Any clone() const { check<T>(); return Any{T{get<T>()}}; }
-    template<typename T> bool hasType() const noexcept(true) { return haveValue_ ? holder_->getType() == typeid(T) : false; }
-    void reset() noexcept(true) { haveValue_= false; holder_.reset(); }
-    bool empty() const noexcept(true) { return !haveValue_; }
-    template<typename T> T& get() { check<T>(); return static_cast<Holder<T>*>(holder_.get())->t_; }
-    template<typename T> const T& get() const { check<T>(); return static_cast<Holder<T>*>(holder_.get())->t_; }
-    template<typename T> void set(T &&t) { holder_.reset(); holder_ = std::make_shared<Holder<typename std::remove_reference<T>::type>>(std::forward<T>(t)); }
+    explicit operator bool() const noexcept { return !empty(); }
+    Any& operator=(const Any &) = default;
+    Any& operator=(Any &&other) noexcept { haveValue_ = std::move(other.haveValue_); holder_ = std::move(other.holder_); other.haveValue_ = false; return *this; }
+
+    friend bool operator==(const Any &a, const Any &b) noexcept { return a.haveValue_ == b.haveValue_ && a.holder_ == b.holder_; }
+    friend bool operator!=(const Any &a, const Any &b) noexcept { return a.haveValue_ != b.haveValue_ || a.holder_ != b.holder_; }
+
+    template<typename T>
+    Any clone() const { return empty() ? Any{} : Any{T{get<T>()}}; }
+    template<typename T>
+    bool hasType() const noexcept { return haveValue_ ? holder_->getType() == typeid(T) : false; }
+    template<typename T>
+    T& get() { check<T>(); return static_cast<Holder<T>*>(holder_.get())->t_; }
+    template<typename T>
+    const T& get() const { check<T>(); return static_cast<Holder<T>*>(holder_.get())->t_; }
+    template<typename T>
+    void set(T &&t) { holder_.reset(); holder_ = std::make_shared<Holder<typename std::remove_reference<T>::type>>(std::forward<T>(t)); }
+    bool empty() const noexcept { return !haveValue_; }
+    void reset() noexcept { haveValue_= false; holder_.reset(); }
 
 private:
     bool haveValue_ = false;
     std::shared_ptr<HolderBase> holder_;
 
-    template<typename T> void check() const { if (empty()) throw std::runtime_error("[Any] no value set"); if (!hasType<T>()) throw std::runtime_error("invalid type"); }
+    template<typename T>
+    void check() const { if (empty()) throw std::runtime_error("[any] no value set"); if (!hasType<T>()) throw std::runtime_error("[any] invalid type"); }
 };
-
-}
+} //end namespace
 }
 #endif //ANY_H_

@@ -8,9 +8,8 @@
 #ifndef DATABASECONNECTORBASE_H_
 #define DATABASECONNECTORBASE_H_
 
-#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
-#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
-#include "../../common/ASTNodeTypes/Set/NodeSet.h"
+#include <vector>
+#include <string>
 
 namespace yagi {
 namespace database {
@@ -36,12 +35,9 @@ class DatabaseConnectorBase
       return connected_;
     }
 
-    virtual void createTable(const NodeFluentDecl& fluentDecl) = 0;
-    virtual void createTable(const NodeFactDecl& factDecl) = 0;
-    virtual void insertIntoTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set) = 0;
-    virtual void deleteFromTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set) = 0;
-    virtual std::vector<std::vector<std::string>> select(const std::string& tableName) = 0;
-    virtual bool existsTable(const std::string& tableName) = 0;
+    virtual void connect() = 0;
+    virtual void executeNonQuery(const std::string& sqlStatement) = 0;
+    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) = 0;
 };
 
 } //end namespace

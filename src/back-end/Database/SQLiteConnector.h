@@ -29,12 +29,6 @@ class SQLiteConnector : public DatabaseConnectorBase
     sqlite3 *pDB_;
     SQLiteDB db_;
 
-    void connect();
-    void createTableInternal(const std::string& tableName, int numberOfColumns);
-    void removeTableIfExists(const std::string& tableName);
-    void executeSQLNonQuery(const std::string& sqlStatement);
-    std::vector<std::vector<std::string>> executeSQLQuery(const std::string& sqlQuery);
-
   public:
     SQLiteConnector(const std::string& dbName) :
         DatabaseConnectorBase(dbName)
@@ -47,12 +41,9 @@ class SQLiteConnector : public DatabaseConnectorBase
     ;
     virtual ~SQLiteConnector();
 
-    void createTable(const NodeFluentDecl& fluentDecl) override;
-    void createTable(const NodeFactDecl& factDecl) override;
-    void insertIntoTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set) override;
-    void deleteFromTable(const std::string& tableName, const std::shared_ptr<NodeSet>& set) override;
-    std::vector<std::vector<std::string>> select(const std::string& tableName) override;
-    bool existsTable(const std::string& tableName) override;
+    virtual void connect() override;
+    virtual void executeNonQuery(const std::string& sqlStatement) override;
+    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) override;
 };
 
 } //end namespace
