@@ -37,7 +37,7 @@ src/common/ASTNodeTypes/Expressions/NodeSetExpression.cpp
 src/common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.cpp
 src/common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.cpp
 src/common/ASTNodeTypes/Expressions/NodeValueExpression.cpp
-src/common/ASTNodeTypes/Statements/NodeFluentAssignment.cpp
+src/common/ASTNodeTypes/Statements/NodeIDAssignment.cpp
 src/common/ASTNodeTypes/Statements/NodeVariableAssignment.cpp
 src/common/ASTNodeTypes/Variables/NodeVariable.cpp
 src/common/ASTNodeTypes/Variables/NodeVarList.cpp
@@ -89,7 +89,7 @@ src/common/ASTNodeTypes/Expressions/NodeSetExpression.h
 src/common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h
 src/common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h
 src/common/ASTNodeTypes/ASTNodeBase.h
-src/common/ASTNodeTypes/Statements/NodeFluentAssignment.h
+src/common/ASTNodeTypes/Statements/NodeIDAssignment.h
 src/common/ASTNodeTypes/Statements/NodeVariableAssignment.h
 src/common/ASTNodeTypes/Variables/NodeVariable.h
 src/common/ASTNodeTypes/Variables/NodeVarList.h
@@ -166,7 +166,7 @@ src/common/ASTNodeTypes/Expressions/NodeSetExpression.cpp
 src/common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.cpp
 src/common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.cpp
 src/common/ASTNodeTypes/Expressions/NodeValueExpression.cpp
-src/common/ASTNodeTypes/Statements/NodeFluentAssignment.cpp
+src/common/ASTNodeTypes/Statements/NodeIDAssignment.cpp
 src/common/ASTNodeTypes/Statements/NodeVariableAssignment.cpp
 src/common/ASTNodeTypes/Variables/NodeVariable.cpp
 src/common/ASTNodeTypes/Variables/NodeVarList.cpp
@@ -218,7 +218,7 @@ src/common/ASTNodeTypes/Expressions/NodeSetExpression.h
 src/common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h
 src/common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h
 src/common/ASTNodeTypes/ASTNodeBase.h
-src/common/ASTNodeTypes/Statements/NodeFluentAssignment.h
+src/common/ASTNodeTypes/Statements/NodeIDAssignment.h
 src/common/ASTNodeTypes/Statements/NodeVariableAssignment.h
 src/common/ASTNodeTypes/Variables/NodeVariable.h
 src/common/ASTNodeTypes/Variables/NodeVarList.h

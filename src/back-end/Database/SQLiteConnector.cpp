@@ -26,6 +26,8 @@ void SQLiteConnector::connect()
   int rc;
 
   rc = sqlite3_open(dbName_.c_str(), &pDB_);
+  //std::string inMemory = "file:" + dbName_ + "?mode=memory&cache=shared";
+  //rc = sqlite3_open(inMemory.c_str(), &pDB_);
 
   db_ = SQLiteDB(pDB_, [rc](sqlite3* database)
   { if (rc) sqlite3_close(database);});

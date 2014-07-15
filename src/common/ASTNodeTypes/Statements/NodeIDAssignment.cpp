@@ -5,15 +5,15 @@
  *      Author: cmaier
  */
 
-#include "NodeFluentAssignment.h"
+#include "NodeIDAssignment.h"
 
-NodeFluentAssignment::NodeFluentAssignment()
+NodeIDAssignment::NodeIDAssignment()
 {
   // TODO Auto-generated constructor stub
 
 }
 
-NodeFluentAssignment::~NodeFluentAssignment()
+NodeIDAssignment::~NodeIDAssignment()
 {
   // TODO Auto-generated destructor stub
 }

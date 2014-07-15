@@ -7,7 +7,8 @@
 
 #include "SQLGenerator.h"
 
-SQLGenerator::SQLGenerator()
+SQLGenerator::SQLGenerator() :
+    FACTS_TABLE_NAME_("_facts")
 {
   // TODO Auto-generated constructor stub
 
@@ -153,4 +154,21 @@ std::string SQLGenerator::selectAll(const std::string& tableName)
 std::string SQLGenerator::getSqlStringClearTable(const std::string& tableName)
 {
   return "DELETE FROM " + tableName + ";";
+}
+
+std::string SQLGenerator::getSqlStringIsFactTable(const std::string& tableName)
+{
+  return "SELECT COUNT FROM " + FACTS_TABLE_NAME_ + " WHERE name = '" + tableName + "';";
+}
+
+std::string SQLGenerator::getSqlStringAddFact(const NodeFactDecl& factDecl)
+{
+  return "INSERT INTO " + FACTS_TABLE_NAME_ + " (name) VALUES ('" + factDecl.getFactName()->getId()
+      + "');";
+}
+
+std::string SQLGenerator::getSqlStringCreateFactsTable()
+{
+  return "CREATE TABLE " + FACTS_TABLE_NAME_
+      + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);";
 }

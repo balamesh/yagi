@@ -112,7 +112,7 @@ id_term
 	:	
 	^(IT_PROC_EXEC ID (^(IT_VALUE_LIST value_list))?) { ADD_PROC_EXEC($ID->toString($ID));}
 	|	^(IT_FLUENT_QUERY ID) 	{ ADD_FLUENT_QUERY($ID->toString($ID));}
-	| 	^(ass_op ID setexpr) {ADD_FLUENT_ASSIGN($ID->toString($ID));}
+	| 	^(ass_op ID setexpr) {ADD_ID_ASSIGN($ID->toString($ID));}
 	;	
 	
 value_list	

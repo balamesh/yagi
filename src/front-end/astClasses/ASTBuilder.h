@@ -30,7 +30,7 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
-#include "../../common/ASTNodeTypes/Statements/NodeFluentAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeFormulaBase.h"
@@ -139,7 +139,7 @@ class ASTBuilder
     void consumeTupleVal();
     void addSet();
     void addSetExpr();
-    void addFluentAssign(const std::string& fluentName);
+    void addIDAssign(const std::string& identifier);
     void addAssignmentOp(const std::string& op);
 
     //Formulas

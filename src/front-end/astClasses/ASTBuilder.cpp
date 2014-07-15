@@ -299,15 +299,15 @@ void ASTBuilder::addSetExpr()
   ast.push(setExpr);
 }
 
-void ASTBuilder::addFluentAssign(const std::string& fluentName)
+void ASTBuilder::addIDAssign(const std::string& identifier)
 {
   //get rhs of assignment
   auto rhs = getFrontElement<ASTNodeBase<>>();
   ast.pop();
 
   //build lhs
-  auto fluentAss = std::make_shared<NodeFluentAssignment>();
-  fluentAss->setFluentName(std::make_shared<NodeID>(fluentName));
+  auto idAss = std::make_shared<NodeIDAssignment>();
+  idAss->setFluentName(std::make_shared<NodeID>(identifier));
 
   //get op
   auto assOp = getFrontElement<NodeSetExpressionOperator>();
@@ -315,7 +315,7 @@ void ASTBuilder::addFluentAssign(const std::string& fluentName)
     throw std::runtime_error("No assignment operator for fluent assign!");
   ast.pop();
 
-  fluentAss->setOperator(assOp);
+  idAss->setOperator(assOp);
 
   //TODO: should be created in everycase the <setexpr> rule gets executed!
   //if it's a "simple" assignment we need to create a setxpr,
@@ -325,12 +325,12 @@ void ASTBuilder::addFluentAssign(const std::string& fluentName)
   {
     auto setExpr = std::make_shared<NodeSetExpression>();
     setExpr->setRhs(rhs); //in case it's a simple assignment we just set RHS and leave the rest nullptr
-    fluentAss->setSetExpr(setExpr);
+    idAss->setSetExpr(setExpr);
   }
   else
-    fluentAss->setSetExpr(recursiveSetExpr);
+    idAss->setSetExpr(recursiveSetExpr);
 
-  ast.push(fluentAss);
+  ast.push(idAss);
 }
 
 void ASTBuilder::addAssignmentOp(const std::string& op)

@@ -22,7 +22,7 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
-#include "../../common/ASTNodeTypes/Statements/NodeFluentAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Set/NodeSet.h"
@@ -64,7 +64,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeString>,
     public Visitor<NodeFactDecl>,
     public Visitor<NodeFluentQuery>,
-    public Visitor<NodeFluentAssignment>,
+    public Visitor<NodeIDAssignment>,
     public Visitor<NodeSetExpressionOperator>,
     public Visitor<NodeSetExpression>,
     public Visitor<NodeSet>,
@@ -106,7 +106,8 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     {
       std::string astString = "[FactDecl] ";
 
-      factDecl.getFactName()->accept(*this);
+      Any ret = factDecl.getFactName()->accept(*this);
+      astString += ret.get<std::string>();
 
       std::for_each(std::begin(factDecl.getDomains()), std::end(factDecl.getDomains()),
           [this, &astString](std::shared_ptr<ASTNodeBase<>> domain)
@@ -163,7 +164,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
       return Any { astString };
     }
 
-    Any visit(NodeFluentAssignment& fluentAss)
+    Any visit(NodeIDAssignment& fluentAss)
     {
       std::string astString = "[FluentAssignment] ";
       Any fname = fluentAss.getFluentName()->accept(*this);

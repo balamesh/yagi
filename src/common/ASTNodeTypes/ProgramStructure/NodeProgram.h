@@ -11,7 +11,7 @@
 #include "../Declarations/FactDecl/NodeFactDecl.h"
 #include "../Declarations/ProcDecl/NodeProcDecl.h"
 #include "../Statements/NodeVariableAssignment.h"
-#include "../Statements/NodeFluentAssignment.h"
+#include "../Statements/NodeIDAssignment.h"
 #include "../Declarations/ActionDecl/NodeActionDecl.h"
 #include "../Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../Statements/NodeStatementBase.h"
@@ -26,7 +26,7 @@ class NodeProgram: public ASTNodeBase<>
       return (std::dynamic_pointer_cast<NodeFluentDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeFactDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeVariableAssignment>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeFluentAssignment>(line) != nullptr
+          || std::dynamic_pointer_cast<NodeIDAssignment>(line) != nullptr
           || std::dynamic_pointer_cast<NodeActionDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeExogenousEventDecl>(line) != nullptr
           || std::dynamic_pointer_cast<NodeStatementBase>(line) != nullptr

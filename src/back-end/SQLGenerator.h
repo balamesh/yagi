@@ -33,6 +33,8 @@ class SQLGenerator
       return instance;
     }
 
+    const std::string FACTS_TABLE_NAME_;
+
     std::string createTableFromFluent(const NodeFluentDecl& fluentDecl);
     std::string createTableFromFact(const NodeFactDecl& factDecl);
     std::string removeTableIfExists(const std::string& tableName);
@@ -42,6 +44,9 @@ class SQLGenerator
     std::vector<std::string> getSqlStringsForFluentSetAssign(const std::string& fluentName, std::shared_ptr<NodeSet> set, SetExprOperator op);
     std::string getSqlStringForTupleAssign(const std::string& fluentName, std::shared_ptr<NodeTuple> tuple, SetExprOperator op);
     std::string getSqlStringClearTable(const std::string& tableName);
+    std::string getSqlStringIsFactTable(const std::string& tableName);
+    std::string getSqlStringAddFact(const NodeFactDecl& factDecl);
+    std::string getSqlStringCreateFactsTable();
 };
 
 #endif /* SQLGENERATOR_H_ */

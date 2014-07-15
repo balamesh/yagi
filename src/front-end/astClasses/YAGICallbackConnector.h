@@ -171,9 +171,9 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addAssignmentOp(op);
   }
 
-  void addFluentAssign(pANTLR3_STRING fluentName)
+  void addIDAssign(pANTLR3_STRING id)
   {
-    ASTBuilder::getInstance().addFluentAssign((char*) fluentName->chars);
+    ASTBuilder::getInstance().addIDAssign((char*) id->chars);
   }
 
 //  void consumeAssignment()
@@ -328,7 +328,7 @@ namespace YAGICallbackConnector
     //Assignment
     yagiCallbackCollection.addVarAssignCallback = addVarAssign;
     yagiCallbackCollection.addPatternMatchCallback = addPatternMatch;
-    yagiCallbackCollection.addFluentAssignCallback = addFluentAssign;
+    yagiCallbackCollection.addIDAssignCallback = addIDAssign;
     yagiCallbackCollection.addAssignOpCallback = addAssignOp;
     //yagiCallbackCollection.consumeAssignmentCallback = consumeAssignment;
     //yagiCallbackCollection.addForLoopAssignCallback = addForLoopAssign;

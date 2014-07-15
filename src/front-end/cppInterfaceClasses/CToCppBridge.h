@@ -44,7 +44,7 @@ extern "C"
       //Assignment
       void (*addVarAssignCallback)();
       void (*addPatternMatchCallback)();
-      void (*addFluentAssignCallback)(pANTLR3_STRING fluentName);
+      void (*addIDAssignCallback)(pANTLR3_STRING id);
       void (*addAssignOpCallback)(char* op);
       //void (*consumeAssignmentCallback)();
       void (*addForLoopAssignCallback)();
@@ -130,7 +130,7 @@ extern "C"
 //Assignment
 #define ADD_VAR_ASSIGN() yagiCallbackCollection.addVarAssignCallback()
 #define ADD_PATTERN_MATCH() yagiCallbackCollection.addPatternMatchCallback()
-#define ADD_FLUENT_ASSIGN(x) yagiCallbackCollection.addFluentAssignCallback(x)
+#define ADD_ID_ASSIGN(x) yagiCallbackCollection.addIDAssignCallback(x)
 #define ADD_ASSIGN_OP(x) yagiCallbackCollection.addAssignOpCallback(x)
 //#define CONSUME_ASSIGNMENT() yagiCallbackCollection.consumeAssignmentCallback()
 #define ADD_FOR_LOOP_ASSIGN() yagiCallbackCollection.addForLoopAssignCallback()
