@@ -77,7 +77,13 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
         std::vector<std::string> row;
         for (int i = 0; i < ctotal; i++)
         {
-          row.push_back((char*) sqlite3_column_text(statement, i));
+          auto val = sqlite3_column_text(statement, i);
+          if (val != nullptr)
+          {
+            row.push_back((char*) val);
+          }
+          else
+            row.push_back("<db-null>");
         }
 
         data.push_back(row);

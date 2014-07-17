@@ -121,35 +121,43 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeIDAssignment& fluentAss)
     {
       auto db = DatabaseManager::getInstance().getMainDB();
-      auto fluentName = fluentAss.getFluentName().get()->getId();
-
+      auto lhs = fluentAss.getFluentName().get()->getId();
       auto rhs = fluentAss.getSetExpr();
       auto op = fluentAss.getOperator();
 
-      //Simplest case: rhs is a <set>
-      auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs());
-      if (set != nullptr)
+      if (op->getOperator() == SetExprOperator::Unknown)
       {
-        if (op->getOperator() == SetExprOperator::Assign)
-        {
-          DatabaseManager::getInstance().getMainDB()->executeNonQuery(
-              SQLGenerator::getInstance().getSqlStringClearTable(fluentName));
-        }
-
-        auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(fluentName,
-            set, op->getOperator());
-
-        std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [](const std::string& stmt)
-        {
-          DatabaseManager::getInstance().getMainDB()->executeNonQuery(stmt);
-        });
-
-        if (op->getOperator() == SetExprOperator::Unknown)
-        {
-          throw std::runtime_error("Unknown set expr. assign operator!");
-        }
-
+        throw std::runtime_error("Unknown set expr. assign operator!");
       }
+
+      if (op->getOperator() == SetExprOperator::Assign)
+      {
+        DatabaseManager::getInstance().getMainDB()->executeNonQuery(
+            SQLGenerator::getInstance().getSqlStringClearTable(lhs));
+      }
+
+      std::vector<std::string> sqlStrings;
+
+      //Simplest case: rhs is a <set>
+      if (auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs()))
+      {
+        sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(lhs, set,
+            op->getOperator());
+
+      } //It can also be another ID, i.e. another fluent
+      else if (auto id = std::dynamic_pointer_cast<NodeID>(rhs->getRhs()))
+      {
+        auto colCount = DatabaseManager::getInstance().getMainDB()->executeQuery(
+            SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(id->getId())).size();
+
+        sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentFluentAssign(lhs,
+            id->getId(), op->getOperator(), colCount);
+      }
+
+      std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [](const std::string& stmt)
+      {
+        DatabaseManager::getInstance().getMainDB()->executeNonQuery(stmt);
+      });
 
       return Any { };
     }

@@ -41,12 +41,18 @@ class SQLGenerator
     std::string selectAll(const std::string& tableName);
     std::string dropTable(const std::string& tableName);
     std::string existsTable(const std::string& tableName);
-    std::vector<std::string> getSqlStringsForFluentSetAssign(const std::string& fluentName, std::shared_ptr<NodeSet> set, SetExprOperator op);
-    std::string getSqlStringForTupleAssign(const std::string& fluentName, std::shared_ptr<NodeTuple> tuple, SetExprOperator op);
+    std::vector<std::string> getSqlStringsForFluentSetAssign(const std::string& fluentName,
+        std::shared_ptr<NodeSet> set, SetExprOperator op);
+    std::string getSqlStringForTupleAssign(const std::string& fluentName,
+        std::shared_ptr<NodeTuple> tuple, SetExprOperator op);
     std::string getSqlStringClearTable(const std::string& tableName);
     std::string getSqlStringIsFactTable(const std::string& tableName);
     std::string getSqlStringAddFact(const NodeFactDecl& factDecl);
     std::string getSqlStringCreateFactsTable();
+    std::vector<std::string> getSqlStringsForFluentFluentAssign(const std::string& lhs,
+        const std::string& rhs, SetExprOperator op, int columnCount);
+    std::string getSqlStringNumberOfColumnsInTable(const std::string& tableName);
+
 };
 
 #endif /* SQLGENERATOR_H_ */

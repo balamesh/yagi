@@ -81,6 +81,7 @@ std::string SQLGenerator::buildAddQuery(const std::string& tableName,
   std::for_each(std::begin(tupleVals), std::end(tupleVals),
       [&sqlString,&tupleVals](const std::shared_ptr<ASTNodeBase<>>& val)
       {
+        //if it's a simple string val just take it
         auto stringVal = std::dynamic_pointer_cast<NodeString>(val);
         if (stringVal)
         {
@@ -171,4 +172,40 @@ std::string SQLGenerator::getSqlStringCreateFactsTable()
 {
   return "CREATE TABLE " + FACTS_TABLE_NAME_
       + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);";
+}
+
+std::vector<std::string> SQLGenerator::getSqlStringsForFluentFluentAssign(const std::string& lhs,
+    const std::string& rhs, SetExprOperator op, int columnCount)
+{
+  std::vector<std::string> sqlStrings;
+
+  if (op == SetExprOperator::Assign || op == SetExprOperator::AddAssign)
+  {
+    sqlStrings.push_back("INSERT OR IGNORE INTO " + lhs + " SELECT * FROM " + rhs + ";");
+  }
+  else if (op == SetExprOperator::RemoveAssign) //remove everything in rhs from lhs
+  {
+    std::string sqlString = "DELETE FROM " + lhs + " WHERE EXISTS (SELECT NULL FROM " + rhs
+        + " WHERE ";
+
+    for (int columnIdx = 0; columnIdx < columnCount; columnIdx++)
+    {
+
+      sqlString += lhs + ".dom" + std::to_string(columnIdx + 1) + " = " + rhs + ".dom"
+          + std::to_string(columnIdx + 1) + "AND ";
+    }
+
+    sqlStrings.push_back(sqlString.substr(0, sqlString.size() - 4) + ");");
+    std::cout << sqlStrings.at(0) << std::endl;
+  }
+  else
+    throw std::runtime_error("unknown operator in getSqlStringsForFluentFluentAssign!");
+
+  return sqlStrings;
+
+}
+
+std::string SQLGenerator::getSqlStringNumberOfColumnsInTable(const std::string& tableName)
+{
+  return "PRAGMA table_info(" + tableName + ");";
 }
