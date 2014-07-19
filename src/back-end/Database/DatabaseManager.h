@@ -11,6 +11,7 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <algorithm>
 
 #include "DatabaseConnectorBase.h"
 #include "SQLiteConnector.h"
@@ -21,6 +22,8 @@ namespace database {
 class DatabaseManager
 {
   private:
+    using DataBaseConcreteType = SQLiteConnector;
+
     DatabaseManager();
     virtual ~DatabaseManager();
 
@@ -43,7 +46,7 @@ class DatabaseManager
     {
       if (!databaseMain_)
       {
-        databaseMain_ = std::make_shared<SQLiteConnector>(MAIN_DB_NAME);
+        databaseMain_ = std::make_shared<DataBaseConcreteType>(MAIN_DB_NAME);
       }
 
       return databaseMain_;
@@ -53,7 +56,7 @@ class DatabaseManager
     {
       if (databases_.count(name) == 0)
       {
-        databases_[name] = std::make_shared<SQLiteConnector>(name);
+        databases_[name] = std::make_shared<DataBaseConcreteType>(name);
       }
 
       return databases_[name];

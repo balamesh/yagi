@@ -32,20 +32,7 @@ class NodeConstant: public NodeFormulaBase
       truthValue_ = truthValue;
     }
 
-    void fromString(const std::string& truthVal)
-    {
-      if (truthVal == "true")
-        truthValue_ = true;
-      else if (truthVal == "false")
-        truthValue_ = false;
-      else
-        throw std::runtime_error("Invalid atom connective string '" + truthVal + "'!");
-    }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
+    void fromString(const std::string& truthVal);
 };
 
 #endif /* NODECONSTANT_H_ */

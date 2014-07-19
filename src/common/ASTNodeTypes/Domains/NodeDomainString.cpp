@@ -9,12 +9,9 @@
 
 NodeDomainString::NodeDomainString()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeDomainString::~NodeDomainString()
 {
-  // TODO Auto-generated destructor stub
 }
 

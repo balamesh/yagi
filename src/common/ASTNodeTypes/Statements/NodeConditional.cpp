@@ -7,16 +7,12 @@
 
 #include "NodeConditional.h"
 
-NodeConditional::NodeConditional()
+NodeConditional::NodeConditional() :
+    formula_(nullptr), ifBlock_(nullptr), elseBlock_(nullptr)
 {
-  formula_ = nullptr;
-  ifBlock_ = nullptr;
-  elseBlock_ = nullptr;
-
 }
 
 NodeConditional::~NodeConditional()
 {
-  // TODO Auto-generated destructor stub
 }
 

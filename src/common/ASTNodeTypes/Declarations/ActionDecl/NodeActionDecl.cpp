@@ -7,19 +7,13 @@
 
 #include "NodeActionDecl.h"
 
-NodeActionDecl::NodeActionDecl()
+NodeActionDecl::NodeActionDecl() :
+    actionName_(nullptr), varList_(nullptr), settingVarList_(nullptr), actionPrecondition_(nullptr), actionEffect_(
+        nullptr), signal_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-  actionName_ = nullptr;
-  varList_ = nullptr;
-  actionPrecondition_ = nullptr;
-  actionEffect_ = nullptr;
-  settingVarList_ = nullptr;
-  signal_ = nullptr;
 }
 
 NodeActionDecl::~NodeActionDecl()
 {
-  // TODO Auto-generated destructor stub
 }
 

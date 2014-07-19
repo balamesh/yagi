@@ -7,18 +7,21 @@
 
 #include "NodeQuantifiedFormula.h"
 
-NodeQuantifiedFormula::NodeQuantifiedFormula()
+NodeQuantifiedFormula::NodeQuantifiedFormula() :
+    quantifier_(Quantifier::unknown), tuple_(nullptr), setExpr_(nullptr), suchFormula_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-  quantifier_ = Quantifier::unknown;
-  setExpr_ = nullptr;
-  tuple_ = nullptr;
-  formula_ = nullptr;
-
 }
 
 NodeQuantifiedFormula::~NodeQuantifiedFormula()
 {
-  // TODO Auto-generated destructor stub
 }
 
+std::string NodeQuantifiedFormula::getQuantifierText()
+{
+  if (quantifier_ == Quantifier::all)
+    return "for all";
+  if (quantifier_ == Quantifier::exists)
+    return "exists";
+
+  throw new std::runtime_error("Unknown quantifier!");
+}

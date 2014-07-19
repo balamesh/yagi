@@ -7,14 +7,12 @@
 
 #include "NodeSearch.h"
 
-NodeSearch::NodeSearch()
+NodeSearch::NodeSearch() :
+    block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeSearch::~NodeSearch()
 {
-  // TODO Auto-generated destructor stub
 }
 

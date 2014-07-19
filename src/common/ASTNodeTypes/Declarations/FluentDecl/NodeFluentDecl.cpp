@@ -7,11 +7,14 @@
 
 #include "NodeFluentDecl.h"
 
-NodeFluentDecl::NodeFluentDecl() {
-	fluentName_ = nullptr;
+NodeFluentDecl::NodeFluentDecl() :
+    fluentName_(nullptr)
+{
+
 }
 
-NodeFluentDecl::~NodeFluentDecl() {
-	// TODO Auto-generated destructor stub
+NodeFluentDecl::~NodeFluentDecl()
+{
+
 }
 

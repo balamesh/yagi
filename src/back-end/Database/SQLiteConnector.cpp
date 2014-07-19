@@ -12,9 +12,17 @@ namespace database {
 
 SQLiteConnector::~SQLiteConnector()
 {
-  if (remove(dbName_.c_str()) != 0)
+  cleanup();
+}
+
+void SQLiteConnector::cleanup()
+{
+  if (fileExists(dbName_))
   {
-    std::cerr << "Can't delete database file '" << dbName_ << "'!" << std::endl;
+    if (remove(dbName_.c_str()) != 0)
+    {
+      std::cerr << "Can't delete database file '" << dbName_ << "'!" << std::endl;
+    }
   }
 }
 

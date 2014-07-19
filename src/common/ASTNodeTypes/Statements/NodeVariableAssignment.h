@@ -35,14 +35,6 @@ class NodeVariableAssignment: public NodeStatementBase
       variable_ = variable;
     }
 
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      variable_->accept(visitor);
-//      valExpr_->accept(visitor);
-//    }
-
     const std::shared_ptr<ASTNodeBase<> >& getValue() const
     {
       return value_;

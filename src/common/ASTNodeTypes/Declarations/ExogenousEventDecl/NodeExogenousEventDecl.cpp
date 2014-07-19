@@ -7,14 +7,14 @@
 
 #include "NodeExogenousEventDecl.h"
 
-NodeExogenousEventDecl::NodeExogenousEventDecl()
+NodeExogenousEventDecl::NodeExogenousEventDecl() :
+    exoEventName_(nullptr), argList_(nullptr), block_(nullptr)
 {
-  exoEventName_ = nullptr;
-  argList_ = nullptr;
+
 }
 
 NodeExogenousEventDecl::~NodeExogenousEventDecl()
 {
-  // TODO Auto-generated destructor stub
+
 }
 

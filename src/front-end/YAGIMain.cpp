@@ -17,6 +17,10 @@
 #include "astVisitors/TypeCheckVisitor.h"
 #include "../back-end/ASTVisitors/InterpretationVisitor.h"
 #include "ANTLRParser.h"
+#include "../back-end/FormulaEvaluator.h"
+
+using namespace yagi::formula;
+using namespace yagi::execution;
 
 //#pragma GCC diagnostic error "-Wuninitialized"
 //    foo(a);         /* error is given for this one */
@@ -112,6 +116,8 @@ bool isFromFile(const std::string& line)
 
 bool execute(const std::string& line, bool isFileName)
 {
+  std::cout << "(working...)" << std::endl << std::flush;
+
   std::shared_ptr<ASTNodeBase<>> ast;
 
   if (isFileName)

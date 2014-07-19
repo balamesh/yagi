@@ -58,8 +58,7 @@ class NodeActionDecl: public ASTNodeBase<>
       return actionPrecondition_;
     }
 
-    void setActionPrecondition(
-        const std::shared_ptr<NodeActionPrecondition>& actionPrecondition)
+    void setActionPrecondition(const std::shared_ptr<NodeActionPrecondition>& actionPrecondition)
     {
       actionPrecondition_ = actionPrecondition;
     }
@@ -83,18 +82,6 @@ class NodeActionDecl: public ASTNodeBase<>
     {
       varList_ = varList;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      actionName_->accept(visitor);
-//      if (varList_ != nullptr) varList_->accept(visitor);
-//      if (actionPrecondition_ != nullptr) actionPrecondition_->accept(visitor);
-//      if (actionEffect_ != nullptr) actionEffect_->accept(visitor);
-//      if (settingVarList_ != nullptr) settingVarList_->accept(visitor);
-//      if (signal_ != nullptr) signal_->accept(visitor);
-//    }
 
     const std::shared_ptr<NodeVarList>& getSettingVarList() const
     {

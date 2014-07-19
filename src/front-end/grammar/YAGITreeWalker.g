@@ -65,7 +65,10 @@ action_decl
 	;
 	
 effect	
-	: ^(IT_EFFECT ({ADD_EFFECT();}) block)
+	: ^(IT_EFFECT block)
+	{
+	  ADD_EFFECT();
+	}
 	;
 	
 var_list
@@ -82,7 +85,11 @@ proc_decl
 	;	
 
 exo_event_decl
-	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) ({ADD_EXO_EVENT_DECL($ID->toString($ID));}) block)
+	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) block)
+	
+	{
+	  ADD_EXO_EVENT_DECL($ID->toString($ID));
+	}
 	;	
 	
 sensing_decl	

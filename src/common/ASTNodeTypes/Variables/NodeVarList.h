@@ -34,15 +34,6 @@ class NodeVarList: public ASTNodeBase<>
     {
       variables_.push_back(variable);
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      std::for_each(std::begin(variables_), std::end(variables_),
-//          [&visitor](std::shared_ptr<NodeVariable> variable)
-//          { variable->accept(visitor);});
-//    }
 };
 
 #endif /* NODEVARLIST_H_ */

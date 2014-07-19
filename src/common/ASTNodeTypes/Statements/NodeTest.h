@@ -32,13 +32,6 @@ class NodeTest: public NodeStatementBase
     {
       formula_ = formula;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      formula_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODETEST_H_ */

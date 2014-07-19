@@ -45,14 +45,6 @@ class NodeOperatorIn: public NodeFormulaBase
     {
       tuple_ = tuple;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      tuple_->accept(visitor);
-//      setExpr_->accept(visitor);
-//    }
 };
 
 #endif /* NODEOPERATORIN_H_ */

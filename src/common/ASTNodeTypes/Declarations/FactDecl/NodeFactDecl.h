@@ -39,19 +39,6 @@ class NodeFactDecl: public ASTNodeBase<>
       domains_.push_back(domain);
     }
 
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      factName_->accept(visitor);
-//
-//      std::for_each(std::begin(domains_), std::end(domains_),
-//          [&visitor](std::shared_ptr<NodeDomainBase> domain)
-//          {
-//            domain->accept(visitor);
-//          });
-//    }
-
     const std::vector<std::shared_ptr<NodeDomainBase> >& getDomains() const
     {
       return domains_;

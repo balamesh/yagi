@@ -10,7 +10,8 @@
 namespace yagi {
 namespace database {
 
-DatabaseManager::DatabaseManager() : MAIN_DB_NAME("yagiMainDB.sqlite3")
+DatabaseManager::DatabaseManager() :
+    MAIN_DB_NAME("yagiMainDB.sqlite3")
 {
   databaseMain_ = nullptr;
 
@@ -18,7 +19,7 @@ DatabaseManager::DatabaseManager() : MAIN_DB_NAME("yagiMainDB.sqlite3")
 
 DatabaseManager::~DatabaseManager()
 {
-  // TODO Auto-generated destructor stub
+
 }
 
 } //end namespace

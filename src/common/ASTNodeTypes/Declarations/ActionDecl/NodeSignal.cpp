@@ -7,14 +7,17 @@
 
 #include "NodeSignal.h"
 
-NodeSignal::NodeSignal()
+NodeSignal::NodeSignal() :
+    signalData_(nullptr)
 {
-  // TODO Auto-generated constructor stub
+}
 
+NodeSignal::NodeSignal(const std::shared_ptr<NodeValueExpression>& signalExpr) :
+    signalData_(signalExpr)
+{
 }
 
 NodeSignal::~NodeSignal()
 {
-  // TODO Auto-generated destructor stub
 }
 

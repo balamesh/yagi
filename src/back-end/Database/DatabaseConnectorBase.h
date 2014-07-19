@@ -17,13 +17,20 @@ namespace database {
 class DatabaseConnectorBase
 {
   private:
-
   protected:
     std::string dbName_;
     bool connected_;
   public:
-    DatabaseConnectorBase(const std::string& dbName) : dbName_(dbName) {connected_ = false;};
-    virtual ~DatabaseConnectorBase() {};
+    DatabaseConnectorBase(const std::string& dbName) :
+        dbName_(dbName)
+    {
+      connected_ = false;
+    }
+    ;
+    virtual ~DatabaseConnectorBase()
+    {
+    }
+    ;
 
     const std::string& getDbName() const
     {
@@ -37,7 +44,8 @@ class DatabaseConnectorBase
 
     virtual void connect() = 0;
     virtual void executeNonQuery(const std::string& sqlStatement) = 0;
-    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) = 0;
+    virtual std::vector<std::vector<std::string>> executeQuery(
+        const std::string& selectSqlStmt) = 0;
 };
 
 } //end namespace

@@ -17,7 +17,6 @@
 #include "../../common/ASTNodeTypes/Identifier/NodeID.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 //#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"

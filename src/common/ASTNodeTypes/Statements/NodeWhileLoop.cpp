@@ -7,14 +7,12 @@
 
 #include "NodeWhileLoop.h"
 
-NodeWhileLoop::NodeWhileLoop()
+NodeWhileLoop::NodeWhileLoop() :
+    formula_(nullptr), block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeWhileLoop::~NodeWhileLoop()
 {
-  // TODO Auto-generated destructor stub
 }
 

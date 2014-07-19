@@ -9,12 +9,9 @@
 
 NodeIncompleteKnowledge::NodeIncompleteKnowledge()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeIncompleteKnowledge::~NodeIncompleteKnowledge()
 {
-  // TODO Auto-generated destructor stub
 }
 

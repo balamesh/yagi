@@ -30,13 +30,6 @@ class NodeSearch: public NodeStatementBase
     {
       block_ = block;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      block_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODESEARCH_H_ */

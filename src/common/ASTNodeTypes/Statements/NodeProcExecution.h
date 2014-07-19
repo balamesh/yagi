@@ -44,14 +44,6 @@ class NodeProcExecution: public NodeStatementBase
     {
       parameters_ = parameters;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      actionToExecName_->accept(visitor);
-//      parameters_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEPROCEXECUTION_H_ */

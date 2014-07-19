@@ -7,14 +7,12 @@
 
 #include "NodeFluentQuery.h"
 
-NodeFluentQuery::NodeFluentQuery()
+NodeFluentQuery::NodeFluentQuery() :
+    fluentToQueryName_(nullptr)
 {
-  fluentToQueryName_ = nullptr;
-
 }
 
 NodeFluentQuery::~NodeFluentQuery()
 {
-  // TODO Auto-generated destructor stub
 }
 

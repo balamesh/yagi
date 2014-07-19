@@ -18,21 +18,21 @@
 class NodeValueList: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<ASTNodeBase<>>> values_;
+    std::vector<std::shared_ptr<ASTNodeBase<>>>values_;
 
     bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& valueToAdd);
-  public:
+
+    public:
     DEFINE_VISITABLE()
     NodeValueList();
     virtual ~NodeValueList();
 
-    void addValue(const std::shared_ptr<ASTNodeBase<>>& value)
+    void addValue(const std::shared_ptr<ASTNodeBase<>>& value);
+
+    const std::vector<std::shared_ptr<ASTNodeBase<> > >& getValues() const
     {
-      if (isPassedTypeValid(value))
-        values_.push_back(value);
-      else
-        throw std::runtime_error("Invalid Type passed to ValueList!");
+      return values_;
     }
-};
+  };
 
 #endif /* NODEVALUELIST_H_ */

@@ -9,12 +9,9 @@
 
 NodeStatementBase::NodeStatementBase()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeStatementBase::~NodeStatementBase()
 {
-  // TODO Auto-generated destructor stub
 }
 

@@ -7,14 +7,12 @@
 
 #include "NodeTest.h"
 
-NodeTest::NodeTest()
+NodeTest::NodeTest() :
+    formula_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeTest::~NodeTest()
 {
-  // TODO Auto-generated destructor stub
 }
 

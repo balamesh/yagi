@@ -7,17 +7,13 @@
 
 #include "NodeCompoundFormula.h"
 
-NodeCompoundFormula::NodeCompoundFormula()
+NodeCompoundFormula::NodeCompoundFormula() :
+    leftOperand_(nullptr), connective_(nullptr), rightOperand_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-  leftOperand_ = nullptr;
-  connective_ = nullptr;
-  rightOperand_ = nullptr;
-
 }
 
 NodeCompoundFormula::~NodeCompoundFormula()
 {
-  // TODO Auto-generated destructor stub
+
 }
 

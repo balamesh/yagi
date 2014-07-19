@@ -55,15 +55,6 @@ class NodeCompoundFormula: public NodeFormulaBase
     {
       rightOperand_ = rightOperand;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      connective_->accept(visitor);
-//      leftOperand_->accept(visitor);
-//      rightOperand_->accept(visitor);
-//    }
 };
 
 #endif /* NODECOMPOUNDFORMULA_H_ */

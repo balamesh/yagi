@@ -31,13 +31,6 @@ class NodeNegation: public NodeFormulaBase
     {
       formula_ = formula;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      formula_->accept(visitor);
-//    }
 };
 
 #endif /* NODENEGATION_H_ */

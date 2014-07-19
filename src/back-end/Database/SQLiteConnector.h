@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "../../utils/make_unique.h"
+#include "../../utils/fileExists.h"
 #include "DatabaseConnectorBase.h"
 
 namespace yagi {
@@ -26,6 +27,7 @@ using SQLiteErrorMsg = std::unique_ptr<char[], std::function<void(char*)>>;
 class SQLiteConnector : public DatabaseConnectorBase
 {
   private:
+    void cleanup();
     sqlite3 *pDB_;
     SQLiteDB db_;
 
@@ -33,6 +35,8 @@ class SQLiteConnector : public DatabaseConnectorBase
     SQLiteConnector(const std::string& dbName) :
         DatabaseConnectorBase(dbName)
     {
+      cleanup();
+
       pDB_ = nullptr;
       db_ = nullptr;
 

@@ -21,11 +21,11 @@
 class NodeTuple: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<ASTNodeBase<>>> tupleValues_;
+    std::vector<std::shared_ptr<ASTNodeBase<>>>tupleValues_;
 
     bool isPassedTypeValid(const std::shared_ptr<ASTNodeBase<>>& tupleVal);
 
-  public:
+    public:
     DEFINE_VISITABLE()
     NodeTuple();
     virtual ~NodeTuple();
@@ -33,15 +33,15 @@ class NodeTuple: public ASTNodeBase<>
     void addTupleValue(std::shared_ptr<ASTNodeBase<>> tupleVal)
     {
       if (isPassedTypeValid(tupleVal))
-        tupleValues_.push_back(tupleVal);
+      tupleValues_.push_back(tupleVal);
       else
-        throw std::runtime_error("Invalid Type passed as TupleValue");
+      throw std::runtime_error("Invalid Type passed as TupleValue");
     }
 
     const std::vector<std::shared_ptr<ASTNodeBase<>>>& getTupleValues() const
     {
       return tupleValues_;
     }
-};
+  };
 
 #endif /* NODETUPLE_H_ */

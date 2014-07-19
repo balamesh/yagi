@@ -38,20 +38,8 @@ class NodeValueExpressionOperator: public ASTNodeBase<>
       operator_ = _operator;
     }
 
-    void fromString(std::string opString)
-    {
-      if (opString == "+")
-        operator_ = ValueExprOperator::Plus;
-      else if (opString == "-")
-        operator_ = ValueExprOperator::Minus;
-      else
-        throw std::runtime_error("Invalid operator string '" + opString + "'!");
-    }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
+    void fromString(const std::string &opString);
+    std::string toString();
 };
 
 #endif /* NODEVALUEEXPRESSIONOPERATOR_H_ */

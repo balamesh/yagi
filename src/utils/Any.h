@@ -56,6 +56,8 @@ public:
     template<typename T>
     const T& get() const { check<T>(); return static_cast<Holder<T>*>(holder_.get())->t_; }
     template<typename T>
+    T tryGetCopy(T t = T{}) const { if (empty()) return std::move(t); return get<T>(); }
+    template<typename T>
     void set(T &&t) { holder_.reset(); holder_ = std::make_shared<Holder<typename std::remove_reference<T>::type>>(std::forward<T>(t)); }
     bool empty() const noexcept { return !haveValue_; }
     void reset() noexcept { haveValue_= false; holder_.reset(); }

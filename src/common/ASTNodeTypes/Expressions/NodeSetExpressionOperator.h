@@ -38,28 +38,8 @@ class NodeSetExpressionOperator: public ASTNodeBase<>
       operator_ = _operator;
     }
 
-    std::string toString()
-    {
-      if (operator_ == SetExprOperator::Assign)
-        return "=";
-      else if (operator_ == SetExprOperator::AddAssign)
-        return "+=";
-      else if (operator_ == SetExprOperator::RemoveAssign)
-        return "-=";
-      else return "<unknown>";
-    }
-
-    void fromString(std::string opString)
-    {
-      if (opString == "=")
-        operator_ = SetExprOperator::Assign;
-      else if (opString == "+=")
-        operator_ = SetExprOperator::AddAssign;
-      else if (opString == "-=")
-        operator_ = SetExprOperator::RemoveAssign;
-      else
-        throw std::runtime_error("Invalid set expression operator string '" + opString + "'!");
-    }
+    std::string toString();
+    void fromString(const std::string& opString);
 };
 
 #endif /* NODESETEXPRESSIONOPERATOR_H_ */

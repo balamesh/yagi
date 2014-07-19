@@ -15,14 +15,14 @@
 
 #include "../../Variables/NodeVarList.h"
 #include "../../Identifier/NodeID.h"
-#include "../../Statements/NodeStatementBase.h"
+#include "../../Statements/NodeBlock.h"
 
 class NodeExogenousEventDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> exoEventName_;
     std::shared_ptr<NodeVarList> argList_;
-    std::vector<std::shared_ptr<NodeStatementBase>> assignments_;
+    std::shared_ptr<NodeBlock> block_;
   public:
     DEFINE_VISITABLE()
     NodeExogenousEventDecl();
@@ -38,9 +38,9 @@ class NodeExogenousEventDecl: public ASTNodeBase<>
       argList_ = argList;
     }
 
-    const std::vector<std::shared_ptr<NodeStatementBase> >& getAssignments() const
+    const std::shared_ptr<NodeBlock>& getBlock() const
     {
-      return assignments_;
+      return block_;
     }
 
     const std::shared_ptr<NodeID>& getExogenousEventName() const
@@ -53,23 +53,10 @@ class NodeExogenousEventDecl: public ASTNodeBase<>
       exoEventName_ = exoEgentName;
     }
 
-    void addAssignment(const std::shared_ptr<NodeStatementBase>& assignment)
+    void setBlock(const std::shared_ptr<NodeBlock>& block)
     {
-      assignments_.push_back(assignment);
+      block_ = block;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      passiveSensingName_->accept(visitor);
-//      if (argList_ != nullptr)
-//        argList_->accept(visitor);
-//
-//      std::for_each(std::begin(assignments_), std::end(assignments_),
-//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-//          { assignment->accept(visitor);});
-//    }
 };
 
 #endif /* NODEEXOGENOUSEVENTDECL_H_ */

@@ -10,7 +10,7 @@
 
 #include "../ASTNodeBase.h"
 
-class NodeIncompleteKnowledge : public ASTNodeBase<>
+class NodeIncompleteKnowledge: public ASTNodeBase<>
 {
   public:
     DEFINE_VISITABLE()

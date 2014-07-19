@@ -7,15 +7,22 @@
 
 #include "NodeConstant.h"
 
-NodeConstant::NodeConstant()
+NodeConstant::NodeConstant() :
+    truthValue_(false)
 {
-  // TODO Auto-generated constructor stub
-  truthValue_ = false;
-
 }
 
 NodeConstant::~NodeConstant()
 {
-  // TODO Auto-generated destructor stub
+}
+
+void NodeConstant::fromString(const std::string& truthVal)
+{
+  if (truthVal == "true")
+    truthValue_ = true;
+  else if (truthVal == "false")
+    truthValue_ = false;
+  else
+    throw std::runtime_error("Invalid atom connective string '" + truthVal + "'!");
 }
 

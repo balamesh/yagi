@@ -7,14 +7,12 @@
 
 #include "NodeProcDecl.h"
 
-NodeProcDecl::NodeProcDecl()
+NodeProcDecl::NodeProcDecl() :
+    procName_(nullptr), argList_(nullptr), block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeProcDecl::~NodeProcDecl()
 {
-  // TODO Auto-generated destructor stub
 }
 

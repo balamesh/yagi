@@ -54,15 +54,6 @@ class NodeAtom: public NodeFormulaBase
     {
       rightOperand_ = rightOperand;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      leftOperand_->accept(visitor);
-//      connective_->accept(visitor);
-//      rightOperand_->accept(visitor);
-//    }
 };
 
 #endif /* NODEATOM_H_ */

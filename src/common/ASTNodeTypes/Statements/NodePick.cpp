@@ -7,14 +7,12 @@
 
 #include "NodePick.h"
 
-NodePick::NodePick()
+NodePick::NodePick() :
+    tuple_(nullptr), setExpr_(nullptr), block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodePick::~NodePick()
 {
-  // TODO Auto-generated destructor stub
 }
 

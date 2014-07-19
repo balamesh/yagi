@@ -21,39 +21,25 @@ enum class FormulaConnective
 class NodeFormulaConnective: public ASTNodeBase<>
 {
   private:
-    FormulaConnective formularConnective_;
+    FormulaConnective formulaConnective_;
 
   public:
     DEFINE_VISITABLE()
     NodeFormulaConnective();
     virtual ~NodeFormulaConnective();
 
-    void fromString(const std::string& connString)
+    void fromString(const std::string& connString);
+    std::string toString();
+
+    FormulaConnective getFormulaConnective() const
     {
-      if (connString == "&&")
-        formularConnective_ = FormulaConnective::And;
-      else if (connString == "||")
-        formularConnective_ = FormulaConnective::Or;
-      else if (connString == "->")
-        formularConnective_ = FormulaConnective::Implies;
-      else
-        throw std::runtime_error("Invalid formula connective string '" + connString + "'!");
+      return formulaConnective_;
     }
 
-    FormulaConnective getFormularConnective() const
+    void setFormulaConnective(FormulaConnective formulaConnective)
     {
-      return formularConnective_;
+      formulaConnective_ = formulaConnective;
     }
-
-    void setFormularConnective(FormulaConnective formularConnective)
-    {
-      formularConnective_ = formularConnective;
-    }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEFORMULACONNECTIVE_H_ */

@@ -7,14 +7,12 @@
 
 #include "NodeString.h"
 
-NodeString::NodeString()
+NodeString::NodeString() :
+    string_("")
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeString::~NodeString()
 {
-  // TODO Auto-generated destructor stub
 }
 

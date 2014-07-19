@@ -7,14 +7,17 @@
 
 #include "NodeVariable.h"
 
-NodeVariable::NodeVariable()
+NodeVariable::NodeVariable() :
+    varName_("")
 {
-  // TODO Auto-generated constructor stub
+}
 
+NodeVariable::NodeVariable(const std::string& varName) :
+    varName_(varName)
+{
 }
 
 NodeVariable::~NodeVariable()
 {
-  // TODO Auto-generated destructor stub
 }
 

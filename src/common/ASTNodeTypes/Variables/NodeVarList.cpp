@@ -9,12 +9,9 @@
 
 NodeVarList::NodeVarList()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeVarList::~NodeVarList()
 {
-  // TODO Auto-generated destructor stub
 }
 

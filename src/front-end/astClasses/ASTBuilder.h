@@ -19,7 +19,6 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainInteger.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
@@ -62,25 +61,11 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
 
-
 class ASTBuilder
 {
   private:
     void addQuantifiedFormula(Quantifier quant);
-
-    template<typename T> std::shared_ptr<T> getFrontElement()
-    {
-      if (ast.size())
-      {
-        //if ast is empty behaviour is (potentially) undefined!!
-        return std::dynamic_pointer_cast<T>(ast.top());
-      }
-      else
-      {
-        return nullptr;
-      }
-    }
-
+    template<typename T> std::shared_ptr<T> getFrontElement();
   public:
     static ASTBuilder& getInstance()
     {
@@ -105,7 +90,7 @@ class ASTBuilder
     void addFluentDeclNode(const std::string& fluentName);
     void addProgram();
     void addFactDeclNode(const std::string& factName);
-    void addExoEventDeclNode(const std::string& passSensName);
+    void addExoEventDeclNode(const std::string& exoEventName);
     void addVarNode(const std::string& varName);
     void addVarListNode();
     void addID(const std::string& id);
@@ -181,7 +166,7 @@ class ASTBuilder
     ASTBuilder();
     virtual ~ASTBuilder();
 
-    std::stack<std::shared_ptr<ASTNodeBase<>>> ast;
-};
+    std::stack<std::shared_ptr<ASTNodeBase<>>>ast;
+  };
 
 #endif /* ASTBUILDER_H_ */

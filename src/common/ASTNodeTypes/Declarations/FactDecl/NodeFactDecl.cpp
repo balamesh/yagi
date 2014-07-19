@@ -7,14 +7,14 @@
 
 #include "NodeFactDecl.h"
 
-NodeFactDecl::NodeFactDecl()
+NodeFactDecl::NodeFactDecl() :
+    factName_(nullptr)
 {
-  // TODO Auto-generated constructor stub
 
 }
 
 NodeFactDecl::~NodeFactDecl()
 {
-  // TODO Auto-generated destructor stub
+
 }
 

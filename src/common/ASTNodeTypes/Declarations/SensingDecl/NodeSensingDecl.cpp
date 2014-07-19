@@ -7,17 +7,12 @@
 
 #include "NodeSensingDecl.h"
 
-NodeSensingDecl::NodeSensingDecl()
+NodeSensingDecl::NodeSensingDecl() :
+    sensingName_(nullptr), varList_(nullptr), settingVarList_(nullptr), formula_(nullptr)
 {
-  sensingName_ = nullptr;
-  varList_ = nullptr;
-  settingVarList_ = nullptr;
-  formula_ = nullptr;
-
 }
 
 NodeSensingDecl::~NodeSensingDecl()
 {
-  // TODO Auto-generated destructor stub
 }
 

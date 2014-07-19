@@ -13,7 +13,7 @@
 #include "NodeStatementBase.h"
 #include "../Identifier/NodeID.h"
 
-class NodeFluentQuery : public NodeStatementBase
+class NodeFluentQuery: public NodeStatementBase
 {
   private:
     std::shared_ptr<NodeID> fluentToQueryName_;

@@ -9,12 +9,9 @@
 
 NodeChoose::NodeChoose()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeChoose::~NodeChoose()
 {
-  // TODO Auto-generated destructor stub
 }
 

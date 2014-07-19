@@ -17,10 +17,7 @@ class NodeVariable: public ASTNodeBase<>
     std::string varName_;
   public:
     DEFINE_VISITABLE()
-    NodeVariable(std::string varName) :
-        varName_(varName)
-    {
-    }
+    NodeVariable(const std::string& varName);
     NodeVariable();
     virtual ~NodeVariable();
 
@@ -33,12 +30,6 @@ class NodeVariable: public ASTNodeBase<>
     {
       varName_ = varName;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
-
 };
 
 #endif /* NODEVARIABLE_H_ */

@@ -7,14 +7,12 @@
 
 #include "NodeIDAssignment.h"
 
-NodeIDAssignment::NodeIDAssignment()
+NodeIDAssignment::NodeIDAssignment() :
+    fluentName_(nullptr), operator_(nullptr), setExpr_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeIDAssignment::~NodeIDAssignment()
 {
-  // TODO Auto-generated destructor stub
 }
 

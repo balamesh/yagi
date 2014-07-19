@@ -9,12 +9,9 @@
 
 NodeNegation::NodeNegation()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeNegation::~NodeNegation()
 {
-  // TODO Auto-generated destructor stub
 }
 

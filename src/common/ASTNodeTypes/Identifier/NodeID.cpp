@@ -7,7 +7,13 @@
 
 #include "NodeID.h"
 
-NodeID::~NodeID() {
-	// TODO Auto-generated destructor stub
+NodeID::NodeID(const std::string& id) :
+    id_(id)
+{
+}
+
+NodeID::~NodeID()
+{
+
 }
 

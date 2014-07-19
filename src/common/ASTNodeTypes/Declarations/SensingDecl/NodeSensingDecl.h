@@ -15,7 +15,7 @@
 #include "../../Identifier/NodeID.h"
 #include "../../Formula/NodeFormulaBase.h"
 
-class NodeSensingDecl : public ASTNodeBase<>
+class NodeSensingDecl: public ASTNodeBase<>
 {
   private:
     std::shared_ptr<NodeID> sensingName_;

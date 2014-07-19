@@ -7,14 +7,12 @@
 
 #include "NodeVariableAssignment.h"
 
-NodeVariableAssignment::NodeVariableAssignment()
+NodeVariableAssignment::NodeVariableAssignment() :
+    variable_(nullptr), value_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeVariableAssignment::~NodeVariableAssignment()
 {
-  // TODO Auto-generated destructor stub
 }
 

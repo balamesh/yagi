@@ -13,35 +13,26 @@
 #include <algorithm>
 
 #include "../../ASTNodeBase.h"
-#include "../../Statements/NodeStatementBase.h"
+#include "../../Statements/NodeBlock.h"
 
 class NodeActionEffect: public ASTNodeBase<>
 {
   private:
-    std::vector<std::shared_ptr<NodeStatementBase>> assignments_;
+    std::shared_ptr<NodeBlock> block_;
   public:
     DEFINE_VISITABLE()
     NodeActionEffect();
     virtual ~NodeActionEffect();
 
-    const std::vector<std::shared_ptr<NodeStatementBase> >& getAssignments() const
+    const std::shared_ptr<NodeBlock>& getBlock() const
     {
-      return assignments_;
+      return block_;
     }
 
-    void addAssignment(const std::shared_ptr<NodeStatementBase>& assignment)
+    void setBlock(const std::shared_ptr<NodeBlock>& block)
     {
-      assignments_.push_back(assignment);
+      block_ = block;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      std::for_each(std::begin(assignments_), std::end(assignments_),
-//          [&visitor](std::shared_ptr<NodeAssignmentBase> assignment)
-//          { assignment->accept(visitor);});
-//    }
 };
 
 #endif /* NODEACTIONEFFECT_H_ */

@@ -58,18 +58,6 @@ class NodeProcDecl: public ASTNodeBase<>
     {
       procName_ = procName;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      procName_->accept(visitor);
-//
-//      if (argList_ != nullptr)
-//        argList_->accept(visitor);
-//
-//      block_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEPROCDECL_H_ */

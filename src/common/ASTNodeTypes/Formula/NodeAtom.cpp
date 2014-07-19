@@ -7,17 +7,12 @@
 
 #include "NodeAtom.h"
 
-NodeAtom::NodeAtom()
+NodeAtom::NodeAtom() :
+    leftOperand_(nullptr), connective_(nullptr), rightOperand_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-  leftOperand_ = nullptr;
-  connective_ = nullptr;
-  rightOperand_ = nullptr;
-
 }
 
 NodeAtom::~NodeAtom()
 {
-  // TODO Auto-generated destructor stub
 }
 

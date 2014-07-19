@@ -9,6 +9,6 @@
 
 NodeDomainStringElements::~NodeDomainStringElements()
 {
-	// TODO Auto-generated destructor stub
+
 }
 

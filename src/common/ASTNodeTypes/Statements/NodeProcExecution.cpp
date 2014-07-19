@@ -7,15 +7,12 @@
 
 #include "NodeProcExecution.h"
 
-NodeProcExecution::NodeProcExecution()
+NodeProcExecution::NodeProcExecution() :
+    procToExecName_(nullptr), parameters_(nullptr)
 {
-  procToExecName_ = nullptr;
-  parameters_ = nullptr;
-
 }
 
 NodeProcExecution::~NodeProcExecution()
 {
-  // TODO Auto-generated destructor stub
 }
 

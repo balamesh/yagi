@@ -26,21 +26,23 @@ class NodeQuantifiedFormula: public NodeFormulaBase
     Quantifier quantifier_;
     std::shared_ptr<NodeTuple> tuple_;
     std::shared_ptr<NodeSetExpression> setExpr_;
-    std::shared_ptr<NodeFormulaBase> formula_;
+    std::shared_ptr<NodeFormulaBase> suchFormula_;
 
   public:
     DEFINE_VISITABLE()
     NodeQuantifiedFormula();
     virtual ~NodeQuantifiedFormula();
 
-    const std::shared_ptr<NodeFormulaBase>& getFormula() const
+    std::string getQuantifierText();
+
+    const std::shared_ptr<NodeFormulaBase>& getSuchFormula() const
     {
-      return formula_;
+      return suchFormula_;
     }
 
-    void setFormula(const std::shared_ptr<NodeFormulaBase>& formula)
+    void setSuchFormula(const std::shared_ptr<NodeFormulaBase>& formula)
     {
-      formula_ = formula;
+      suchFormula_ = formula;
     }
 
     Quantifier getQuantifier() const
@@ -72,17 +74,6 @@ class NodeQuantifiedFormula: public NodeFormulaBase
     {
       setExpr_ = setExpr;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//
-//      tuple_->accept(visitor);
-//      setExpr_->accept(visitor);
-//
-//      if (formula_ != nullptr)
-//        formula_->accept(visitor);
-//    }
 };
 
 #endif /* NODEQUANTIFIEDFORMULA_H_ */

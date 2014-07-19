@@ -9,12 +9,9 @@
 
 NodeSet::NodeSet()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeSet::~NodeSet()
 {
-  // TODO Auto-generated destructor stub
 }
 

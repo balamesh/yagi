@@ -43,14 +43,6 @@ class NodeWhileLoop: public NodeStatementBase
     {
       formula_ = formula;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      formula_->accept(visitor);
-//      block_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEWHILELOOP_H_ */

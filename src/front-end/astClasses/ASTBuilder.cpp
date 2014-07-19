@@ -9,12 +9,10 @@
 
 ASTBuilder::ASTBuilder()
 {
-  // TODO Auto-generated constructor stub
 }
 
 ASTBuilder::~ASTBuilder()
 {
-  // TODO Auto-generated destructor stub
 }
 
 void ASTBuilder::addDomainStringElementsNode()
@@ -93,10 +91,19 @@ void ASTBuilder::addFluentDeclNode(const std::string& fluentName)
   ast.push(fluentDeclNode);
 }
 
-void ASTBuilder::addExoEventDeclNode(const std::string& passSensName)
+void ASTBuilder::addExoEventDeclNode(const std::string& exoEventName)
 {
   auto exoEventDeclNode = std::make_shared<NodeExogenousEventDecl>();
-  exoEventDeclNode->setExogenousEventName(std::make_shared<NodeID>(passSensName));
+  exoEventDeclNode->setExogenousEventName(std::make_shared<NodeID>(exoEventName));
+
+  //first get the <block>
+  auto block = getFrontElement<NodeBlock>();
+  if (block == nullptr)
+  {
+    throw std::runtime_error("There must be a block for exo. event decl, but there isn't!");
+  }
+  exoEventDeclNode->setBlock(block);
+  ast.pop();
 
   //there must be a varlist for exo event
   auto varList = getFrontElement<NodeVarList>();
@@ -519,7 +526,7 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   auto formula = getFrontElement<NodeFormulaBase>();
   if (formula != nullptr) //formula is optional...
   {
-    quantifiedFormula->setFormula(formula);
+    quantifiedFormula->setSuchFormula(formula);
     ast.pop();
   }
 
@@ -709,6 +716,13 @@ void ASTBuilder::consumeVarNode()
 void ASTBuilder::addEffect()
 {
   auto effect = std::make_shared<NodeActionEffect>();
+
+  if (auto actionEffect = getFrontElement<NodeBlock>())
+  {
+    effect->setBlock(actionEffect);
+    ast.pop();
+  }
+
   ast.push(effect);
 }
 
@@ -717,33 +731,43 @@ void ASTBuilder::addActionDeclNode(const std::string& actionName)
   auto actionDecl = std::make_shared<NodeActionDecl>();
   actionDecl->setActionName(std::make_shared<NodeID>(actionName));
 
-  //TODO: find a better type abstraction, this is ugly!
   auto signalExpr = getFrontElement<NodeValueExpression>();
   auto signalString = getFrontElement<NodeString>();
   auto signalVar = getFrontElement<NodeVariable>();
 
-  if (signalExpr != nullptr || signalString != nullptr || signalVar != nullptr)
+  if (signalExpr)
   {
-    actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<ASTNodeBase<>>()));
+    actionDecl->setSignal(std::make_shared<NodeSignal>(getFrontElement<NodeValueExpression>()));
+    ast.pop();
+  }
+  else if (signalString)
+  {
+    auto valExpr = std::make_shared<NodeValueExpression>();
+    valExpr->setLhs(signalString);
+    actionDecl->setSignal(std::make_shared<NodeSignal>(valExpr));
+    ast.pop();
+  }
+  else if (signalVar)
+  {
+    auto valExpr = std::make_shared<NodeValueExpression>();
+    valExpr->setLhs(signalVar);
+    actionDecl->setSignal(std::make_shared<NodeSignal>(valExpr));
     ast.pop();
   }
 
-  auto actionEffect = getFrontElement<NodeActionEffect>();
-  if (actionEffect != nullptr)
+  if (auto actionEffect = getFrontElement<NodeActionEffect>())
   {
     actionDecl->setActionEffect(actionEffect);
     ast.pop();
   }
 
-  auto actionPrecondition = getFrontElement<NodeFormulaBase>();
-  if (actionPrecondition != nullptr)
+  if (auto actionPrecondition = getFrontElement<NodeFormulaBase>())
   {
     actionDecl->setActionPrecondition(std::make_shared<NodeActionPrecondition>(actionPrecondition));
     ast.pop();
   }
 
-  auto varList1 = getFrontElement<NodeVarList>();
-  if (varList1 != nullptr)
+  if (auto varList1 = getFrontElement<NodeVarList>())
   {
     ast.pop();
 
@@ -837,8 +861,7 @@ void ASTBuilder::addProcExec(const std::string& procName)
   auto procExec = std::make_shared<NodeProcExecution>();
   procExec->setProcToExecName(std::make_shared<NodeID>(procName));
 
-  auto execParams = getFrontElement<NodeValueList>();
-  if (execParams != nullptr)
+  if (auto execParams = getFrontElement<NodeValueList>())
   {
     procExec->setParameters(execParams);
     ast.pop();
@@ -1045,4 +1068,16 @@ void ASTBuilder::addSearch()
   search->setBlock(block);
 
   ast.push(search);
+}
+
+template<typename T> std::shared_ptr<T> ASTBuilder::getFrontElement()
+{
+  if (ast.size())
+  {
+    return std::dynamic_pointer_cast<T>(ast.top());
+  }
+  else
+  {
+    return nullptr;
+  }
 }

@@ -33,15 +33,6 @@ class NodeDomainStringElements: public NodeDomainBase
       domainElements_.push_back(domainElement);
     }
 
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      std::for_each(std::begin(domainElements_), std::end(domainElements_),
-//          [&visitor](std::shared_ptr<NodeString> str)
-//          { str->accept(visitor);});
-//
-//      visitor->visit(this);
-//    }
-
     const std::vector<std::shared_ptr<NodeString> >& getDomainElements() const
     {
       return domainElements_;

@@ -34,15 +34,6 @@ class NodeChoose: public NodeStatementBase
     {
       blocks_.push_back(block);
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      std::for_each(std::begin(blocks_), std::end(blocks_),
-//          [&visitor](std::shared_ptr<NodeBlock> block)
-//          { block->accept(visitor);});
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODECHOOSE_H_ */

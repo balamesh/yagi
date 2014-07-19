@@ -9,17 +9,15 @@
 
 NodeTuple::NodeTuple()
 {
-  // TODO Auto-generated constructor stub
 }
 
 NodeTuple::~NodeTuple()
 {
-  // TODO Auto-generated destructor stub
 }
 
 bool NodeTuple::isPassedTypeValid(const std::shared_ptr<ASTNodeBase>& tupleVal)
 {
-  //type must be either a string, a variable or a pattern matching symbol
+  //type must be either a string, a variable, incomplete knowledge or a pattern matching symbol
   auto str = std::dynamic_pointer_cast<NodeString>(tupleVal);
   if (str != nullptr)
     return true;

@@ -9,12 +9,9 @@
 
 NodePatternMatching::NodePatternMatching()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodePatternMatching::~NodePatternMatching()
 {
-  // TODO Auto-generated destructor stub
 }
 

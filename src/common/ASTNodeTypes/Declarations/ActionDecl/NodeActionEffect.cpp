@@ -7,14 +7,11 @@
 
 #include "NodeActionEffect.h"
 
-NodeActionEffect::NodeActionEffect()
+NodeActionEffect::NodeActionEffect() : block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeActionEffect::~NodeActionEffect()
 {
-  // TODO Auto-generated destructor stub
 }
 

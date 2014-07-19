@@ -38,8 +38,7 @@ class NodeValueExpression: public ASTNodeBase<>
       if (isPassedTypeValid(lhs))
         this->lhs_ = lhs;
       else
-        throw std::runtime_error(
-            "Invalid Type passed to ValueExpression (lhs)!");
+        throw std::runtime_error("Invalid Type passed to ValueExpression (lhs)!");
     }
 
     const std::shared_ptr<ASTNodeBase<>>& getRhs() const
@@ -52,8 +51,7 @@ class NodeValueExpression: public ASTNodeBase<>
       if (isPassedTypeValid(rhs))
         this->rhs_ = rhs;
       else
-        throw std::runtime_error(
-            "Invalid Type passed to ValueExpression (rhs)!");
+        throw std::runtime_error("Invalid Type passed to ValueExpression (rhs)!");
     }
 
     const std::shared_ptr<NodeValueExpressionOperator>& getOperator() const
@@ -61,8 +59,7 @@ class NodeValueExpression: public ASTNodeBase<>
       return operator_;
     }
 
-    void setOperator(
-        const std::shared_ptr<NodeValueExpressionOperator>& _operator)
+    void setOperator(const std::shared_ptr<NodeValueExpressionOperator>& _operator)
     {
       operator_ = _operator;
     }

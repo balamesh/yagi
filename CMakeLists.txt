@@ -69,7 +69,6 @@ src/common/ASTNodeTypes/Formula/NodeNegation.cpp
 src/common/ASTNodeTypes/Formula/NodeCompoundFormula.cpp
 src/common/ASTNodeTypes/Formula/NodeFormulaConnective.cpp
 src/common/ASTNodeTypes/Identifier/NodeID.cpp
-src/common/ASTNodeTypes/Domains/NodeDomainInteger.cpp
 src/common/ASTNodeTypes/Domains/NodeDomainStringElements.cpp
 src/common/ASTNodeTypes/Domains/NodeDomainString.cpp
 src/common/ASTNodeTypes/DataTypes/NodeString.cpp
@@ -123,7 +122,6 @@ src/common/ASTNodeTypes/Formula/NodeAtomConnective.h
 src/common/ASTNodeTypes/Identifier/NodeID.h
 src/common/ASTNodeTypes/Domains/NodeDomainStringElements.h
 src/common/ASTNodeTypes/Domains/NodeDomainString.h
-src/common/ASTNodeTypes/Domains/NodeDomainInteger.h
 src/common/ASTNodeTypes/Domains/NodeDomainBase.h
 src/common/ASTNodeTypes/DataTypes/NodePatternMatching.h
 src/common/ASTNodeTypes/DataTypes/NodeValueList.h
@@ -157,6 +155,15 @@ src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
 src/back-end/SQLGenerator.cpp
 src/back-end/SQLGenerator.h
+src/back-end/ASTVisitors/ExecutionVisitor.cpp
+src/back-end/ASTVisitors/ExecutionVisitor.h
+src/back-end/ExecutableElementsContainer.cpp
+src/back-end/ExecutableElementsContainer.h
+src/back-end/FormulaEvaluator.cpp
+src/back-end/FormulaEvaluator.h
+src/back-end/IFormulaEvaluator.cpp
+src/back-end/IFormulaEvaluator.h
+src/utils/fileExists.h
 )
 
 add_executable(yagi-unitTests
@@ -198,7 +205,6 @@ src/common/ASTNodeTypes/Formula/NodeNegation.cpp
 src/common/ASTNodeTypes/Formula/NodeCompoundFormula.cpp
 src/common/ASTNodeTypes/Formula/NodeFormulaConnective.cpp
 src/common/ASTNodeTypes/Identifier/NodeID.cpp
-src/common/ASTNodeTypes/Domains/NodeDomainInteger.cpp
 src/common/ASTNodeTypes/Domains/NodeDomainStringElements.cpp
 src/common/ASTNodeTypes/Domains/NodeDomainString.cpp
 src/common/ASTNodeTypes/DataTypes/NodeString.cpp
@@ -252,7 +258,6 @@ src/common/ASTNodeTypes/Formula/NodeAtomConnective.h
 src/common/ASTNodeTypes/Identifier/NodeID.h
 src/common/ASTNodeTypes/Domains/NodeDomainStringElements.h
 src/common/ASTNodeTypes/Domains/NodeDomainString.h
-src/common/ASTNodeTypes/Domains/NodeDomainInteger.h
 src/common/ASTNodeTypes/Domains/NodeDomainBase.h
 src/common/ASTNodeTypes/DataTypes/NodePatternMatching.h
 src/common/ASTNodeTypes/DataTypes/NodeValueList.h
@@ -286,6 +291,15 @@ src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
 src/back-end/SQLGenerator.cpp
 src/back-end/SQLGenerator.h
+src/back-end/ASTVisitors/ExecutionVisitor.cpp
+src/back-end/ASTVisitors/ExecutionVisitor.h
+src/back-end/ExecutableElementsContainer.cpp
+src/back-end/ExecutableElementsContainer.h
+src/back-end/FormulaEvaluator.cpp
+src/back-end/FormulaEvaluator.h
+src/back-end/IFormulaEvaluator.cpp
+src/back-end/IFormulaEvaluator.h
+src/utils/fileExists.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

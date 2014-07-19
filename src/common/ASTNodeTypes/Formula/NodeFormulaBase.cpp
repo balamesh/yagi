@@ -9,12 +9,9 @@
 
 NodeFormulaBase::NodeFormulaBase()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeFormulaBase::~NodeFormulaBase()
 {
-  // TODO Auto-generated destructor stub
 }
 

@@ -56,15 +56,6 @@ class NodePick: public NodeStatementBase
     {
       tuple_ = tuple;
     }
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      tuple_->accept(visitor);
-//      setExpr_->accept(visitor);
-//      block_->accept(visitor);
-//
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEPICK_H_ */

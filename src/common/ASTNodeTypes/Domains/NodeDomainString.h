@@ -16,11 +16,6 @@ class NodeDomainString: public NodeDomainBase
     DEFINE_VISITABLE()
     NodeDomainString();
     virtual ~NodeDomainString();
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
 };
 
 #endif /* NODEDOMAINSTRING_H_ */

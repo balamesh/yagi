@@ -2,10 +2,8 @@
 
 NodeProgram::NodeProgram()
 {
-    //ctor
 }
 
 NodeProgram::~NodeProgram()
 {
-    //dtor
 }

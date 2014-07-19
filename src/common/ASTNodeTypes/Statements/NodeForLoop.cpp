@@ -7,14 +7,12 @@
 
 #include "NodeForLoop.h"
 
-NodeForLoop::NodeForLoop()
+NodeForLoop::NodeForLoop() :
+    tuple_(nullptr), setExpr_(nullptr), block_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeForLoop::~NodeForLoop()
 {
-  // TODO Auto-generated destructor stub
 }
 

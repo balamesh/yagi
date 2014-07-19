@@ -9,12 +9,9 @@
 
 NodeBlock::NodeBlock()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 NodeBlock::~NodeBlock()
 {
-  // TODO Auto-generated destructor stub
 }
 

@@ -7,15 +7,12 @@
 
 #include "NodeOperatorIn.h"
 
-NodeOperatorIn::NodeOperatorIn()
+NodeOperatorIn::NodeOperatorIn() :
+    tuple_(nullptr), setExpr_(nullptr)
 {
-  // TODO Auto-generated constructor stub
-  tuple_ = nullptr;
-  setExpr_ = nullptr;
 }
 
 NodeOperatorIn::~NodeOperatorIn()
 {
-  // TODO Auto-generated destructor stub
 }
 

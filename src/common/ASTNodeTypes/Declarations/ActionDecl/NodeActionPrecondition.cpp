@@ -7,14 +7,18 @@
 
 #include "NodeActionPrecondition.h"
 
-NodeActionPrecondition::NodeActionPrecondition()
+NodeActionPrecondition::NodeActionPrecondition() :
+    formula_(nullptr)
 {
-  // TODO Auto-generated constructor stub
 
+}
+
+NodeActionPrecondition::NodeActionPrecondition(const std::shared_ptr<NodeFormulaBase>& formula) :
+    formula_(formula)
+{
 }
 
 NodeActionPrecondition::~NodeActionPrecondition()
 {
-  // TODO Auto-generated destructor stub
 }
 

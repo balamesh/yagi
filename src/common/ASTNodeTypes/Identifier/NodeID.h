@@ -18,16 +18,8 @@ class NodeID: public ASTNodeBase<>
 
   public:
     DEFINE_VISITABLE()
-    NodeID(const std::string& id) :
-        id_(id)
-    {
-    }
+    NodeID(const std::string& id);
     virtual ~NodeID();
-
-//    virtual void accept(ASTNodeVisitorBase* visitor) override
-//    {
-//      visitor->visit(this);
-//    }
 
     const std::string& getId() const
     {
