@@ -10,7 +10,7 @@
 
 #include "../../ASTNodeTypes/Identifier/NodeID.h"
 #include "../../ASTNodeTypes/Expressions/NodeSetExpression.h"
-#include "../../ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "../../ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 #include "NodeStatementBase.h"
 
 #include <memory>
@@ -19,7 +19,7 @@ class NodeIDAssignment: public NodeStatementBase
 {
   private:
     std::shared_ptr<NodeID> fluentName_;
-    std::shared_ptr<NodeSetExpressionOperator> operator_;
+    std::shared_ptr<NodeAssignmentOperator> operator_;
     std::shared_ptr<NodeSetExpression> setExpr_;
 
   public:
@@ -37,12 +37,12 @@ class NodeIDAssignment: public NodeStatementBase
       fluentName_ = fluentName;
     }
 
-    const std::shared_ptr<NodeSetExpressionOperator>& getOperator() const
+    const std::shared_ptr<NodeAssignmentOperator>& getOperator() const
     {
       return operator_;
     }
 
-    void setOperator(const std::shared_ptr<NodeSetExpressionOperator>& _operator)
+    void setOperator(const std::shared_ptr<NodeAssignmentOperator>& _operator)
     {
       operator_ = _operator;
     }

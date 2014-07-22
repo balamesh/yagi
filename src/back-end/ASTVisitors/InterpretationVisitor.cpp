@@ -20,6 +20,11 @@ InterpretationVisitor::~InterpretationVisitor()
 
 }
 
+Any InterpretationVisitor::visit(NodeID& id)
+{
+  return Any { id.getId() };
+}
+
 Any InterpretationVisitor::visit(NodeProgram& program)
 {
   std::for_each(program.getProgram().begin(), program.getProgram().end(),
@@ -41,18 +46,23 @@ Any InterpretationVisitor::visit(NodeProgram& program)
 Any InterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
 {
   auto db = DatabaseManager::getInstance().getMainDB();
-  db->executeNonQuery(SQLGenerator::getInstance().createTableFromFluent(fluentDecl));
+  db->executeNonQuery(
+      SQLGenerator::getInstance().getSqlStringCreateTable(fluentDecl.getFluentName()->getId(),
+          fluentDecl.getDomains().size()));
   return Any { };
 }
 
 Any InterpretationVisitor::visit(NodeFactDecl& factDecl)
 {
   auto db = DatabaseManager::getInstance().getMainDB();
-  db->executeNonQuery(SQLGenerator::getInstance().createTableFromFact(factDecl));
+  db->executeNonQuery(
+      SQLGenerator::getInstance().getSqlStringCreateTable(factDecl.getFactName()->getId(),
+          factDecl.getDomains().size()));
 
   //store in db that it is a fact
   if (!db->executeQuery(
-      SQLGenerator::getInstance().existsTable(SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
+      SQLGenerator::getInstance().getSqlStringExistsTable(
+          SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
   {
     db->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateFactsTable());
   }
@@ -66,13 +76,14 @@ Any InterpretationVisitor::visit(NodeFluentQuery& fluentQuery)
   auto db = DatabaseManager::getInstance().getMainDB();
   auto fluentName = fluentQuery.getFluentToQueryName().get()->getId();
 
-  if (!db->executeQuery(SQLGenerator::getInstance().existsTable(fluentName)).size())
+  if (!db->executeQuery(SQLGenerator::getInstance().getSqlStringExistsTable(fluentName)).size())
   {
     std::cout << "<<<< Fluent/Fact '" + fluentName + "' does not exist!" << std::endl;
   }
   else
   {
-    auto fluentState = db->executeQuery(SQLGenerator::getInstance().selectAll(fluentName));
+    auto fluentState = db->executeQuery(
+        SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
     auto str = fluentDBDataToString(fluentState);
 
     std::cout << "<<<< " << fluentName << " = " << str << std::endl;
@@ -84,38 +95,26 @@ Any InterpretationVisitor::visit(NodeFluentQuery& fluentQuery)
 Any InterpretationVisitor::visit(NodeIDAssignment& fluentAss)
 {
   auto db = DatabaseManager::getInstance().getMainDB();
-  auto lhs = fluentAss.getFluentName().get()->getId();
-  auto rhs = fluentAss.getSetExpr();
-  auto op = fluentAss.getOperator();
+  auto id = fluentAss.getFluentName().get()->getId();
+  auto set = fluentAss.getSetExpr()->accept(*this).get<std::vector<std::vector<std::string>>>();
+  auto assignOp = fluentAss.getOperator();
 
-  if (op->getOperator() == SetExprOperator::Unknown)
+  if (assignOp->getOperator() == AssignmentOperator::Unknown)
   {
-    throw std::runtime_error("Unknown set expr. assign operator!");
+    throw std::runtime_error("Unknown assign operator!");
   }
 
-  if (op->getOperator() == SetExprOperator::Assign)
+  if (assignOp->getOperator() == AssignmentOperator::Assign)
   {
     DatabaseManager::getInstance().getMainDB()->executeNonQuery(
-        SQLGenerator::getInstance().getSqlStringClearTable(lhs));
+        SQLGenerator::getInstance().getSqlStringClearTable(id));
   }
 
-  std::vector<std::string> sqlStrings;
-
-  //Simplest case: rhs is a <set>
-  if (auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs()))
-  {
-    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(lhs, set,
-        op->getOperator());
-
-  } //It can also be another ID, i.e. another fluent
-  else if (auto id = std::dynamic_pointer_cast<NodeID>(rhs->getRhs()))
-  {
-    auto colCount = DatabaseManager::getInstance().getMainDB()->executeQuery(
-        SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(id->getId())).size();
-
-    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentFluentAssign(lhs, id->getId(),
-        op->getOperator(), colCount);
-  }
+  //the rhs of the assignment is a vector of vectors of strings that represents
+  //the list of tuples. The visitor methods of the rhs took care of the different cases
+  //of possible rhs types, i.e. fluent, shadow fluent.
+  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(id, set,
+      assignOp->getOperator());
 
   std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [](const std::string& stmt)
   {
@@ -145,6 +144,96 @@ Any InterpretationVisitor::visit(NodeProcExecution& procExec)
   }
 
   return Any { };
+}
+
+Any InterpretationVisitor::visit(NodeSet& set)
+{
+  //Build set with tuples
+  std::vector<std::vector<std::string>> valueSet;
+
+  auto tuples = set.getTuples();
+
+  std::for_each(std::begin(tuples), std::end(tuples),
+      [this, &valueSet](const std::shared_ptr<NodeTuple>& nodeTuple)
+      {
+        valueSet.push_back(nodeTuple->accept(*this).get<std::vector<std::string>>());
+      });
+
+  return Any { valueSet };
+}
+
+Any InterpretationVisitor::visit(NodeTuple& tuple)
+{
+  //Build vector with tuple values
+  std::vector<std::string> tupleVals;
+
+  auto values = tuple.getTupleValues();
+
+  std::for_each(std::begin(values), std::end(values),
+      [this, &tupleVals](const std::shared_ptr<ASTNodeBase<>>& value)
+      {
+        tupleVals.push_back(value->accept(*this).get<std::string>());
+      });
+
+  return Any { tupleVals };
+}
+
+Any InterpretationVisitor::visit(NodeVariable& variable)
+{
+  //TODO: get variable value from variable table and return the value
+  return Any { };
+}
+
+Any InterpretationVisitor::visit(NodeString& str)
+{
+  return Any { str.getString() };
+}
+
+Any InterpretationVisitor::visit(NodeSetExpression& setExpr)
+{
+  std::vector<std::vector<std::string>> lhsResultVector, rhsResultVector;
+  ExprOperator exprOp = ExprOperator::Unknown;
+
+  if (auto lhs = setExpr.getLhs())
+  {
+    auto lhsResult = lhs->accept(*this);
+
+    //lhs is a <set>
+    if (lhsResult.hasType<std::vector<std::vector<std::string>>>())
+    {
+      lhsResultVector = lhsResult.get<std::vector<std::vector<std::string>>>();
+    }
+    else if (lhsResult.hasType<std::string>()) //lhs is an ID, i.e. another <fluent>
+    {
+      //get data from fluent
+      lhsResultVector = lhsResult.get<std::vector<std::vector<std::string>>>();
+    }
+  }
+
+  if (auto rhs = setExpr.getRhs())
+  {
+    rhsResultVector = rhs->accept(*this).get<std::vector<std::vector<std::string>>>();
+  }
+
+  if (auto op = setExpr.getOperator())
+  {
+    exprOp = op->getOperator();
+  }
+  else
+  {
+    return Any { lhsResultVector };
+  }
+
+  if (exprOp == ExprOperator::Plus)
+  {
+    return Any { buildUnion(lhsResultVector, rhsResultVector) };
+  }
+  else if (exprOp == ExprOperator::Minus)
+  {
+    return Any { buildComplement(lhsResultVector, rhsResultVector) };
+  }
+  else
+    throw std::runtime_error("Unknown <setexpr> operator!");
 
 }
 
@@ -169,6 +258,30 @@ std::string InterpretationVisitor::fluentDBDataToString(std::vector<std::vector<
     return str.substr(0, str.length() - 2) + "}";
   else
     return "[EMPTY]";
+}
+
+std::vector<std::vector<std::string>> InterpretationVisitor::buildUnion(
+    std::vector<std::vector<std::string>> v1, std::vector<std::vector<std::string>> v2)
+{
+  std::vector<std::vector<std::string>> dest;
+  std::sort(std::begin(v1), std::end(v1), yagi::comparers::tupleLessThan);
+  std::sort(std::begin(v2), std::end(v2), yagi::comparers::tupleLessThan);
+
+  std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(dest),
+      yagi::comparers::tupleLessThan);
+
+  return dest;
+}
+
+std::vector<std::vector<std::string>> InterpretationVisitor::buildComplement(
+    std::vector<std::vector<std::string>> v1, std::vector<std::vector<std::string>> v2)
+{
+
+  std::vector<std::vector<std::string>> dest;
+  std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), std::back_inserter(dest),
+      yagi::comparers::tupleLessThan);
+
+  return dest;
 }
 
 } /* namespace execution */

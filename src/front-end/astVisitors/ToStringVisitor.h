@@ -22,9 +22,8 @@
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
 #include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
-#include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
-#include "../../common/ASTNodeTypes/Expressions/NodeValueExpressionOperator.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
 #include "../../common/ASTNodeTypes/Set/NodeSet.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
@@ -58,6 +57,7 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
 #include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
+#include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 
 using namespace yagi::container;
 
@@ -71,7 +71,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFactDecl>,
     public Visitor<NodeFluentQuery>,
     public Visitor<NodeIDAssignment>,
-    public Visitor<NodeSetExpressionOperator>,
+    public Visitor<NodeAssignmentOperator>,
     public Visitor<NodeSetExpression>,
     public Visitor<NodeSet>,
     public Visitor<NodeTuple>,
@@ -89,7 +89,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFormulaConnective>,
     public Visitor<NodeValueList>,
     public Visitor<NodeValueExpression>,
-    public Visitor<NodeValueExpressionOperator>,
+    public Visitor<NodeExpressionOperator>,
     public Visitor<NodeAtom>,
     public Visitor<NodeAtomConnective>,
     public Visitor<NodeNegation>,
@@ -118,7 +118,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     Any visit(NodeDomainStringElements& domainStringElems);
     Any visit(NodeFluentQuery& fluentQuery);
     Any visit(NodeIDAssignment& fluentAss);
-    Any visit(NodeSetExpressionOperator& setExprOp);
+    Any visit(NodeAssignmentOperator& setExprOp);
     Any visit(NodeSetExpression& setExpr);
     Any visit(NodeSet& set);
     Any visit(NodeTuple& tuple);
@@ -133,7 +133,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     Any visit(NodeExogenousEventDecl& exoEvent);
     Any visit(NodeProcDecl& procDecl);
     Any visit(NodeSensingDecl& sensingDecl);
-    Any visit(NodeValueExpressionOperator& valExprOp);
+    Any visit(NodeExpressionOperator& valExprOp);
     Any visit(NodeValueExpression& valExpr);
     Any visit(NodeAtom& atom);
     Any visit(NodeAtomConnective& connective);

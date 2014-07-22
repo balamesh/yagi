@@ -9,7 +9,7 @@
 #define DATABASEMANAGER_H_
 
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <algorithm>
 
@@ -30,7 +30,7 @@ class DatabaseManager
     DatabaseManager(DatabaseManager const&);
     void operator=(DatabaseManager const&);
 
-    std::map<std::string, std::shared_ptr<DatabaseConnectorBase>> databases_;
+    std::unordered_map<std::string, std::shared_ptr<DatabaseConnectorBase>> databases_;
     std::shared_ptr<DatabaseConnectorBase> databaseMain_;
 
     const std::string MAIN_DB_NAME;
@@ -54,7 +54,8 @@ class DatabaseManager
 
     std::shared_ptr<DatabaseConnectorBase> getDBByName(const std::string& name)
     {
-      if (databases_.count(name) == 0)
+      auto val = databases_.find(name);
+      if (val == std::end(databases_))
       {
         databases_[name] = std::make_shared<DataBaseConcreteType>(name);
       }

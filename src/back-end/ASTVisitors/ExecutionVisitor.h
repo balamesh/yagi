@@ -12,15 +12,14 @@
 #include <iostream>
 
 #include "../Database/DatabaseConnectorBase.h"
-#include "../IFormulaEvaluator.h"
+#include "../Formulas/IFormulaEvaluator.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
 #include "../ExecutableElementsContainer.h"
 
-#include "../../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 #include "../SQLGenerator.h"
 #include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
-
 
 using namespace yagi::database;
 using namespace yagi::container;

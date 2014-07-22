@@ -17,7 +17,7 @@
 #include "astVisitors/TypeCheckVisitor.h"
 #include "../back-end/ASTVisitors/InterpretationVisitor.h"
 #include "ANTLRParser.h"
-#include "../back-end/FormulaEvaluator.h"
+#include "../back-end/Formulas/FormulaEvaluator.h"
 
 using namespace yagi::formula;
 using namespace yagi::execution;

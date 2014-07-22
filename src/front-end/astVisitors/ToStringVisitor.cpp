@@ -100,7 +100,7 @@ Any ToStringVisitor::visit(NodeIDAssignment& fluentAss)
   return Any { astString + ") ) " };
 }
 
-Any ToStringVisitor::visit(NodeSetExpressionOperator& setExprOp)
+Any ToStringVisitor::visit(NodeAssignmentOperator& setExprOp)
 {
   std::string astString = "[ExprOp = ";
 
@@ -292,7 +292,7 @@ Any ToStringVisitor::visit(NodeSensingDecl& sensingDecl)
   return Any { astString };
 }
 
-Any ToStringVisitor::visit(NodeValueExpressionOperator& valExprOp)
+Any ToStringVisitor::visit(NodeExpressionOperator& valExprOp)
 {
   std::string astString = "[ExprOp = ";
 

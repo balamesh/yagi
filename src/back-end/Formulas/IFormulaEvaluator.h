@@ -8,8 +8,8 @@
 #ifndef IFORMULAEVALUATOR_H_
 #define IFORMULAEVALUATOR_H_
 
-#include "../common/ASTNodeTypes/Formula/NodeConstant.h"
-#include "../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 #include <memory>
 
 namespace yagi {

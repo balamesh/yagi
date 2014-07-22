@@ -9,7 +9,7 @@
 #define NODESETEXPRESSION_H_
 
 #include "../ASTNodeBase.h"
-#include "NodeSetExpressionOperator.h"
+#include "NodeExpressionOperator.h"
 #include "../../ASTNodeTypes/Identifier/NodeID.h"
 #include "../../ASTNodeTypes/Set/NodeSet.h"
 
@@ -18,7 +18,7 @@
 class NodeSetExpression: public ASTNodeBase<>
 {
   private:
-    std::shared_ptr<NodeSetExpressionOperator> operator_;
+    std::shared_ptr<NodeExpressionOperator> operator_;
     std::shared_ptr<ASTNodeBase<>> lhs_;
     std::shared_ptr<ASTNodeBase<>> rhs_;
 
@@ -42,13 +42,12 @@ class NodeSetExpression: public ASTNodeBase<>
         throw std::runtime_error("Invalid Type passed to SetExpression (lhs)!");
     }
 
-    const std::shared_ptr<NodeSetExpressionOperator>& getOperator() const
+    const std::shared_ptr<NodeExpressionOperator>& getOperator() const
     {
       return operator_;
     }
 
-    void setOperator(
-        const std::shared_ptr<NodeSetExpressionOperator>& _operator)
+    void setOperator(const std::shared_ptr<NodeExpressionOperator>& _operator)
     {
       operator_ = _operator;
     }

@@ -13,7 +13,7 @@
 #include "../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
 #include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 #include "../common/ASTNodeTypes/Set/NodeSet.h"
-#include "../common/ASTNodeTypes/Expressions/NodeSetExpressionOperator.h"
+#include "../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 
 class SQLGenerator
 {
@@ -23,9 +23,9 @@ class SQLGenerator
     SQLGenerator();
     virtual ~SQLGenerator();
 
-    std::string createTableInternal(const std::string& tableName, int numberOfColumns);
-    std::string buildAddQuery(const std::string& tableName, std::shared_ptr<NodeTuple> tuple);
-    std::string buildRemoveQuery(const std::string& tableName, std::shared_ptr<NodeTuple> tuple);
+    std::string buildAddQuery(const std::string& tableName, const std::vector<std::string>& tuple);
+    std::string buildRemoveQuery(const std::string& tableName,
+        const std::vector<std::string>& tuple);
   public:
     static SQLGenerator& getInstance()
     {
@@ -35,22 +35,23 @@ class SQLGenerator
 
     const std::string FACTS_TABLE_NAME_;
 
-    std::string createTableFromFluent(const NodeFluentDecl& fluentDecl);
-    std::string createTableFromFact(const NodeFactDecl& factDecl);
-    std::string removeTableIfExists(const std::string& tableName);
-    std::string selectAll(const std::string& tableName);
-    std::string dropTable(const std::string& tableName);
-    std::string existsTable(const std::string& tableName);
-    std::vector<std::string> getSqlStringsForFluentSetAssign(const std::string& fluentName,
-        std::shared_ptr<NodeSet> set, SetExprOperator op);
-    std::string getSqlStringForTupleAssign(const std::string& fluentName,
-        std::shared_ptr<NodeTuple> tuple, SetExprOperator op);
+    std::string getSqlStringCreateTable(const std::string& tableName, int numberOfColumns);
+    std::string getSqlStringSelectAll(const std::string& tableName);
+    std::string getSqlStringDropTable(const std::string& tableName);
+    std::string getSqlStringExistsTable(const std::string& tableName);
+
+    std::vector<std::string> getSqlStringsForIDAssign(const std::string& id,
+        const std::vector<std::vector<std::string>>& set, AssignmentOperator op);
+
+    std::string getSqlStringForTupleAssign(const std::string& id,
+        const std::vector<std::string>& tuple, AssignmentOperator op);
+
     std::string getSqlStringClearTable(const std::string& tableName);
     std::string getSqlStringIsFactTable(const std::string& tableName);
     std::string getSqlStringAddFact(const NodeFactDecl& factDecl);
     std::string getSqlStringCreateFactsTable();
     std::vector<std::string> getSqlStringsForFluentFluentAssign(const std::string& lhs,
-        const std::string& rhs, SetExprOperator op, int columnCount);
+        const std::string& rhs, AssignmentOperator op, int columnCount);
     std::string getSqlStringNumberOfColumnsInTable(const std::string& tableName);
 
 };

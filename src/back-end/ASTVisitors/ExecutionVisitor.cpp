@@ -86,44 +86,44 @@ Any ExecutionVisitor::visit(NodeProcExecution& procExec)
 Any ExecutionVisitor::visit(NodeIDAssignment& fluentAss)
 {
   //TODO: copy&paste from InterpretationVisitor, refactor it out!!
-  auto db = db_;
-  auto lhs = fluentAss.getFluentName().get()->getId();
-  auto rhs = fluentAss.getSetExpr();
-  auto op = fluentAss.getOperator();
-
-  if (op->getOperator() == SetExprOperator::Unknown)
-  {
-    throw std::runtime_error("Unknown set expr. assign operator!");
-  }
-
-  if (op->getOperator() == SetExprOperator::Assign)
-  {
-    db_->executeNonQuery(
-        SQLGenerator::getInstance().getSqlStringClearTable(lhs));
-  }
-
-  std::vector<std::string> sqlStrings;
-
-  //Simplest case: rhs is a <set>
-  if (auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs()))
-  {
-    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(lhs, set,
-        op->getOperator());
-
-  } //It can also be another ID, i.e. another fluent
-  else if (auto id = std::dynamic_pointer_cast<NodeID>(rhs->getRhs()))
-  {
-    auto colCount = db_->executeQuery(
-        SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(id->getId())).size();
-
-    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentFluentAssign(lhs, id->getId(),
-        op->getOperator(), colCount);
-  }
-
-  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
-  {
-    db_->executeNonQuery(stmt);
-  });
+//  auto db = db_;
+//  auto lhs = fluentAss.getFluentName().get()->getId();
+//  auto rhs = fluentAss.getSetExpr();
+//  auto op = fluentAss.getOperator();
+//
+//  if (op->getOperator() == AssignmentOperator::Unknown)
+//  {
+//    throw std::runtime_error("Unknown set expr. assign operator!");
+//  }
+//
+//  if (op->getOperator() == AssignmentOperator::Assign)
+//  {
+//    db_->executeNonQuery(
+//        SQLGenerator::getInstance().getSqlStringClearTable(lhs));
+//  }
+//
+//  std::vector<std::string> sqlStrings;
+//
+//  //Simplest case: rhs is a <set>
+//  if (auto set = std::dynamic_pointer_cast<NodeSet>(rhs->getRhs()))
+//  {
+//    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentSetAssign(lhs, set,
+//        op->getOperator());
+//
+//  } //It can also be another ID, i.e. another fluent
+//  else if (auto id = std::dynamic_pointer_cast<NodeID>(rhs->getRhs()))
+//  {
+//    auto colCount = db_->executeQuery(
+//        SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(id->getId())).size();
+//
+//    sqlStrings = SQLGenerator::getInstance().getSqlStringsForFluentFluentAssign(lhs, id->getId(),
+//        op->getOperator(), colCount);
+//  }
+//
+//  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
+//  {
+//    db_->executeNonQuery(stmt);
+//  });
 
   return Any { };
 }

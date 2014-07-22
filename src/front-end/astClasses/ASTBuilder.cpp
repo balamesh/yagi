@@ -195,7 +195,7 @@ void ASTBuilder::addValueExpressionNode()
     throw std::runtime_error("No ASTNodeBase for ValExpr lhs!");
   ast.pop();
 
-  auto op = getFrontElement<NodeValueExpressionOperator>();
+  auto op = getFrontElement<NodeExpressionOperator>();
   if (op == nullptr)
     throw std::runtime_error("No NodeValueExpressionOperator for ValExpr!");
   ast.pop();
@@ -208,7 +208,7 @@ void ASTBuilder::addValueExpressionNode()
 
 void ASTBuilder::addExprOperator(const std::string& op)
 {
-  auto opNode = std::make_shared<NodeValueExpressionOperator>();
+  auto opNode = std::make_shared<NodeExpressionOperator>();
   opNode->fromString(op);
 
   ast.push(opNode);
@@ -295,9 +295,9 @@ void ASTBuilder::addSetExpr()
     throw std::runtime_error("No ASTNodeBase for SetExpr lhs!");
   ast.pop();
 
-  auto op = getFrontElement<NodeSetExpressionOperator>();
+  auto op = getFrontElement<NodeExpressionOperator>();
   if (op == nullptr)
-    throw std::runtime_error("No NodeSetExpressionOperator for SetExpr!");
+    throw std::runtime_error("No NodeExpressionOperator for SetExpr!");
   ast.pop();
 
   setExpr->setOperator(op);
@@ -317,21 +317,20 @@ void ASTBuilder::addIDAssign(const std::string& identifier)
   idAss->setFluentName(std::make_shared<NodeID>(identifier));
 
   //get op
-  auto assOp = getFrontElement<NodeSetExpressionOperator>();
+  auto assOp = getFrontElement<NodeAssignmentOperator>();
   if (assOp == nullptr)
     throw std::runtime_error("No assignment operator for fluent assign!");
   ast.pop();
 
   idAss->setOperator(assOp);
 
-  //TODO: should be created in everycase the <setexpr> rule gets executed!
   //if it's a "simple" assignment we need to create a setxpr,
   //otherwise it already has been created earlier...
   auto recursiveSetExpr = std::dynamic_pointer_cast<NodeSetExpression>(rhs);
-  if (recursiveSetExpr == nullptr)
+  if (!recursiveSetExpr)
   {
     auto setExpr = std::make_shared<NodeSetExpression>();
-    setExpr->setRhs(rhs); //in case it's a simple assignment we just set RHS and leave the rest nullptr
+    setExpr->setLhs(rhs); //in case it's a simple assignment we just set LHS and leave the rest nullptr
     idAss->setSetExpr(setExpr);
   }
   else
@@ -342,7 +341,7 @@ void ASTBuilder::addIDAssign(const std::string& identifier)
 
 void ASTBuilder::addAssignmentOp(const std::string& op)
 {
-  auto opNode = std::make_shared<NodeSetExpressionOperator>();
+  auto opNode = std::make_shared<NodeAssignmentOperator>();
   opNode->fromString(op);
 
   ast.push(opNode);

@@ -8,7 +8,7 @@
 #ifndef EXECUTABLEELEMENTSCONTAINER_H_
 #define EXECUTABLEELEMENTSCONTAINER_H_
 
-#include <memory>
+#include <unordered_map>
 #include <map>
 #include <string>
 
@@ -26,8 +26,8 @@ class ExecutableElementsContainer
     ExecutableElementsContainer();
     virtual ~ExecutableElementsContainer();
 
-    std::map<std::string, std::shared_ptr<NodeActionDecl>> actions_;
-    std::map<std::string, std::shared_ptr<NodeProcDecl>> procedures_;
+    std::unordered_map<std::string, std::shared_ptr<NodeActionDecl>> actions_;
+    std::unordered_map<std::string, std::shared_ptr<NodeProcDecl>> procedures_;
 
   public:
     static ExecutableElementsContainer& getInstance()
@@ -43,7 +43,8 @@ class ExecutableElementsContainer
 
     std::shared_ptr<NodeActionDecl> getAction(const std::string& actionName)
     {
-      if (actions_.count(actionName) != 0)
+      auto val = actions_.find(actionName);
+      if (val != std::end(actions_))
       {
         return actions_[actionName];
       }

@@ -11,14 +11,14 @@
 #include "../ASTNodeBase.h"
 #include "../DataTypes/NodeString.h"
 #include "../Variables/NodeVariable.h"
-#include "NodeValueExpressionOperator.h"
+#include "NodeExpressionOperator.h"
 
 #include <memory>
 
 class NodeValueExpression: public ASTNodeBase<>
 {
   private:
-    std::shared_ptr<NodeValueExpressionOperator> operator_;
+    std::shared_ptr<NodeExpressionOperator> operator_;
     std::shared_ptr<ASTNodeBase<>> lhs_;
     std::shared_ptr<ASTNodeBase<>> rhs_;
   public:
@@ -54,12 +54,12 @@ class NodeValueExpression: public ASTNodeBase<>
         throw std::runtime_error("Invalid Type passed to ValueExpression (rhs)!");
     }
 
-    const std::shared_ptr<NodeValueExpressionOperator>& getOperator() const
+    const std::shared_ptr<NodeExpressionOperator>& getOperator() const
     {
       return operator_;
     }
 
-    void setOperator(const std::shared_ptr<NodeValueExpressionOperator>& _operator)
+    void setOperator(const std::shared_ptr<NodeExpressionOperator>& _operator)
     {
       operator_ = _operator;
     }
