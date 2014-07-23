@@ -103,14 +103,14 @@ std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
 std::string SQLGenerator::buildAddQuery(const std::string& id,
     const std::vector<std::string>& tuple)
 {
-  std::string sqlString = "INSERT OR IGNORE INTO " + id + " VALUES (";
+  std::string sqlString = "INSERT OR IGNORE INTO " + id + " VALUES ('";
 
   std::for_each(std::begin(tuple), std::end(tuple), [&sqlString](const std::string& val)
   {
-    sqlString += val + ",";
+    sqlString += val + "','";
   });
 
-  return sqlString.substr(0, sqlString.length() - 1) + ");";
+  return sqlString.substr(0, sqlString.length() - 2) + ");";
 }
 std::string SQLGenerator::buildRemoveQuery(const std::string& id,
     const std::vector<std::string>& tuple)
@@ -120,11 +120,11 @@ std::string SQLGenerator::buildRemoveQuery(const std::string& id,
 
   std::for_each(std::begin(tuple), std::end(tuple), [&sqlString,&domNr](const std::string& val)
   {
-    sqlString += "dom" + std::to_string(domNr) + " = " + val + "AND ";
+    sqlString += "dom" + std::to_string(domNr) + " = '" + val + "' AND ";
     domNr++;
   });
 
-  return sqlString.substr(0, sqlString.length() - 4) + ";";
+  return sqlString.substr(0, sqlString.length() - 6) + ";";
 }
 
 std::string SQLGenerator::getSqlStringSelectAll(const std::string& tableName)

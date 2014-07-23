@@ -10,7 +10,8 @@
 namespace yagi {
 namespace execution {
 
-VariableTableManager::VariableTableManager()
+VariableTableManager::VariableTableManager() :
+    MAIN_VAR_TABLE_ID("Main")
 {
 }
 
@@ -30,6 +31,11 @@ VariableTable& VariableTableManager::getVariableTable(const std::string& identif
   variableTables_[identifier] = t;
 
   return variableTables_[identifier];
+}
+
+VariableTable& VariableTableManager::getMainVariableTable()
+{
+  return getVariableTable(MAIN_VAR_TABLE_ID);
 }
 
 } /* namespace execution */

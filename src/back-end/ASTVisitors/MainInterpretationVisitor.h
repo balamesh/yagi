@@ -1,12 +1,12 @@
 /*
- * InterpretationVisitor.h
+ * MainInterpretationVisitor.h
  *
  *  Created on: Jul 9, 2014
  *      Author: cmaier
  */
 
-#ifndef INTERPRETATIONVISITOR_H_
-#define INTERPRETATIONVISITOR_H_
+#ifndef MAININTERPRETATIONVISITOR_H_
+#define MAININTERPRETATIONVISITOR_H_
 
 #include <memory>
 #include <vector>
@@ -34,11 +34,13 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../ExecutableElementsContainer.h"
 #include "../Formulas/FormulaEvaluator.h"
-#include "ExecutionVisitor.h"
+#include "ActionProcedureInterpretationVisitor.h"
 #include "../../front-end/astVisitors/ToStringVisitor.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
 #include "../../utils/CustomComparers.h"
+#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
+#include "../Signals/PrintOutSignalReceiver.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -46,7 +48,7 @@ using namespace yagi::container;
 namespace yagi {
 namespace execution {
 
-class InterpretationVisitor: public ASTNodeVisitorBase,
+class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeFactDecl>,
     public Visitor<NodeActionDecl>,
@@ -59,14 +61,11 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeTuple>,
     public Visitor<NodeVariable>,
     public Visitor<NodeString>,
-    public Visitor<NodeID>
+    public Visitor<NodeID>,
+    public Visitor<NodeVariableAssignment>
 {
   private:
     std::string fluentDBDataToString(std::vector<std::vector<std::string>> data);
-    std::vector<std::vector<std::string>> buildUnion(std::vector<std::vector<std::string>> v1,
-        std::vector<std::vector<std::string>> v2);
-    std::vector<std::vector<std::string>> buildComplement(std::vector<std::vector<std::string>> v1,
-        std::vector<std::vector<std::string>> v2);
 
     static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
     {
@@ -90,8 +89,8 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     }
 
   public:
-    InterpretationVisitor();
-    virtual ~InterpretationVisitor();
+    MainInterpretationVisitor();
+    virtual ~MainInterpretationVisitor();
 
     Any visit(NodeProgram& program);
     Any visit(NodeFluentDecl& fluentDecl);
@@ -106,9 +105,10 @@ class InterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeVariable& variable);
     Any visit(NodeString& str);
     Any visit(NodeID& id);
+    Any visit(NodeVariableAssignment& varAss);
 };
 
 } /* namespace execution */
 } /* namespace yagi */
 
-#endif /* INTERPRETATIONVISITOR_H_ */
+#endif /* MAININTERPRETATIONVISITOR_H_ */

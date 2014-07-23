@@ -15,7 +15,7 @@
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
 #include "astVisitors/ToStringVisitor.h"
 #include "astVisitors/TypeCheckVisitor.h"
-#include "../back-end/ASTVisitors/InterpretationVisitor.h"
+#include "../back-end/ASTVisitors/MainInterpretationVisitor.h"
 #include "ANTLRParser.h"
 #include "../back-end/Formulas/FormulaEvaluator.h"
 
@@ -168,7 +168,7 @@ bool execute(const std::string& line, bool isFileName)
     return true;
   }
 
-  InterpretationVisitor interpreter;
+  MainInterpretationVisitor interpreter;
   ast->accept(interpreter);
 
   ASTBuilder::getInstance().reset();

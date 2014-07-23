@@ -144,8 +144,8 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
 src/utils/Any.h
-src/back-end/ASTVisitors/InterpretationVisitor.cpp
-src/back-end/ASTVisitors/InterpretationVisitor.h
+src/back-end/ASTVisitors/MainInterpretationVisitor.cpp
+src/back-end/ASTVisitors/MainInterpretationVisitor.h
 src/back-end/Database/SQLiteConnector.cpp
 src/back-end/Database/SQLiteConnector.h
 src/front-end/astVisitors/TypeCheckVisitor.cpp
@@ -155,8 +155,8 @@ src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
 src/back-end/SQLGenerator.cpp
 src/back-end/SQLGenerator.h
-src/back-end/ASTVisitors/ExecutionVisitor.cpp
-src/back-end/ASTVisitors/ExecutionVisitor.h
+src/back-end/ASTVisitors/ActionProcedureInterpretationVisitor.cpp
+src/back-end/ASTVisitors/ActionProcedureInterpretationVisitor.h
 src/back-end/ExecutableElementsContainer.cpp
 src/back-end/ExecutableElementsContainer.h
 src/back-end/Formulas/FormulaEvaluator.cpp
@@ -164,6 +164,18 @@ src/back-end/Formulas/FormulaEvaluator.h
 src/back-end/Formulas/IFormulaEvaluator.cpp
 src/back-end/Formulas/IFormulaEvaluator.h
 src/utils/fileExists.h
+src/back-end/Variables/VariableTable.cpp
+src/back-end/Variables/VariableTable.h
+src/back-end/Variables/VariableTableManager.cpp
+src/back-end/Variables/VariableTableManager.h
+src/utils/CustomComparers.cpp
+src/utils/CustomComparers.h
+src/back-end/Signals/ISignalReceiver.cpp
+src/back-end/Signals/ISignalReceiver.h
+src/back-end/Signals/PrintOutSignalReceiver.cpp
+src/back-end/Signals/PrintOutSignalReceiver.h
+src/utils/SetOperations.cpp
+src/utils/SetOperations.h
 )
 
 add_executable(yagi-unitTests
@@ -222,7 +234,7 @@ src/utils/make_unique.h
 src/common/ASTNodeTypes/Expressions/NodeValueExpression.h
 src/common/ASTNodeTypes/Expressions/NodeSetExpression.h
 src/common/ASTNodeTypes/Expressions/NodeExpressionOperator.h
-src/common/ASTNodeTypes/Statements/NodeAssignmentOperator..h
+src/common/ASTNodeTypes/Statements/NodeAssignmentOperator.h
 src/common/ASTNodeTypes/ASTNodeBase.h
 src/common/ASTNodeTypes/Statements/NodeIDAssignment.h
 src/common/ASTNodeTypes/Statements/NodeVariableAssignment.h
@@ -279,8 +291,8 @@ src/common/ASTNodeTypes/Statements/NodeFluentQuery.cpp
 src/common/ASTNodeTypes/Statements/NodeFluentQuery.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.h
 src/common/ASTNodeTypes/Declarations/SensingDecl/NodeSensingDecl.cpp
-src/back-end/ASTVisitors/InterpretationVisitor.cpp
-src/back-end/ASTVisitors/InterpretationVisitor.h
+src/back-end/ASTVisitors/MainInterpretationVisitor.cpp
+src/back-end/ASTVisitors/MainInterpretationVisitor.h
 src/back-end/Database/SQLiteConnector.cpp
 src/back-end/Database/SQLiteConnector.h
 src/front-end/astVisitors/TypeCheckVisitor.cpp
@@ -291,8 +303,8 @@ src/back-end/Database/DatabaseManager.cpp
 src/back-end/Database/DatabaseManager.h
 src/back-end/SQLGenerator.cpp
 src/back-end/SQLGenerator.h
-src/back-end/ASTVisitors/ExecutionVisitor.cpp
-src/back-end/ASTVisitors/ExecutionVisitor.h
+src/back-end/ASTVisitors/ActionProcedureInterpretationVisitor.cpp
+src/back-end/ASTVisitors/ActionProcedureInterpretationVisitor.h
 src/back-end/ExecutableElementsContainer.cpp
 src/back-end/ExecutableElementsContainer.h
 src/back-end/Formulas/FormulaEvaluator.cpp
@@ -300,6 +312,18 @@ src/back-end/Formulas/FormulaEvaluator.h
 src/back-end/Formulas/IFormulaEvaluator.cpp
 src/back-end/Formulas/IFormulaEvaluator.h
 src/utils/fileExists.h
+src/back-end/Variables/VariableTable.cpp
+src/back-end/Variables/VariableTable.h
+src/back-end/Variables/VariableTableManager.cpp
+src/back-end/Variables/VariableTableManager.h
+src/utils/CustomComparers.cpp
+src/utils/CustomComparers.h
+src/back-end/Signals/ISignalReceiver.cpp
+src/back-end/Signals/ISignalReceiver.h
+src/back-end/Signals/PrintOutSignalReceiver.cpp
+src/back-end/Signals/PrintOutSignalReceiver.h
+src/utils/SetOperations.cpp
+src/utils/SetOperations.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

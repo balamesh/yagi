@@ -12,13 +12,10 @@ namespace execution {
 
 ExecutableElementsContainer::ExecutableElementsContainer()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 ExecutableElementsContainer::~ExecutableElementsContainer()
 {
-  // TODO Auto-generated destructor stub
 }
 
 } /* namespace execution */

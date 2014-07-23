@@ -18,13 +18,25 @@ namespace execution {
 class VariableTableManager
 {
   private:
+    VariableTableManager();
+    virtual ~VariableTableManager();
+    VariableTableManager(VariableTableManager const&);
+    void operator=(VariableTableManager const&);
+
+    const std::string MAIN_VAR_TABLE_ID;
+
     std::unordered_map<std::string, VariableTable> variableTables_;
 
   public:
-    VariableTableManager();
-    virtual ~VariableTableManager();
+
+    static VariableTableManager& getInstance()
+    {
+      static VariableTableManager instance;
+      return instance;
+    }
 
     VariableTable& getVariableTable(const std::string& identifier);
+    VariableTable& getMainVariableTable();
 };
 
 } /* namespace execution */
