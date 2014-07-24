@@ -15,7 +15,7 @@
 namespace yagi {
 
 std::string fluentDBDataToString(std::vector<std::vector<std::string>> data);
-
+std::string tupleToString(const std::vector<std::string>& tuple);
 }
 
 #endif /* TOSTRINGHELPER_H_ */

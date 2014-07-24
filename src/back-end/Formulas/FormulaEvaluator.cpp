@@ -18,6 +18,106 @@ FormulaEvaluator::~FormulaEvaluator()
 {
 }
 
+bool FormulaEvaluator::evaluateNegation(NodeNegation* negation)
+{
+  if (printFormulaEvaluationResults_)
+    std::cout << "[Formula] Negation" << std::endl;
+
+  return !negation->getFormula()->accept(*ctx_).get<bool>();
+}
+
+bool FormulaEvaluator::evaluateCompoundFormula(NodeCompoundFormula* compoundFormula)
+{
+  auto lhsResult = compoundFormula->getLeftOperand()->accept(*ctx_).get<bool>();
+  auto rhsResult = compoundFormula->getRightOperand()->accept(*ctx_).get<bool>();
+  auto connective = compoundFormula->getConnective()->accept(*ctx_).get<FormulaConnective>();
+
+  if (printFormulaEvaluationResults_)
+  {
+    NodeFormulaConnective conn;
+    conn.setFormulaConnective(connective);
+    std::cout << "[Formula] Compound Operator '" << conn.toString() << "'" << std::endl;
+  }
+
+  switch (connective)
+  {
+    case FormulaConnective::And:
+      return lhsResult && rhsResult;
+
+    case FormulaConnective::Or:
+      return lhsResult || rhsResult;
+
+    case FormulaConnective::Implies:
+      return !lhsResult || rhsResult;
+
+    default:
+      throw std::runtime_error("Unknown formula connective!");
+  }
+
+}
+
+bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
+{
+  auto tuple = inFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
+  auto set = inFormula->getSetExpr()->accept(*ctx_).get<std::vector<std::vector<std::string>>>();
+
+  if (printFormulaEvaluationResults_)
+  {
+    std::cout << "[Formula] Operator 'in' Formula: " << yagi::tupleToString(tuple) << " in "
+        << yagi::fluentDBDataToString(set) << std::endl;
+  }
+
+  return std::any_of(std::begin(set), std::end(set), [&tuple](const std::vector<std::string>& elem)
+  {
+    return yagi::comparers::tuplesEqual(tuple,elem);
+  });
+
+}
+
+bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifiedFormula)
+{
+  auto quantifier = quantifiedFormula->getQuantifier();
+  auto tuple = quantifiedFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
+  auto set = quantifiedFormula->getSetExpr()->accept(*ctx_).get<
+      std::vector<std::vector<std::string>>>();
+
+  if (printFormulaEvaluationResults_)
+  {
+    std::cout << "[Formula] Quantified Formula "
+        << (quantifier == Quantifier::all ? "all " : "exists ") << yagi::tupleToString(tuple)
+        << " in " << yagi::fluentDBDataToString(set) << std::endl;
+  }
+
+  bool truthVal = false;
+
+  switch (quantifier)
+  {
+    case Quantifier::exists:
+      truthVal = set.size() > 0;
+//      truthVal = std::any_of(std::begin(set), std::end(set),
+//          [&tuple](const std::vector<std::string>& elem)
+//          {
+//            return yagi::comparers::tuplesEqual(tuple,elem);
+//          });
+    break;
+
+    case Quantifier::all:
+      truthVal = set.size() > 0; //todo: whats the semantics of "all <$x> in f"?
+//      truthVal = std::all_of(std::begin(set), std::end(set),
+//          [&tuple](const std::vector<std::string>& elem)
+//          {
+//            return yagi::comparers::tuplesEqual(tuple,elem);
+//          });
+    break;
+
+    default:
+      throw std::runtime_error("Unknown formula quantifier!");
+
+  }
+
+  return truthVal;
+}
+
 bool FormulaEvaluator::evaluateConstant(NodeConstant* constant)
 {
   auto ret = constant->getTruthValue();
@@ -43,14 +143,14 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
     return lhs->accept(*ctx_).get<bool>();
   }
 
-  //either both rhs and lhs are <values>...
+//either both rhs and lhs are <values>...
   if (yagi::treeHelper::isValueNode(lhs.get()) && yagi::treeHelper::isValueNode(rhs.get()))
   {
     auto lhsResult = lhs->accept(*ctx_).get<std::string>();
     auto rhsResult = rhs->accept(*ctx_).get<std::string>();
 
     return performValueValueComparison(lhsResult, rhsResult, connective);
-  }
+  } //or <setexpr>
   else if (std::dynamic_pointer_cast<NodeSetExpression>(lhs)
       && std::dynamic_pointer_cast<NodeSetExpression>(rhs))
   {
@@ -125,7 +225,7 @@ bool FormulaEvaluator::performSetSetComparison(std::vector<std::vector<std::stri
       return std::includes(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs),
           yagi::comparers::tupleLessThan);
 
-     //lhs is a proper superset of rhs
+      //lhs is a proper superset of rhs
     case AtomConnective::Gt:
       return (std::includes(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs),
           yagi::comparers::tupleLessThan)

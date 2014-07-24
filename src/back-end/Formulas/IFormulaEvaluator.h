@@ -10,6 +10,10 @@
 
 #include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
 #include <memory>
 
 namespace yagi {
@@ -33,6 +37,10 @@ class IFormulaEvaluator
 
     virtual bool evaluateConstant(NodeConstant* constant) = 0;
     virtual bool evaluateAtom(NodeAtom* atom) = 0;
+    virtual bool evaluateNegation(NodeNegation* negation) = 0;
+    virtual bool evaluateCompoundFormula(NodeCompoundFormula* compoundFormula) = 0;
+    virtual bool evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifiedFormula) = 0;
+    virtual bool evaluateInFormula(NodeOperatorIn* inFormula) = 0;
 };
 
 } /* namespace formula */

@@ -31,5 +31,16 @@ std::string fluentDBDataToString(std::vector<std::vector<std::string>> data)
     return "[EMPTY]";
 }
 
+std::string tupleToString(const std::vector<std::string>& tuple)
+{
+  std::string ret = "<";
+  std::for_each(std::begin(tuple), std::end(tuple), [&ret](const std::string& val)
+  {
+    ret += "\"" + val + "\", ";
+  });
+
+  return ret.substr(0,ret.size() - 2) + ">";
+}
+
 }
 

@@ -34,6 +34,10 @@ class FormulaEvaluator: public IFormulaEvaluator
 
     virtual bool evaluateConstant(NodeConstant* constant) override;
     virtual bool evaluateAtom(NodeAtom* atom) override;
+    virtual bool evaluateNegation(NodeNegation* negation) override;
+    virtual bool evaluateCompoundFormula(NodeCompoundFormula* compoundFormula) override;
+    virtual bool evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifiedFormula) override;
+    virtual bool evaluateInFormula(NodeOperatorIn* inFormula) override;
 };
 
 } /* namespace formula */

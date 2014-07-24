@@ -29,6 +29,8 @@
 #include "../TreeHelper.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -54,7 +56,12 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeSignal>,
     public Visitor<NodeValueExpression>,
     public Visitor<NodeAtomConnective>,
-    public Visitor<NodeAtom>
+    public Visitor<NodeAtom>,
+    public Visitor<NodeNegation>,
+    public Visitor<NodeCompoundFormula>,
+    public Visitor<NodeFormulaConnective>,
+    public Visitor<NodeQuantifiedFormula>,
+    public Visitor<NodeOperatorIn>
 
 {
   private:
@@ -86,6 +93,11 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeValueExpression& valExpr);
     Any visit(NodeAtomConnective& atomConnective);
     Any visit(NodeAtom& atom);
+    Any visit(NodeNegation& negation);
+    Any visit(NodeCompoundFormula& compoundFormula);
+    Any visit(NodeFormulaConnective& formulaConnective);
+    Any visit(NodeQuantifiedFormula& quantifiedFormula);
+    Any visit(NodeOperatorIn& inFormula);
 };
 
 }

@@ -50,9 +50,34 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConstant& formulaConstant)
   return Any { formulaEvaluator_->evaluateConstant(&formulaConstant) };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeNegation& negation)
+{
+  return Any { formulaEvaluator_->evaluateNegation(&negation) };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeCompoundFormula& compoundFormula)
+{
+  return Any { formulaEvaluator_->evaluateCompoundFormula(&compoundFormula) };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeFormulaConnective& formulaConnective)
+{
+  return Any { formulaConnective.getFormulaConnective() };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeAtom& atom)
 {
   return Any { formulaEvaluator_->evaluateAtom(&atom) };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeQuantifiedFormula& quantifiedFormula)
+{
+  return Any { formulaEvaluator_->evaluateQuantifiedFormula(&quantifiedFormula) };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeOperatorIn& inFormula)
+{
+  return Any { formulaEvaluator_->evaluateInFormula(&inFormula) };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSignal& signal)
@@ -81,12 +106,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
   bool apHolds = actionDecl.getActionPrecondition()->accept(*this).tryGetCopy<bool>(false);
   if (!apHolds)
   {
-    std::cout << "--> AP for action [" + actionName + "] does NOT hold." << std::endl;
+    std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
 
     return Any { };
   }
 
-  std::cout << "--> AP for action [" + actionName + "] holds." << std::endl;
+  std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
 
   auto statements = actionDecl.getActionEffect()->getBlock()->getStatements();
 
@@ -250,13 +275,24 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
     else if (lhsResult.hasType<std::string>()) //lhs is an ID, i.e. another <fluent>
     {
       //get data from fluent
-      lhsResultVector = lhsResult.get<std::vector<std::vector<std::string>>>();
+      lhsResultVector = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(lhsResult.get<std::string>()));
     }
   }
 
   if (auto rhs = setExpr.getRhs())
   {
-    rhsResultVector = rhs->accept(*this).get<std::vector<std::vector<std::string>>>();
+    auto rhsResult = rhs->accept(*this);
+
+    //rhs is a <set>
+    if (rhsResult.hasType<std::vector<std::vector<std::string>>>())
+    {
+      rhsResultVector = rhsResult.get<std::vector<std::vector<std::string>>>();
+    }
+    else if (rhsResult.hasType<std::string>()) //lhs is an ID, i.e. another <fluent>
+    {
+      //get data from fluent
+      rhsResultVector = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
+    }
   }
 
   if (auto op = setExpr.getOperator())
@@ -280,7 +316,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
     throw std::runtime_error("Unknown <setexpr> operator!");
 }
 
-Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment& varAss)
+Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)
 {
   auto val = yagi::treeHelper::getValueFromValueNode(varAss.getValue().get(), *this);
   auto varName = varAss.getVariable()->accept(*this).get<std::string>();

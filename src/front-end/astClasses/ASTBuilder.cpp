@@ -496,8 +496,7 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   std::shared_ptr<NodeSetExpression> setExpr = nullptr;
 
   //we have something of the form <tuple> <setexpr> <formula>?
-  auto formula = getFrontElement<NodeFormulaBase>();
-  if (formula != nullptr) //formula is optional...
+  if (auto formula = getFrontElement<NodeFormulaBase>())  //formula is optional...
   {
     quantifiedFormula->setSuchFormula(formula);
     ast.pop();
@@ -507,10 +506,8 @@ void ASTBuilder::addQuantifiedFormula(Quantifier quant)
   if (setExpr == nullptr)
   {
     //if its not already a setexpression we try to make it one...
-    //TODO: we need this potentially multiple times, either put in
-    //a method or change the inheritance structure!
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
+    newSetExpr->setLhs(getFrontElement<ASTNodeBase<>>());
     quantifiedFormula->setSetExpr(newSetExpr);
   }
   else
@@ -543,12 +540,22 @@ void ASTBuilder::addIn()
   auto set = getFrontElement<NodeSet>();
   auto id = getFrontElement<NodeID>();
 
-  if (setExpr == nullptr && set == nullptr && id == nullptr)
+  if (!setExpr && !set && !id)
   {
     throw std::runtime_error("Expected setexpr, set or id in in-formula!");
   }
 
-  inFormula->setSetExpr(getFrontElement<ASTNodeBase<>>());
+  if (setExpr)
+  {
+    inFormula->setSetExpr(getFrontElement<ASTNodeBase<>>());
+  }
+  else //if its not already a setexpression we try to make it one...
+  {
+    auto newSetExpr = std::make_shared<NodeSetExpression>();
+    newSetExpr->setLhs(getFrontElement<ASTNodeBase<>>());
+    inFormula->setSetExpr(newSetExpr);
+  }
+
   ast.pop();
 
   auto tuple = getFrontElement<NodeTuple>();
