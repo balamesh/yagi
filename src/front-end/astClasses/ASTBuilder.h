@@ -61,9 +61,10 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
 
-class ASTBuilder
+class ASTBuilder final
 {
   private:
+    ASTBuilder(){}
     void addQuantifiedFormula(Quantifier quant);
     template<typename T> std::shared_ptr<T> getFrontElement();
   public:
@@ -111,11 +112,7 @@ class ASTBuilder
     void addExprOperator(const std::string& op);
 
     //Assignment
-    void addVarAssign();
-    //void consumeAssignment();
-    //void addForLoopAssign();
-    //void addConditionalAssign();
-    //void addConditionalAssignElse();
+    void addVarAssign();;
 
     void addPatternMatch();
     void addIncompleteKnowledge();
@@ -162,9 +159,6 @@ class ASTBuilder
   private:
     ASTBuilder(ASTBuilder const&);
     void operator=(ASTBuilder const&);
-
-    ASTBuilder();
-    virtual ~ASTBuilder();
 
     std::stack<std::shared_ptr<ASTNodeBase<>>>ast;
   };

@@ -11,13 +11,23 @@
 #include <iostream>
 
 #include "IFormulaEvaluator.h"
-
+#include "../TreeHelper.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
+#include "../../utils/ToStringHelper.h"
+#include "../../utils/CustomComparers.h"
 
 namespace yagi {
 namespace formula {
 
-class FormulaEvaluator : public IFormulaEvaluator
+class FormulaEvaluator: public IFormulaEvaluator
 {
+  private:
+    bool performValueValueComparison(const std::string& lhs, const std::string& rhs,
+        AtomConnective connective);
+
+    bool performSetSetComparison(std::vector<std::vector<std::string>>& lhs,
+        std::vector<std::vector<std::string>>& rhs, AtomConnective connective);
+
   public:
     FormulaEvaluator();
     virtual ~FormulaEvaluator();

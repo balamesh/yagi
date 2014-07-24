@@ -26,6 +26,9 @@
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
 #include "../Signals/ISignalReceiver.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
+#include "../TreeHelper.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -49,15 +52,15 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeVariableAssignment>,
     public Visitor<NodeAssignmentOperator>,
     public Visitor<NodeSignal>,
-    public Visitor<NodeValueExpression>
+    public Visitor<NodeValueExpression>,
+    public Visitor<NodeAtomConnective>,
+    public Visitor<NodeAtom>
 
 {
   private:
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator_;
     std::shared_ptr<DatabaseConnectorBase> db_;
     std::shared_ptr<ISignalReceiver> signalReceiver_;
-
-    std::string getValueFromValueNode(std::shared_ptr<ASTNodeBase<>> valueNode);
 
   public:
     ActionProcedureInterpretationVisitor();
@@ -81,6 +84,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeAssignmentOperator& assOp);
     Any visit(NodeSignal& signal);
     Any visit(NodeValueExpression& valExpr);
+    Any visit(NodeAtomConnective& atomConnective);
+    Any visit(NodeAtom& atom);
 };
 
 }

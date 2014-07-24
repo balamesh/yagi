@@ -7,14 +7,6 @@
 
 #include "ASTBuilder.h"
 
-ASTBuilder::ASTBuilder()
-{
-}
-
-ASTBuilder::~ASTBuilder()
-{
-}
-
 void ASTBuilder::addDomainStringElementsNode()
 {
   auto domainStringElements = std::make_shared<NodeDomainStringElements>();
@@ -384,26 +376,18 @@ void ASTBuilder::addAtom()
 
   auto atom = std::make_shared<NodeAtom>();
 
-  //we have something of the form <connective> <expr> <expr> (right to left)
-  //sanity check
-  if ((std::dynamic_pointer_cast<NodeValueExpression>(elem) == nullptr)
-      && (std::dynamic_pointer_cast<NodeSetExpression>(elem) == nullptr))
+  //we have something of the form <connective> <value> <value> (right to left)
+  //or <connective> <setexpr> <setexpr> (right to left)
+  if ((std::dynamic_pointer_cast<NodeString>(elem) != nullptr)
+      || (std::dynamic_pointer_cast<NodeVariable>(elem) != nullptr))
   {
-    //try to make it a valexpr/setexpr
-    if (NodeValueExpression::isPassedTypeValid(elem))
-    {
-      auto valExpr = std::make_shared<NodeValueExpression>();
-      valExpr->setLhs(elem);
-      atom->setRightOperand(valExpr);
-    }
-    else if (NodeSetExpression::isPassedTypeValid(elem))
-    {
-      auto setExpr = std::make_shared<NodeSetExpression>();
-      setExpr->setLhs(elem);
-      atom->setRightOperand(setExpr);
-    }
-    else
-      throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
+    atom->setRightOperand(elem);
+  }
+  else if (NodeSetExpression::isPassedTypeValid(elem))
+  {
+    auto setExpr = std::make_shared<NodeSetExpression>();
+    setExpr->setLhs(elem);
+    atom->setRightOperand(setExpr);
   }
   else
     atom->setRightOperand(elem);
@@ -411,26 +395,16 @@ void ASTBuilder::addAtom()
   ast.pop();
   auto leftOperand = getFrontElement<ASTNodeBase<>>();
 
-  //sanity check
-  //TODO: needs refactoring!
-  if ((std::dynamic_pointer_cast<NodeValueExpression>(leftOperand) == nullptr)
-      && (std::dynamic_pointer_cast<NodeSetExpression>(leftOperand) == nullptr))
+  if ((std::dynamic_pointer_cast<NodeString>(leftOperand) != nullptr)
+      || (std::dynamic_pointer_cast<NodeVariable>(leftOperand) != nullptr))
   {
-    //sanity check
-    if (NodeValueExpression::isPassedTypeValid(leftOperand))
-    {
-      auto valExpr = std::make_shared<NodeValueExpression>();
-      valExpr->setLhs(leftOperand);
-      atom->setLeftOperand(valExpr);
-    }
-    else if (NodeSetExpression::isPassedTypeValid(leftOperand))
-    {
-      auto setExpr = std::make_shared<NodeSetExpression>();
-      setExpr->setLhs(leftOperand);
-      atom->setLeftOperand(setExpr);
-    }
-    else
-      throw std::runtime_error("Atom rhs is neither value- nor setexpression!");
+    atom->setLeftOperand(leftOperand);
+  }
+  else if (NodeSetExpression::isPassedTypeValid(leftOperand))
+  {
+    auto setExpr = std::make_shared<NodeSetExpression>();
+    setExpr->setLhs(leftOperand);
+    atom->setLeftOperand(setExpr);
   }
   else
     atom->setLeftOperand(leftOperand);

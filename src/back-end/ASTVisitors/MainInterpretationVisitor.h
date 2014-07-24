@@ -41,6 +41,7 @@
 #include "../../utils/CustomComparers.h"
 #include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
 #include "../Signals/PrintOutSignalReceiver.h"
+#include "../../utils/ToStringHelper.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -65,8 +66,6 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeVariableAssignment>
 {
   private:
-    std::string fluentDBDataToString(std::vector<std::vector<std::string>> data);
-
     static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
     {
       bool ok = std::dynamic_pointer_cast<NodeFluentDecl>(line) != nullptr

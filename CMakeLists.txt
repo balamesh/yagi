@@ -176,6 +176,10 @@ src/back-end/Signals/PrintOutSignalReceiver.cpp
 src/back-end/Signals/PrintOutSignalReceiver.h
 src/utils/SetOperations.cpp
 src/utils/SetOperations.h
+src/back-end/TreeHelper.cpp
+src/back-end/TreeHelper.h
+src/utils/ToStringHelper.cpp
+src/utils/ToStringHelper.h
 )
 
 add_executable(yagi-unitTests
@@ -324,6 +328,10 @@ src/back-end/Signals/PrintOutSignalReceiver.cpp
 src/back-end/Signals/PrintOutSignalReceiver.h
 src/utils/SetOperations.cpp
 src/utils/SetOperations.h
+src/back-end/TreeHelper.cpp
+src/back-end/TreeHelper.h
+src/utils/ToStringHelper.cpp
+src/utils/ToStringHelper.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

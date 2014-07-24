@@ -19,10 +19,17 @@ class IFormulaEvaluator
 {
   protected:
     bool printFormulaEvaluationResults_;
+    ASTNodeVisitorBase* ctx_;
 
   public:
     IFormulaEvaluator();
+    IFormulaEvaluator(ASTNodeVisitorBase* ctx);
     virtual ~IFormulaEvaluator();
+
+    void setContext(ASTNodeVisitorBase* ctx)
+    {
+      ctx_ = ctx;
+    }
 
     virtual bool evaluateConstant(NodeConstant* constant) = 0;
     virtual bool evaluateAtom(NodeAtom* atom) = 0;

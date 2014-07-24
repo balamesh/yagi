@@ -27,7 +27,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<ISignalReceiver> signalReceiver) :
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver)
 {
-
+  formulaEvaluator_->setContext(this);
 }
 
 ActionProcedureInterpretationVisitor::~ActionProcedureInterpretationVisitor()
@@ -48,6 +48,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionPrecondition& ap)
 Any ActionProcedureInterpretationVisitor::visit(NodeConstant& formulaConstant)
 {
   return Any { formulaEvaluator_->evaluateConstant(&formulaConstant) };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeAtom& atom)
+{
+  return Any { formulaEvaluator_->evaluateAtom(&atom) };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSignal& signal)
@@ -190,6 +195,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeString& str)
   return Any { ret.substr(1, ret.size() - 2) };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeAtomConnective& atomConnective)
+{
+  return Any { atomConnective.getAtomConnective() };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
 {
   std::string lhsResult = "", rhsResult = "";
@@ -197,12 +207,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
 
   if (auto lhs = valExpr.getLhs())
   {
-    lhsResult = getValueFromValueNode(lhs);
+    lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this);
   }
 
   if (auto rhs = valExpr.getRhs())
   {
-    rhsResult = getValueFromValueNode(rhs);
+    rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this);
   }
 
   if (auto op = valExpr.getOperator())
@@ -272,33 +282,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment& varAss)
 {
-  auto val = varAss.getValue()->accept(*this).get<std::string>();
+  auto val = yagi::treeHelper::getValueFromValueNode(varAss.getValue().get(), *this);
   auto varName = varAss.getVariable()->accept(*this).get<std::string>();
 
   VariableTableManager::getInstance().getMainVariableTable().addOrReplaceVariable(varName, val);
 
   return Any { };
-}
-
-std::string ActionProcedureInterpretationVisitor::getValueFromValueNode(
-    std::shared_ptr<ASTNodeBase<>> valueNode)
-{
-  auto res = valueNode->accept(*this).get<std::string>();
-
-  //it is a <string>
-  if (std::dynamic_pointer_cast<NodeString>(valueNode))
-  {
-    return res;
-  }
-  else if (std::dynamic_pointer_cast<NodeVariable>(valueNode))
-  {
-    return VariableTableManager::getInstance().getMainVariableTable().getVariableValue(res);
-  }
-  else
-  {
-    throw std::runtime_error(
-        "getValueFromValueNode called with something that is neither a <string> nor a <variable>");
-  }
 }
 
 } /* namespace execution */

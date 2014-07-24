@@ -11,15 +11,17 @@ namespace yagi {
 namespace formula {
 
 IFormulaEvaluator::IFormulaEvaluator() :
-    printFormulaEvaluationResults_(true)
+    printFormulaEvaluationResults_(true), ctx_(nullptr)
 {
-  // TODO Auto-generated constructor stub
+}
 
+IFormulaEvaluator::IFormulaEvaluator(ASTNodeVisitorBase* ctx) :
+    printFormulaEvaluationResults_(true), ctx_(ctx)
+{
 }
 
 IFormulaEvaluator::~IFormulaEvaluator()
 {
-  // TODO Auto-generated destructor stub
 }
 
 } /* namespace formula */
