@@ -20,6 +20,7 @@ class NodeString: public ASTNodeBase<>
   public:
     DEFINE_VISITABLE()
     NodeString();
+    NodeString(const std::string& str);
     virtual ~NodeString();
 
     const std::string& getString() const

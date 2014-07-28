@@ -31,6 +31,8 @@
 #include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
 #include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
 #include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../../utils/DateTimeHelper.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -61,7 +63,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeCompoundFormula>,
     public Visitor<NodeFormulaConnective>,
     public Visitor<NodeQuantifiedFormula>,
-    public Visitor<NodeOperatorIn>
+    public Visitor<NodeOperatorIn>,
+    public Visitor<NodeFluentDecl>
 
 {
   private:
@@ -98,6 +101,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeFormulaConnective& formulaConnective);
     Any visit(NodeQuantifiedFormula& quantifiedFormula);
     Any visit(NodeOperatorIn& inFormula);
+    Any visit(NodeFluentDecl& fluentDecl);
 };
 
 }

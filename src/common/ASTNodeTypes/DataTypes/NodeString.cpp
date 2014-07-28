@@ -12,6 +12,11 @@ NodeString::NodeString() :
 {
 }
 
+NodeString::NodeString(const std::string& str) :
+    string_(str)
+{
+}
+
 NodeString::~NodeString()
 {
 }

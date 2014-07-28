@@ -150,8 +150,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeAssignmentOperator& assOp)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 {
-  auto id = idAssign.getFluentName()->accept(*this).get<std::string>();
-  auto set = idAssign.getSetExpr()->accept(*this).get<std::vector<std::vector<std::string>>>();
+  auto lhs = idAssign.getFluentName()->accept(*this).get<std::string>();
+
+  //the rhs is a (shadow-)fluent/fact for sure, so we get the name here
+  auto rhs = idAssign.getSetExpr()->accept(*this).get<std::string>();
   auto assignOp = idAssign.getOperator()->accept(*this).get<AssignmentOperator>();
 
   if (assignOp == AssignmentOperator::Unknown)
@@ -161,13 +163,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 
   if (assignOp == AssignmentOperator::Assign)
   {
-    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(id));
+    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(lhs));
   }
 
-  //the rhs of the assignment is a vector of vectors of strings that represents
-  //the list of tuples. The visitor methods of the rhs took care of the different cases
-  //of possible rhs types, i.e. fluent, shadow fluent.
-  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(id, set, assignOp);
+  //get data from rhs
+  auto data = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhs));
+  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(lhs, data, assignOp);
 
   std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
   {
@@ -177,20 +178,97 @@ Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
   return Any { };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
+{
+  auto tableName = fluentDecl.getFluentName()->accept(*this).get<std::string>();
+
+  db_->executeNonQuery(
+      SQLGenerator::getInstance().getSqlStringCreateTable(tableName,
+          fluentDecl.getDomains().size()));
+  return Any { };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
 {
-  //Build set with tuples
+  //Build shadow fluent for set
   std::vector<std::vector<std::string>> valueSet;
+  std::vector<std::vector<std::string>> domains;
 
   auto tuples = set.getTuples();
 
+  //build strings to add to the DB and deduce domains
+  bool first = true;
   std::for_each(std::begin(tuples), std::end(tuples),
-      [this, &valueSet](const std::shared_ptr<NodeTuple>& nodeTuple)
+      [this, &valueSet, &domains, &first](const std::shared_ptr<NodeTuple>& nodeTuple)
       {
-        valueSet.push_back(nodeTuple->accept(*this).get<std::vector<std::string>>());
+        auto tupleVals = nodeTuple->accept(*this).get<std::vector<std::string>>();
+        valueSet.push_back(tupleVals);
+
+        int idx=0;
+
+        //add values to respective domains
+        std::for_each(std::begin(tupleVals), std::end(tupleVals),
+            [&domains,&idx,&first](const std::string& str)
+            {
+              if (!first)
+              {
+                domains[idx].push_back(str);
+              }
+              else
+              {
+                domains.push_back(
+                    { str});
+              }
+
+              idx++;
+            });
+
+        first = false;
       });
 
-  return Any { valueSet };
+  //save shadow fluent to db
+  auto shadowFluentName = "shadow" + std::to_string(getNowTicks());
+
+  NodeFluentDecl shadowFluentNode;
+  shadowFluentNode.setFluentName(std::make_shared<NodeID>(shadowFluentName));
+
+  std::for_each(std::begin(domains), std::end(domains),
+      [this, &shadowFluentNode](const std::vector<std::string>& domain)
+      {
+        auto domainNode = std::make_shared<NodeDomainStringElements>();
+
+        std::for_each(std::begin(domain), std::end(domain),
+            [&domainNode](const std::string& str)
+            {
+              domainNode->addStringToDomain(std::make_shared<NodeString>(str));
+            });
+
+        shadowFluentNode.addDomain(domainNode);
+      });
+
+  visit(shadowFluentNode);
+
+  //assign
+  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(shadowFluentName, valueSet,
+      AssignmentOperator::Assign);
+
+  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
+  {
+    db_->executeNonQuery(stmt);
+  });
+
+  //add the info the the fluent is a shadow fluent
+  if (!db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringExistsTable(
+          SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_)).size())
+  {
+    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateShadowFluentsTable());
+  }
+
+  db_->executeNonQuery(
+      SQLGenerator::getInstance().getSqlStringMakeTableShadowFluent(shadowFluentName));
+
+  return Any { shadowFluentName };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeTuple& tuple)
@@ -217,7 +295,16 @@ Any ActionProcedureInterpretationVisitor::visit(NodeVariable& variable)
 Any ActionProcedureInterpretationVisitor::visit(NodeString& str)
 {
   auto ret = str.getString();
-  return Any { ret.substr(1, ret.size() - 2) };
+
+  //strip trailing and leading " if neccessary
+  if (ret[0] == '"' && ret[ret.size() - 1] == '"')
+  {
+    return Any { ret.substr(1, ret.size() - 2) };
+  }
+  else
+  {
+    return Any { ret };
+  }
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeAtomConnective& atomConnective)
@@ -263,57 +350,62 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   std::vector<std::vector<std::string>> lhsResultVector, rhsResultVector;
   ExprOperator exprOp = ExprOperator::Unknown;
 
-  if (auto lhs = setExpr.getLhs())
-  {
-    auto lhsResult = lhs->accept(*this);
+  auto lhs = setExpr.getLhs();
+  auto lhsResult = lhs->accept(*this);
 
-    //lhs is a <set>
-    if (lhsResult.hasType<std::vector<std::vector<std::string>>>())
-    {
-      lhsResultVector = lhsResult.get<std::vector<std::vector<std::string>>>();
-    }
-    else if (lhsResult.hasType<std::string>()) //lhs is an ID, i.e. another <fluent>
-    {
-      //get data from fluent
-      lhsResultVector = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(lhsResult.get<std::string>()));
-    }
-  }
+  //get data from (shadow-) fluent
+  lhsResultVector = db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(lhsResult.get<std::string>()));
 
   if (auto rhs = setExpr.getRhs())
   {
     auto rhsResult = rhs->accept(*this);
 
-    //rhs is a <set>
-    if (rhsResult.hasType<std::vector<std::vector<std::string>>>())
-    {
-      rhsResultVector = rhsResult.get<std::vector<std::vector<std::string>>>();
-    }
-    else if (rhsResult.hasType<std::string>()) //lhs is an ID, i.e. another <fluent>
-    {
-      //get data from fluent
-      rhsResultVector = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
-    }
+    //get data from (shadow-) fluent
+    rhsResultVector = db_->executeQuery(
+        SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
   }
 
   if (auto op = setExpr.getOperator())
   {
     exprOp = op->getOperator();
   }
-  else
+  else //it's just a set and no full <setexpr>, so we return the (shadow-) fluent name
   {
-    return Any { lhsResultVector };
+    return Any { lhsResult.get<std::string>() };
   }
 
+  std::vector<std::vector<std::string>> result;
   if (exprOp == ExprOperator::Plus)
   {
-    return Any { yagi::operations::buildUnion(lhsResultVector, rhsResultVector) };
+    result = yagi::operations::buildUnion(lhsResultVector, rhsResultVector);
   }
   else if (exprOp == ExprOperator::Minus)
   {
-    return Any { yagi::operations::buildComplement(lhsResultVector, rhsResultVector) };
+    result = yagi::operations::buildComplement(lhsResultVector, rhsResultVector);
   }
   else
     throw std::runtime_error("Unknown <setexpr> operator!");
+
+  //Build new <set> and shadow fluent
+  NodeSet nodeResult;
+
+  std::for_each(std::begin(result), std::end(result),
+      [this, &nodeResult](const std::vector<std::string>& tupleString)
+      {
+        auto tupleNode = std::make_shared<NodeTuple>();
+
+        std::for_each(std::begin(tupleString), std::end(tupleString),
+            [&tupleNode](const std::string& str)
+            {
+              tupleNode->addTupleValue(std::make_shared<NodeString>(str));
+            });
+
+        nodeResult.addTuple(tupleNode);
+      });
+
+  auto newShadowFluentName = visit(nodeResult).get<std::string>();
+  return Any { newShadowFluentName };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)

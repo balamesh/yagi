@@ -46,13 +46,8 @@ Any MainInterpretationVisitor::visit(NodeProgram& program)
 
 Any MainInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
 {
-  auto db = DatabaseManager::getInstance().getMainDB();
-  auto tableName = fluentDecl.getFluentName()->accept(*this).get<std::string>();
-
-  db->executeNonQuery(
-      SQLGenerator::getInstance().getSqlStringCreateTable(tableName,
-          fluentDecl.getDomains().size()));
-  return Any { };
+  ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
+  return v.visit(fluentDecl);
 }
 
 Any MainInterpretationVisitor::visit(NodeFactDecl& factDecl)
@@ -100,6 +95,7 @@ Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 {
   ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
   return v.visit(idAssign);
+  //return Any { };
 }
 
 Any MainInterpretationVisitor::visit(NodeActionDecl& actionDecl)
@@ -159,6 +155,15 @@ Any MainInterpretationVisitor::visit(NodeSetExpression& setExpr)
   return v.visit(setExpr);
 }
 
-} /* namespace execution */
+Any MainInterpretationVisitor::visit(NodeForLoop& forLoop)
+{
+  auto set = forLoop.getSetExpr()->accept(*this);
+  auto tuple = forLoop.getTuple()->accept(*this);
+
+  return Any { };
+}
+
+}
+/* namespace execution */
 } /* namespace yagi */
 

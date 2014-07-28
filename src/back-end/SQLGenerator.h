@@ -34,8 +34,10 @@ class SQLGenerator
     }
 
     const std::string FACTS_TABLE_NAME_;
+    const std::string SHADOW_FLUENTS_TABLE_NAME_;
 
     std::string getSqlStringCreateTable(const std::string& tableName, int numberOfColumns);
+    std::string getSqlStringMakeTableShadowFluent(const std::string& tableName);
     std::string getSqlStringSelectAll(const std::string& tableName);
     std::string getSqlStringDropTable(const std::string& tableName);
     std::string getSqlStringExistsTable(const std::string& tableName);
@@ -50,6 +52,7 @@ class SQLGenerator
     std::string getSqlStringIsFactTable(const std::string& tableName);
     std::string getSqlStringAddFact(const NodeFactDecl& factDecl);
     std::string getSqlStringCreateFactsTable();
+    std::string getSqlStringCreateShadowFluentsTable();
     std::vector<std::string> getSqlStringsForFluentFluentAssign(const std::string& lhs,
         const std::string& rhs, AssignmentOperator op, int columnCount);
     std::string getSqlStringNumberOfColumnsInTable(const std::string& tableName);

@@ -7,4 +7,9 @@
 
 #include "TypeCheckVisitor.h"
 
+TypeCheckVisitor::TypeCheckVisitor() :
+    hasTypeError_(false)
+{
+
+}
 

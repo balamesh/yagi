@@ -180,6 +180,11 @@ src/back-end/TreeHelper.cpp
 src/back-end/TreeHelper.h
 src/utils/ToStringHelper.cpp
 src/utils/ToStringHelper.h
+src/back-end/ASTVisitors/RewritingVisitor.cpp
+src/back-end/ASTVisitors/RewritingVisitor.h
+src/utils/DateTimeHelper.cpp
+src/utils/DateTimeHelper.h
+
 )
 
 add_executable(yagi-unitTests
@@ -332,6 +337,10 @@ src/back-end/TreeHelper.cpp
 src/back-end/TreeHelper.h
 src/utils/ToStringHelper.cpp
 src/utils/ToStringHelper.h
+src/back-end/ASTVisitors/RewritingVisitor.cpp
+src/back-end/ASTVisitors/RewritingVisitor.h
+src/utils/DateTimeHelper.cpp
+src/utils/DateTimeHelper.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

@@ -46,17 +46,16 @@
 
 using namespace yagi::container;
 
-class TypeCheckVisitor: public ASTNodeVisitorBase,
-    public Visitor<NodeFluentDecl>,
-    public Visitor<NodeDomainStringElements>,
-    public Visitor<NodeProgram>,
-    public Visitor<NodeFactDecl>
+class TypeCheckVisitor: public ASTNodeVisitorBase, public Visitor<NodeFluentDecl>, public Visitor<
+    NodeDomainStringElements>, public Visitor<NodeProgram>, public Visitor<NodeFactDecl>
 {
   private:
     bool hasTypeError_;
     std::vector<std::string> errorTexts_;
 
   public:
+
+    TypeCheckVisitor();
 
     Any visit(NodeProgram& program)
     {

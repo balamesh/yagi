@@ -18,6 +18,7 @@
 #include "../back-end/ASTVisitors/MainInterpretationVisitor.h"
 #include "ANTLRParser.h"
 #include "../back-end/Formulas/FormulaEvaluator.h"
+#include "../back-end/ASTVisitors/RewritingVisitor.h"
 
 using namespace yagi::formula;
 using namespace yagi::execution;
@@ -149,29 +150,53 @@ bool execute(const std::string& line, bool isFileName)
   if (ast == nullptr)
     return true;
 
-  ToStringVisitor toStringVisitor;
-  std::cout << "C++ AST: " << ast->accept(toStringVisitor).get<std::string>() << std::endl;
-
-  TypeCheckVisitor typeCheck;
-  ast->accept(typeCheck);
-
-  if (typeCheck.hasTypeError())
-  {
-    std::string errorText = "";
-    auto errors = typeCheck.getErrorTexts();
-    std::for_each(std::begin(errors), std::end(errors), [&errorText](const std::string& error)
-    {
-      errorText += "[ERROR] " + error + "\n";
-    });
-
-    std::cout << "Typechecker: " << errorText << std::endl;
-    return true;
-  }
-
-  MainInterpretationVisitor interpreter;
-  ast->accept(interpreter);
-
   ASTBuilder::getInstance().reset();
+
+  auto prog = std::dynamic_pointer_cast<NodeProgram>(ast);
+  if (!prog)
+    throw std::runtime_error("AST root is no program!");
+
+  auto stmts = prog->getProgram();
+
+  std::for_each(std::begin(stmts), std::end(stmts), [](const std::shared_ptr<ASTNodeBase<>>& stmt)
+  {
+    ToStringVisitor toStringVisitor;
+    std::cout << "C++ AST: " << stmt->accept(toStringVisitor).get<std::string>() << std::endl;
+
+    TypeCheckVisitor typeCheck;
+    stmt->accept(typeCheck);
+
+    if (typeCheck.hasTypeError())
+    {
+      std::string errorText = "";
+      auto errors = typeCheck.getErrorTexts();
+      std::for_each(std::begin(errors), std::end(errors), [&errorText](const std::string& error)
+          {
+            errorText += "[ERROR] " + error + "\n";
+          });
+
+      std::cout << "Typechecker: " << errorText << std::endl;
+      //return true;
+    }
+
+//    RewritingVisitor rewriter;
+//    auto newStmt = stmt->accept(rewriter);
+
+    MainInterpretationVisitor interpreter;
+//    if (newStmt && !newStmt.empty())
+//    {
+//      auto rewrittenStmt = newStmt.get<std::shared_ptr<NodeForLoop>>();
+//      ToStringVisitor toStringVisitorAfterRewrite;
+//      std::cout << "C++ AST (Rewritten): " << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+//
+//      rewrittenStmt->accept(interpreter);
+//    }
+//    else
+    {
+      stmt->accept(interpreter);
+    }
+
+  });
 
   return true;
 }

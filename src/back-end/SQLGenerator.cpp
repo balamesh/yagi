@@ -8,7 +8,7 @@
 #include "SQLGenerator.h"
 
 SQLGenerator::SQLGenerator() :
-    FACTS_TABLE_NAME_("_facts")
+    FACTS_TABLE_NAME_("_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents")
 {
 }
 
@@ -19,6 +19,11 @@ SQLGenerator::~SQLGenerator()
 std::string SQLGenerator::getSqlStringDropTable(const std::string& tableName)
 {
   return "DROP TABLE IF EXISTS " + tableName;
+}
+
+std::string SQLGenerator::getSqlStringMakeTableShadowFluent(const std::string& tableName)
+{
+  return "INSERT INTO " + SHADOW_FLUENTS_TABLE_NAME_ + " (name) VALUES ('" + tableName + "');";
 }
 
 std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, int numberOfColumns)
@@ -44,6 +49,7 @@ std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, 
 
   sql += "UNIQUE " + cols + ");";
 
+  std::cout << sql << std::endl;
   return sql;
 }
 
@@ -60,29 +66,14 @@ std::vector<std::string> SQLGenerator::getSqlStringsForIDAssign(const std::strin
   std::for_each(std::begin(set), std::end(set),
       [&sqlStrings, &id, &op, this](const std::vector<std::string>& tuple)
       {
-        sqlStrings.push_back(getSqlStringForTupleAssign(id, tuple, op));
-
+        auto str = getSqlStringForTupleAssign(id, tuple, op);
+        sqlStrings.push_back(str);
+        std::cout << str << std::endl;
       });
 
   return sqlStrings;
 
 }
-
-//std::vector<std::string> SQLGenerator::getSqlStringsForFluentSetAssign(
-//    const std::string& fluentName, std::shared_ptr<NodeSet> set, AssignmentOperator op)
-//{
-//  std::vector<std::string> sqlStrings;
-//  auto tuples = set.get()->getTuples();
-//
-//  std::for_each(std::begin(tuples), std::end(tuples),
-//      [&sqlStrings, &fluentName,&op, this](const std::shared_ptr<NodeTuple>& tuple)
-//      {
-//        sqlStrings.push_back(getSqlStringForTupleAssign(fluentName, tuple, op));
-//
-//      });
-//
-//  return sqlStrings;
-//}
 
 std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
     const std::vector<std::string>& tuple, AssignmentOperator op)
@@ -151,6 +142,12 @@ std::string SQLGenerator::getSqlStringAddFact(const NodeFactDecl& factDecl)
 std::string SQLGenerator::getSqlStringCreateFactsTable()
 {
   return "CREATE TABLE " + FACTS_TABLE_NAME_
+      + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);";
+}
+
+std::string SQLGenerator::getSqlStringCreateShadowFluentsTable()
+{
+  return "CREATE TABLE " + SHADOW_FLUENTS_TABLE_NAME_
       + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);";
 }
 
