@@ -9,7 +9,9 @@
 #define VARIABLETABLE_H_
 
 #include <unordered_map>
+#include <stack>
 #include <tuple>
+#include <iostream>
 
 namespace yagi {
 namespace execution {
@@ -17,19 +19,23 @@ namespace execution {
 class VariableTable
 {
   private:
-    std::unordered_map<std::string, std::tuple<std::string, bool>> variables_;
+    std::unordered_map<std::string, std::stack<std::tuple<std::string, bool>>> variables_;
+    bool showDiagnosisOutput;
 
   public:
     VariableTable();
     virtual ~VariableTable();
 
     bool variableExists(const std::string& varName) const;
-    void addOrReplaceVariable(const std::string& varName, std::string value);
-    void addOrReplaceVariable(const std::string& varName);
+    void addVariable(const std::string& varName, std::string value);
+    void addVariable(const std::string& varName);
     std::string getVariableValue(const std::string& varName) const;
     bool isVariableInitialized(const std::string& varName) const;
     void setVariable(const std::string& varName, const std::string& value);
     void removeVariableIfExists(const std::string& varName);
+    void shrinkVaribleStacksToDepth(int depthAfterShrink);
+    void shrinkVaribleStacksOneLevel();
+    int getCurrentDepth() const;
 };
 
 } /* namespace execution */

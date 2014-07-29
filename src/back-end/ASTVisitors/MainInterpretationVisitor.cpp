@@ -95,7 +95,6 @@ Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 {
   ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
   return v.visit(idAssign);
-  //return Any { };
 }
 
 Any MainInterpretationVisitor::visit(NodeActionDecl& actionDecl)
@@ -157,10 +156,8 @@ Any MainInterpretationVisitor::visit(NodeSetExpression& setExpr)
 
 Any MainInterpretationVisitor::visit(NodeForLoop& forLoop)
 {
-  auto set = forLoop.getSetExpr()->accept(*this);
-  auto tuple = forLoop.getTuple()->accept(*this);
-
-  return Any { };
+  ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
+  return v.visit(forLoop);
 }
 
 }

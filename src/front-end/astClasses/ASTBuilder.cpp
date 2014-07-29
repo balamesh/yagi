@@ -154,7 +154,7 @@ void ASTBuilder::addFactDeclNode(const std::string& factName)
 void ASTBuilder::addVarNode(const std::string& varName)
 {
   auto varNode = std::make_shared<NodeVariable>();
-  varNode->setVarName(varName);
+  varNode->setVarName("$" + varName);
 
   ast.push(varNode);
 }
@@ -915,7 +915,7 @@ void ASTBuilder::addPick()
   {
     //if its not already a setexpression we try to make it one...
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
+    newSetExpr->setLhs(getFrontElement<ASTNodeBase<>>());
     pick->setSetExpr(newSetExpr);
   }
   else
@@ -953,7 +953,7 @@ void ASTBuilder::addForLoop()
   {
     //if its not already a setexpression we try to make it one...
     auto newSetExpr = std::make_shared<NodeSetExpression>();
-    newSetExpr->setRhs(getFrontElement<ASTNodeBase<>>());
+    newSetExpr->setLhs(getFrontElement<ASTNodeBase<>>());
     forLoop->setSetExpr(newSetExpr);
   }
   else

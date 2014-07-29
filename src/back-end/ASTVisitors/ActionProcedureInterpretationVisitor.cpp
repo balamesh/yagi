@@ -201,13 +201,26 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
   std::for_each(std::begin(tuples), std::end(tuples),
       [this, &valueSet, &domains, &first](const std::shared_ptr<NodeTuple>& nodeTuple)
       {
-        auto tupleVals = nodeTuple->accept(*this).get<std::vector<std::string>>();
-        valueSet.push_back(tupleVals);
+        auto tupleElements = nodeTuple->accept(*this).get<std::vector<std::string>>();
+
+        std::vector<std::string> vals;
+        for (const auto& tupleVal : tupleElements)
+        {
+          if (tupleVal[0] == '$') //it's a variable
+          {
+            vals.push_back(VariableTableManager::getInstance().getMainVariableTable().getVariableValue(tupleVal));
+          }
+          else //it's a string value
+          {
+            vals.push_back(tupleVal);
+          }
+        }
+        valueSet.push_back(vals);
 
         int idx=0;
 
         //add values to respective domains
-        std::for_each(std::begin(tupleVals), std::end(tupleVals),
+        std::for_each(std::begin(vals), std::end(vals),
             [&domains,&idx,&first](const std::string& str)
             {
               if (!first)
@@ -281,7 +294,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeTuple& tuple)
   std::for_each(std::begin(values), std::end(values),
       [this, &tupleVals](const std::shared_ptr<ASTNodeBase<>>& value)
       {
-        tupleVals.push_back(value->accept(*this).get<std::string>());
+        auto val = value->accept(*this).get<std::string>();
+        tupleVals.push_back(val);
       });
 
   return Any { tupleVals };
@@ -413,7 +427,45 @@ Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)
   auto val = yagi::treeHelper::getValueFromValueNode(varAss.getValue().get(), *this);
   auto varName = varAss.getVariable()->accept(*this).get<std::string>();
 
-  VariableTableManager::getInstance().getMainVariableTable().addOrReplaceVariable(varName, val);
+  VariableTableManager::getInstance().getMainVariableTable().addVariable(varName, val);
+
+  return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
+{
+  auto varTuple = forLoop.getTuple()->accept(*this).get<std::vector<std::string>>();
+  auto setResult = forLoop.getSetExpr()->accept(*this);
+  auto statements = forLoop.getBlock()->getStatements();
+
+  //get data from shadow fluent set
+  auto set = db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(setResult.get<std::string>()));
+
+  //add vars to vartable
+  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+
+  for (const auto& varName : varTuple)
+  {
+    varTable.addVariable(varName);
+  }
+
+  //set values to variables and execute <block>
+  for (const auto& tuple : set)
+  {
+    for (auto i = 0; i != tuple.size(); i++)
+    {
+      varTable.setVariable(varTuple[i], tuple[i]);
+    }
+
+    std::for_each(std::begin(statements), std::end(statements),
+        [this](const std::shared_ptr<NodeStatementBase>& stmt)
+        {
+          stmt->accept(*this);
+        });
+  }
+
+  varTable.shrinkVaribleStacksToDepth(varTable.getCurrentDepth() - 1);
 
   return Any { };
 }

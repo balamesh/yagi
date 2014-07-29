@@ -157,8 +157,7 @@ bool execute(const std::string& line, bool isFileName)
     throw std::runtime_error("AST root is no program!");
 
   auto stmts = prog->getProgram();
-
-  std::for_each(std::begin(stmts), std::end(stmts), [](const std::shared_ptr<ASTNodeBase<>>& stmt)
+  for (const auto& stmt : stmts)
   {
     ToStringVisitor toStringVisitor;
     std::cout << "C++ AST: " << stmt->accept(toStringVisitor).get<std::string>() << std::endl;
@@ -171,32 +170,33 @@ bool execute(const std::string& line, bool isFileName)
       std::string errorText = "";
       auto errors = typeCheck.getErrorTexts();
       std::for_each(std::begin(errors), std::end(errors), [&errorText](const std::string& error)
-          {
-            errorText += "[ERROR] " + error + "\n";
-          });
+      {
+        errorText += "[ERROR] " + error + "\n";
+      });
 
       std::cout << "Typechecker: " << errorText << std::endl;
-      //return true;
+      return true;
     }
 
 //    RewritingVisitor rewriter;
 //    auto newStmt = stmt->accept(rewriter);
-
+//
     MainInterpretationVisitor interpreter;
 //    if (newStmt && !newStmt.empty())
 //    {
 //      auto rewrittenStmt = newStmt.get<std::shared_ptr<NodeForLoop>>();
 //      ToStringVisitor toStringVisitorAfterRewrite;
-//      std::cout << "C++ AST (Rewritten): " << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+//      std::cout << "C++ AST (Rewritten): "
+//          << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
 //
 //      rewrittenStmt->accept(interpreter);
 //    }
 //    else
-    {
+//    {
       stmt->accept(interpreter);
-    }
+//    }
 
-  });
+  }
 
   return true;
 }
