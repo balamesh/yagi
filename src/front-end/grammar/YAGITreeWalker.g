@@ -57,7 +57,7 @@ domain
 	;
 	
 action_decl
-	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST var_list?) (^(IT_EXTERNAL_VARS var_list))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? ) 	
+	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST {ADD_VAR_LIST();} var_list?) (^(IT_EXTERNAL_VARS {ADD_VAR_LIST();} var_list))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? ) 	
 	{
 	    ADD_ACTION_DECL($ID->toString($ID));
         }
@@ -72,12 +72,12 @@ effect
 	;
 	
 var_list
-	: ({ADD_VAR_LIST();}) (var {CONSUME_VAR();})+
+	: (var {CONSUME_VAR();})+
 	;
 	
 
 proc_decl
-	: ^(IT_PROC_DECL ID (^(IT_VAR_LIST var_list))? block)
+	: ^(IT_PROC_DECL ID (^(IT_VAR_LIST {ADD_VAR_LIST();} var_list))? block)
 	
 	{
 	  ADD_PROC_DECL($ID->toString($ID));
@@ -85,7 +85,7 @@ proc_decl
 	;	
 
 exo_event_decl
-	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST var_list) block)
+	: ^(IT_EXO_EVENT ID ^(IT_VAR_LIST {ADD_VAR_LIST();} var_list) block)
 	
 	{
 	  ADD_EXO_EVENT_DECL($ID->toString($ID));
@@ -93,7 +93,7 @@ exo_event_decl
 	;	
 	
 sensing_decl	
-	: ^(IT_SENSING ID ^(IT_VAR_LIST var_list?) (^(IT_VAR_LIST var_list))? formula)
+	: ^(IT_SENSING ID ^(IT_VAR_LIST {ADD_VAR_LIST();} var_list?) (^(IT_VAR_LIST {ADD_VAR_LIST();} var_list))? formula)
 	
 	{
 	  ADD_SENSING_DECL($ID->toString($ID));

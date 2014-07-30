@@ -24,7 +24,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
 #include "../../utils/SetOperations.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
-#include "../Signals/ISignalReceiver.h"
+#include "../Signals/IYAGISignalHandler.h"
 #include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
 #include "../TreeHelper.h"
 #include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
@@ -34,6 +34,7 @@
 #include "../../utils/DateTimeHelper.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -66,18 +67,21 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeQuantifiedFormula>,
     public Visitor<NodeOperatorIn>,
     public Visitor<NodeFluentDecl>,
-    public Visitor<NodeForLoop>
+    public Visitor<NodeForLoop>,
+    public Visitor<NodeConditional>,
+    public Visitor<NodeVarList>
 
 {
   private:
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator_;
     std::shared_ptr<DatabaseConnectorBase> db_;
-    std::shared_ptr<ISignalReceiver> signalReceiver_;
+    std::shared_ptr<IYAGISignalHandler> signalReceiver_;
+    Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
 
   public:
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(std::shared_ptr<IFormulaEvaluator> formulaEvaluator,
-        std::shared_ptr<DatabaseConnectorBase> db, std::shared_ptr<ISignalReceiver> signalReceiver);
+        std::shared_ptr<DatabaseConnectorBase> db, std::shared_ptr<IYAGISignalHandler> signalReceiver);
     ActionProcedureInterpretationVisitor(std::shared_ptr<DatabaseConnectorBase> db);
     virtual ~ActionProcedureInterpretationVisitor();
 
@@ -105,6 +109,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeOperatorIn& inFormula);
     Any visit(NodeFluentDecl& fluentDecl);
     Any visit(NodeForLoop& forLoop);
+    Any visit(NodeConditional& conditional);
+    Any visit(NodeVarList& varList);
 };
 
 }

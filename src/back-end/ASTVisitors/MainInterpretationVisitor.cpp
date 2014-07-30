@@ -110,9 +110,11 @@ Any MainInterpretationVisitor::visit(NodeProcExecution& procExec)
 
   if (actionToExecute)
   {
-    ActionProcedureInterpretationVisitor exe(std::make_shared<yagi::formula::FormulaEvaluator>(),
-        DatabaseManager::getInstance().getMainDB(), std::make_shared<PrintOutSignalReceiver>());
-    actionToExecute->accept(exe);
+    ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
+        DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
+
+    return v.visit(*actionToExecute.get());
+    //actionToExecute->accept(exe);
   }
 
   return Any { };
@@ -156,11 +158,19 @@ Any MainInterpretationVisitor::visit(NodeSetExpression& setExpr)
 
 Any MainInterpretationVisitor::visit(NodeForLoop& forLoop)
 {
-  ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
+  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
   return v.visit(forLoop);
 }
 
+Any MainInterpretationVisitor::visit(NodeConditional& conditional)
+{
+  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
+  return v.visit(conditional);
+
 }
-/* namespace execution */
+
+}/* namespace execution */
 } /* namespace yagi */
 

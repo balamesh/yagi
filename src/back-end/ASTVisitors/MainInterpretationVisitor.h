@@ -40,9 +40,10 @@
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
 #include "../../utils/CustomComparers.h"
 #include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
-#include "../Signals/PrintOutSignalReceiver.h"
+#include "../Signals/CoutCinSignalHandler.h"
 #include "../../utils/ToStringHelper.h"
 #include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -65,7 +66,8 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeString>,
     public Visitor<NodeID>,
     public Visitor<NodeVariableAssignment>,
-    public Visitor<NodeForLoop>
+    public Visitor<NodeForLoop>,
+    public Visitor<NodeConditional>
 {
   private:
     static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
@@ -108,6 +110,7 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeID& id);
     Any visit(NodeVariableAssignment& varAss);
     Any visit(NodeForLoop& forLoop);
+    Any visit(NodeConditional& conditional);
 };
 
 } /* namespace execution */

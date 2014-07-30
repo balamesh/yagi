@@ -24,7 +24,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator, std::shared_ptr<DatabaseConnectorBase> db,
-    std::shared_ptr<ISignalReceiver> signalReceiver) :
+    std::shared_ptr<IYAGISignalHandler> signalReceiver) :
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver)
 {
   formulaEvaluator_->setContext(this);
@@ -82,25 +82,45 @@ Any ActionProcedureInterpretationVisitor::visit(NodeOperatorIn& inFormula)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSignal& signal)
 {
+  return triggerYagiSignal(signal, std::vector<std::string> { });
+}
+
+Any ActionProcedureInterpretationVisitor::triggerYagiSignal(NodeSignal& signal,
+    std::vector<std::string> settingVariables)
+{
   if (!signalReceiver_)
   {
     throw std::runtime_error("Want to send <signal> with no signal receiver set!");
   }
 
   auto signalData = signal.getSignalData()->accept(*this).get<std::string>();
-  signalReceiver_->signal(signalData);
 
-  return Any { };
-
+  return Any { signalReceiver_->signal(signalData, settingVariables) };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
 {
   auto actionName = actionDecl.getActionName()->accept(*this).get<std::string>();
+  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
 
   if (auto signal = actionDecl.getSignal())
   {
-    signal->accept(*this);
+    if (auto settingVarList = actionDecl.getSettingVarList())
+    {
+      auto varList = settingVarList->accept(*this).get<std::vector<std::string>>();
+      auto settingVarAssignments = triggerYagiSignal(*signal.get(), varList).get<
+          std::unordered_map<std::string, std::string>>();
+
+      //add setting vars to vartable
+      for (const auto& varAss : settingVarAssignments)
+      {
+        varTable.addVariable(varAss.first, varAss.second);
+      }
+    }
+    else
+    {
+      signal->accept(*this);
+    }
   }
 
   bool apHolds = actionDecl.getActionPrecondition()->accept(*this).tryGetCopy<bool>(false);
@@ -121,7 +141,23 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
         stmt->accept(*this);
       });
 
+  varTable.shrinkVaribleStacksToDepth(varTable.getCurrentDepth() - 1);
+
   return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeVarList& varList)
+{
+  std::vector<std::string> variables { };
+  auto varNodes = varList.getVariables();
+
+  std::for_each(std::begin(varNodes), std::end(varNodes),
+      [this,&variables](const std::shared_ptr<NodeVariable>& varNode)
+      {
+        variables.push_back(varNode->accept(*this).get<std::string>());
+      });
+
+  return Any { variables };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
@@ -466,6 +502,29 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
   }
 
   varTable.shrinkVaribleStacksToDepth(varTable.getCurrentDepth() - 1);
+
+  return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
+{
+  auto conditionalTruthVal = conditional.getFormula()->accept(*this).get<bool>();
+
+  std::vector<std::shared_ptr<NodeStatementBase>> statements;
+  if (conditionalTruthVal)
+  {
+    statements = conditional.getIfBlock()->getStatements();
+  }
+  else
+  {
+    statements = conditional.getElseBlock()->getStatements();
+  }
+
+  std::for_each(std::begin(statements), std::end(statements),
+      [this](const std::shared_ptr<NodeStatementBase>& stmt)
+      {
+        stmt->accept(*this);
+      });
 
   return Any { };
 }

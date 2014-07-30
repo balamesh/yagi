@@ -1,20 +1,20 @@
 /*
- * ISignalReceiver.cpp
+ * IYAGISignalHandler.cpp
  *
  *  Created on: Jul 23, 2014
  *      Author: cmaier
  */
 
-#include "ISignalReceiver.h"
+#include "IYAGISignalHandler.h"
 
 namespace yagi {
 namespace execution {
 
-ISignalReceiver::ISignalReceiver()
+IYAGISignalHandler::IYAGISignalHandler()
 {
 }
 
-ISignalReceiver::~ISignalReceiver()
+IYAGISignalHandler::~IYAGISignalHandler()
 {
 }
 
