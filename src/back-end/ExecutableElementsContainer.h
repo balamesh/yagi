@@ -18,13 +18,13 @@
 namespace yagi {
 namespace execution {
 
-class ExecutableElementsContainer
+class ExecutableElementsContainer final
 {
   private:
     ExecutableElementsContainer(ExecutableElementsContainer const&);
     void operator=(ExecutableElementsContainer const&);
     ExecutableElementsContainer();
-    virtual ~ExecutableElementsContainer();
+    ~ExecutableElementsContainer();
 
     std::unordered_map<std::string, std::shared_ptr<NodeActionDecl>> actions_;
     std::unordered_map<std::string, std::shared_ptr<NodeProcDecl>> procedures_;
@@ -47,6 +47,21 @@ class ExecutableElementsContainer
       if (val != std::end(actions_))
       {
         return actions_[actionName];
+      }
+      return nullptr;
+    }
+
+    void addOrReplaceProcedure(const NodeProcDecl& procDecl)
+    {
+      procedures_[procDecl.getProcName()->getId()] = std::make_shared<NodeProcDecl>(procDecl);
+    }
+
+    std::shared_ptr<NodeProcDecl> getProcedure(const std::string& actionName)
+    {
+      auto val = procedures_.find(actionName);
+      if (val != std::end(procedures_))
+      {
+        return procedures_[actionName];
       }
       return nullptr;
     }

@@ -19,6 +19,8 @@ namespace execution {
 class VariableTable
 {
   private:
+    static std::string BARRIER_SYMBOL;
+
     std::unordered_map<std::string, std::stack<std::tuple<std::string, bool>>> variables_;
     bool showDiagnosisOutput;
 
@@ -29,13 +31,13 @@ class VariableTable
     bool variableExists(const std::string& varName) const;
     void addVariable(const std::string& varName, std::string value);
     void addVariable(const std::string& varName);
-    std::string getVariableValue(const std::string& varName) const;
+    std::string getVariableValue(const std::string& varName);
     bool isVariableInitialized(const std::string& varName) const;
     void setVariable(const std::string& varName, const std::string& value);
     void removeVariableIfExists(const std::string& varName);
-    void shrinkVaribleStacksToDepth(int depthAfterShrink);
-    void shrinkVaribleStacksOneLevel();
-    int getCurrentDepth() const;
+
+    void addScope();
+    void removeScope();
 };
 
 } /* namespace execution */

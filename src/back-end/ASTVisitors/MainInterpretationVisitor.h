@@ -67,7 +67,8 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeID>,
     public Visitor<NodeVariableAssignment>,
     public Visitor<NodeForLoop>,
-    public Visitor<NodeConditional>
+    public Visitor<NodeConditional>,
+    public Visitor<NodeProcDecl>
 {
   private:
     static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
@@ -111,6 +112,7 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeVariableAssignment& varAss);
     Any visit(NodeForLoop& forLoop);
     Any visit(NodeConditional& conditional);
+    Any visit(NodeProcDecl& procDecl);
 };
 
 } /* namespace execution */

@@ -103,21 +103,18 @@ Any MainInterpretationVisitor::visit(NodeActionDecl& actionDecl)
   return Any { };
 }
 
+Any MainInterpretationVisitor::visit(NodeProcDecl& procDecl)
+{
+  ExecutableElementsContainer::getInstance().addOrReplaceProcedure(procDecl);
+  return Any { };
+}
+
 Any MainInterpretationVisitor::visit(NodeProcExecution& procExec)
 {
-  auto execName = procExec.getProcToExecName()->accept(*this).get<std::string>();
-  auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(execName);
+  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
 
-  if (actionToExecute)
-  {
-    ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
-        DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
-
-    return v.visit(*actionToExecute.get());
-    //actionToExecute->accept(exe);
-  }
-
-  return Any { };
+  return Any { v.visit(procExec) };
 }
 
 Any MainInterpretationVisitor::visit(NodeSet& set)

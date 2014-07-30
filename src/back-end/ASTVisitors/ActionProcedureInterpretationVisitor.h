@@ -35,6 +35,7 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
 #include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -69,7 +70,9 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeForLoop>,
     public Visitor<NodeConditional>,
-    public Visitor<NodeVarList>
+    public Visitor<NodeVarList>,
+    public Visitor<NodeProcDecl>,
+    public Visitor<NodeValueList>
 
 {
   private:
@@ -111,6 +114,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeForLoop& forLoop);
     Any visit(NodeConditional& conditional);
     Any visit(NodeVarList& varList);
+    Any visit(NodeProcDecl& procDecl);
+    Any visit(NodeValueList& valueList);
 };
 
 }

@@ -98,6 +98,11 @@ Any ActionProcedureInterpretationVisitor::triggerYagiSignal(NodeSignal& signal,
   return Any { signalReceiver_->signal(signalData, settingVariables) };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
+{
+  return Any { };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
 {
   auto actionName = actionDecl.getActionName()->accept(*this).get<std::string>();
@@ -141,9 +146,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
         stmt->accept(*this);
       });
 
-  varTable.shrinkVaribleStacksToDepth(varTable.getCurrentDepth() - 1);
-
   return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeValueList& valueList)
+{
+  std::vector<std::string> vals;
+  auto valueNodes = valueList.getValues();
+
+  for (const auto& valueNode : valueNodes)
+  {
+    vals.push_back(treeHelper::getValueFromValueNode(valueNode.get(), *this));
+  }
+
+  return Any { vals };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeVarList& varList)
@@ -169,12 +185,40 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     throw std::runtime_error("No Database passed to InterpretationVisitor!");
 
   auto actionOrProcName = procExec.getProcToExecName()->accept(*this).get<std::string>();
-  auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName);
 
-  if (actionToExecute)
+  auto l = procExec.getParameters()->accept(*this);
+  auto argList = l.get<std::vector<std::string>>();
+
+  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+  varTable.addScope();
+
+  if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName))
   {
+    auto paramList = actionToExecute->getVarList()->accept(*this).get<std::vector<std::string>>();
+
+    //set param values for action call
+    for (auto i = 0; i != paramList.size(); i++)
+    {
+      varTable.addVariable(paramList[i], argList[i]);
+    }
+
     actionToExecute->accept(*this);
   }
+  else if (auto procToExecute = ExecutableElementsContainer::getInstance().getProcedure(
+      actionOrProcName))
+  {
+    auto paramList = procToExecute->getArgList()->accept(*this).get<std::vector<std::string>>();
+
+    //set param values for action call
+    for (auto i = 0; i != paramList.size(); i++)
+    {
+      varTable.addVariable(paramList[i], argList[i]);
+    }
+
+    procToExecute->accept(*this);
+  }
+
+  varTable.removeScope();
 
   return Any { };
 }
@@ -480,6 +524,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
 
   //add vars to vartable
   auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+  varTable.addScope();
 
   for (const auto& varName : varTuple)
   {
@@ -501,7 +546,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
         });
   }
 
-  varTable.shrinkVaribleStacksToDepth(varTable.getCurrentDepth() - 1);
+  varTable.removeScope();
 
   return Any { };
 }
