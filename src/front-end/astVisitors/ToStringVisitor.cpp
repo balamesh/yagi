@@ -265,7 +265,12 @@ Any ToStringVisitor::visit(NodeProcDecl& procDecl)
   std::string astString = "[Proc Decl] ";
 
   astString += procDecl.getProcName()->accept(*this).tryGetCopy<std::string>("<unknown>");
-  astString += procDecl.getArgList()->accept(*this).tryGetCopy<std::string>("<unknown>");
+
+  if (auto argList = procDecl.getArgList())
+  {
+    astString += argList->accept(*this).tryGetCopy<std::string>("<unknown>");
+  }
+
   astString += procDecl.getBlock()->accept(*this).tryGetCopy<std::string>("<unknown>");
 
   return Any { astString };

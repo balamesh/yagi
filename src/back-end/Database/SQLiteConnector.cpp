@@ -45,6 +45,9 @@ void SQLiteConnector::connect()
     throw std::runtime_error(std::string("Can't open database: ") + sqlite3_errmsg(pDB_));
   }
 
+  //Gives a major performance improvement!
+  executeNonQuery("PRAGMA synchronous = OFF;");
+
   connected_ = true;
 }
 

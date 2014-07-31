@@ -36,6 +36,8 @@
 #include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
 #include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
+#include "../../common/ASTNodeTypes/Statements/NodePick.h"
+#include "../../utils/RandomNumberGenerator.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -72,7 +74,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeConditional>,
     public Visitor<NodeVarList>,
     public Visitor<NodeProcDecl>,
-    public Visitor<NodeValueList>
+    public Visitor<NodeValueList>,
+    public Visitor<NodePick>
 
 {
   private:
@@ -116,6 +119,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeVarList& varList);
     Any visit(NodeProcDecl& procDecl);
     Any visit(NodeValueList& valueList);
+    Any visit(NodePick& pick);
 };
 
 }

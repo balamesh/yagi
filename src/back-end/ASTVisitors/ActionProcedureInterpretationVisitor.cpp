@@ -100,6 +100,15 @@ Any ActionProcedureInterpretationVisitor::triggerYagiSignal(NodeSignal& signal,
 
 Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
 {
+  auto procName = procDecl.getProcName()->accept(*this).get<std::string>();
+  auto statements = procDecl.getBlock()->getStatements();
+
+  std::for_each(std::begin(statements), std::end(statements),
+      [this](std::shared_ptr<NodeStatementBase> stmt)
+      {
+        stmt->accept(*this);
+      });
+
   return Any { };
 }
 
@@ -186,15 +195,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
 
   auto actionOrProcName = procExec.getProcToExecName()->accept(*this).get<std::string>();
 
-  auto l = procExec.getParameters()->accept(*this);
-  auto argList = l.get<std::vector<std::string>>();
+  std::vector<std::string> argList { };
+  if (auto paramNode = procExec.getParameters())
+  {
+    argList = paramNode->accept(*this).get<std::vector<std::string>>();
+  }
 
   auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
   varTable.addScope();
 
+  std::vector<std::string> paramList { };
   if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName))
   {
-    auto paramList = actionToExecute->getVarList()->accept(*this).get<std::vector<std::string>>();
+    if (auto paramNodeList = actionToExecute->getVarList())
+    {
+      paramList = paramNodeList->accept(*this).get<std::vector<std::string>>();
+    }
 
     //set param values for action call
     for (auto i = 0; i != paramList.size(); i++)
@@ -207,7 +223,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
   else if (auto procToExecute = ExecutableElementsContainer::getInstance().getProcedure(
       actionOrProcName))
   {
-    auto paramList = procToExecute->getArgList()->accept(*this).get<std::vector<std::string>>();
+    if (auto paramNodeList = procToExecute->getArgList())
+    {
+      paramList = paramNodeList->accept(*this).get<std::vector<std::string>>();
+    }
 
     //set param values for action call
     for (auto i = 0; i != paramList.size(); i++)
@@ -570,6 +589,39 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
       {
         stmt->accept(*this);
       });
+
+  return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
+{
+  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+  auto varTuple = pick.getTuple()->accept(*this).get<std::vector<std::string>>();
+  auto fluentName = pick.getSetExpr()->accept(*this).get<std::string>();
+
+  auto set = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
+
+  RandomNumberGenerator rng;
+  int randomIndex = rng.getRandomNumber(0, set.size() - 1);
+
+  varTable.addScope();
+
+  //pick a value for each unbound variable in varTuple, leave the bound variables as they are
+  for (auto i = 0; i != varTuple.size(); i++)
+  {
+    if (!varTable.variableExists(varTuple[i]) || !varTable.isVariableInitialized(varTuple[i]))
+    {
+      varTable.addVariable(varTuple[i], set[randomIndex][i]);
+    }
+  }
+
+  auto stmts = pick.getBlock()->getStatements();
+  for (const auto& stmt : stmts)
+  {
+    stmt->accept(*this);
+  }
+
+  varTable.removeScope();
 
   return Any { };
 }

@@ -25,7 +25,7 @@ bool VariableTable::variableExists(const std::string& varName) const
 {
   auto ret = variables_.find(varName);
 
-  return ret != std::end(variables_) && ret->second.size();
+  return (ret != std::end(variables_) && ret->second.size());
 }
 
 void VariableTable::addVariable(const std::string& varName, std::string value)
