@@ -90,6 +90,7 @@ int main(int argc, char * argv[])
       std::string fname = parseFileName(line);
       execute(fname, true);
       sigTriggered = true;
+      lines.clear();
     }
   }
   while (true);

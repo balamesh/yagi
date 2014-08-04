@@ -38,6 +38,7 @@
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodePick.h"
 #include "../../utils/RandomNumberGenerator.h"
+#include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
 
 using namespace yagi::database;
 using namespace yagi::container;
@@ -75,7 +76,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeVarList>,
     public Visitor<NodeProcDecl>,
     public Visitor<NodeValueList>,
-    public Visitor<NodePick>
+    public Visitor<NodePick>,
+    public Visitor<NodeChoose>
 
 {
   private:
@@ -120,6 +122,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeProcDecl& procDecl);
     Any visit(NodeValueList& valueList);
     Any visit(NodePick& pick);
+    Any visit(NodeChoose& choose);
 };
 
 }

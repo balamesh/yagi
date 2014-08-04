@@ -115,7 +115,7 @@ std::string SQLGenerator::buildRemoveQuery(const std::string& id,
     domNr++;
   });
 
-  return sqlString.substr(0, sqlString.length() - 6) + ";";
+  return sqlString.substr(0, sqlString.length() - 4) + ";";
 }
 
 std::string SQLGenerator::getSqlStringSelectAll(const std::string& tableName)

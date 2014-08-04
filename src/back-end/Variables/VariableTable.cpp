@@ -11,6 +11,7 @@ namespace yagi {
 namespace execution {
 
 std::string VariableTable::BARRIER_SYMBOL = "#";
+static int lvl = 0;
 
 VariableTable::VariableTable() :
     showDiagnosisOutput(true)
@@ -25,7 +26,8 @@ bool VariableTable::variableExists(const std::string& varName) const
 {
   auto ret = variables_.find(varName);
 
-  return (ret != std::end(variables_) && ret->second.size());
+  //return (ret != std::end(variables_) && ret->second.size());
+  return ret != std::end(variables_);
 }
 
 void VariableTable::addVariable(const std::string& varName, std::string value)
@@ -117,14 +119,23 @@ void VariableTable::removeVariableIfExists(const std::string& varName)
     if (showDiagnosisOutput)
       std::cout << "Removing variable '" << varName << std::endl;
 
-    variables_.erase(varName);
+    if (!variables_[varName].size())
+    {
+      variables_.erase(varName);
+    }
+    else
+    {
+      variables_[varName].pop();
+    }
   }
 }
 
 void VariableTable::addScope()
 {
+  lvl++;
+
   if (showDiagnosisOutput)
-    std::cout << "Adding new scope..." << std::endl;
+    std::cout << "Adding new scope... Level=" << lvl << std::endl;
 
   for (auto& var : variables_)
   {
@@ -135,9 +146,12 @@ void VariableTable::addScope()
 
 void VariableTable::removeScope()
 {
-  if (showDiagnosisOutput)
-    std::cout << "Removing scope..." << std::endl;
+  lvl--;
 
+  if (showDiagnosisOutput)
+    std::cout << "Removing scope... Level=" << lvl << std::endl;
+
+  std::vector<std::string> removeList { };
   for (auto& var : variables_)
   {
     while (var.second.size() > 0 && std::get<0>(var.second.top()) != BARRIER_SYMBOL)
@@ -150,6 +164,16 @@ void VariableTable::removeScope()
     {
       var.second.pop();
     }
+
+    if (var.second.size() == 0)
+    {
+      removeList.push_back(var.first);
+    }
+  }
+
+  for (const auto& varName : removeList)
+  {
+    variables_.erase(varName);
   }
 }
 

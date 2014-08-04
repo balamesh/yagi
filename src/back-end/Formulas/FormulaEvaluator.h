@@ -15,6 +15,12 @@
 #include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../utils/ToStringHelper.h"
 #include "../../utils/CustomComparers.h"
+#include "../Variables/VariableTableManager.h"
+#include "../Database/DatabaseManager.h"
+#include "../SQLGenerator.h"
+
+using namespace yagi::execution;
+using namespace yagi::database;
 
 namespace yagi {
 namespace formula {

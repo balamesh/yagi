@@ -12,6 +12,7 @@
 #include <stack>
 #include <tuple>
 #include <iostream>
+#include <vector>
 
 namespace yagi {
 namespace execution {

@@ -20,10 +20,15 @@ FormulaEvaluator::~FormulaEvaluator()
 
 bool FormulaEvaluator::evaluateNegation(NodeNegation* negation)
 {
-  if (printFormulaEvaluationResults_)
-    std::cout << "[Formula] Negation" << std::endl;
+  auto ret = !negation->getFormula()->accept(*ctx_).get<bool>();
 
-  return !negation->getFormula()->accept(*ctx_).get<bool>();
+  if (printFormulaEvaluationResults_)
+  {
+    std::cout << "[Formula] Negation" << std::endl;
+    std::cout << "[Result] " << ret << std::endl;
+  }
+
+  return ret;
 }
 
 bool FormulaEvaluator::evaluateCompoundFormula(NodeCompoundFormula* compoundFormula)
@@ -32,88 +37,155 @@ bool FormulaEvaluator::evaluateCompoundFormula(NodeCompoundFormula* compoundForm
   auto rhsResult = compoundFormula->getRightOperand()->accept(*ctx_).get<bool>();
   auto connective = compoundFormula->getConnective()->accept(*ctx_).get<FormulaConnective>();
 
-  if (printFormulaEvaluationResults_)
-  {
-    NodeFormulaConnective conn;
-    conn.setFormulaConnective(connective);
-    std::cout << "[Formula] Compound Operator '" << conn.toString() << "'" << std::endl;
-  }
-
+  bool ret = false;
   switch (connective)
   {
     case FormulaConnective::And:
-      return lhsResult && rhsResult;
+      ret = lhsResult && rhsResult;
+    break;
 
     case FormulaConnective::Or:
-      return lhsResult || rhsResult;
+      ret = lhsResult || rhsResult;
+    break;
 
     case FormulaConnective::Implies:
-      return !lhsResult || rhsResult;
+      ret = !lhsResult || rhsResult;
+    break;
 
     default:
       throw std::runtime_error("Unknown formula connective!");
   }
 
+  if (printFormulaEvaluationResults_)
+  {
+    NodeFormulaConnective conn;
+    conn.setFormulaConnective(connective);
+    std::cout << "[Formula] Compound Operator '" << conn.toString() << "'" << std::endl;
+    std::cout << "[Result] " << ret << std::endl;
+  }
+
+  return ret;
 }
 
 bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
 {
   auto tuple = inFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
-  auto set = inFormula->getSetExpr()->accept(*ctx_).get<std::vector<std::vector<std::string>>>();
+
+  for (auto i = 0; i != tuple.size(); i++)
+  {
+    if (tuple[i][0] == '$') //it's a variable
+    {
+      tuple[i] = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
+          tuple[i]);
+    }
+  }
+
+  auto setExprfluentName = inFormula->getSetExpr()->accept(*ctx_).get<std::string>();
+
+  auto set = DatabaseManager::getInstance().getMainDB()->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(setExprfluentName));
+
+  bool ret = std::any_of(std::begin(set), std::end(set),
+      [&tuple](const std::vector<std::string>& elem)
+      {
+        return yagi::comparers::tuplesEqual(tuple,elem);
+      });
 
   if (printFormulaEvaluationResults_)
   {
     std::cout << "[Formula] Operator 'in' Formula: " << yagi::tupleToString(tuple) << " in "
         << yagi::fluentDBDataToString(set) << std::endl;
+    std::cout << "[Result] " << ret << std::endl;
   }
 
-  return std::any_of(std::begin(set), std::end(set), [&tuple](const std::vector<std::string>& elem)
-  {
-    return yagi::comparers::tuplesEqual(tuple,elem);
-  });
-
+  return ret;
 }
 
 bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifiedFormula)
 {
   auto quantifier = quantifiedFormula->getQuantifier();
   auto tuple = quantifiedFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
-  auto set = quantifiedFormula->getSetExpr()->accept(*ctx_).get<
-      std::vector<std::vector<std::string>>>();
+  auto setExprFluentName = quantifiedFormula->getSetExpr()->accept(*ctx_).get<std::string>();
+  auto suchFormula = quantifiedFormula->getSuchFormula();
 
-  if (printFormulaEvaluationResults_)
-  {
-    std::cout << "[Formula] Quantified Formula "
-        << (quantifier == Quantifier::all ? "all " : "exists ") << yagi::tupleToString(tuple)
-        << " in " << yagi::fluentDBDataToString(set) << std::endl;
-  }
+  auto set = DatabaseManager::getInstance().getMainDB()->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(setExprFluentName));
 
   bool truthVal = false;
+  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+  varTable.addScope();
 
   switch (quantifier)
   {
     case Quantifier::exists:
-      truthVal = set.size() > 0;
-//      truthVal = std::any_of(std::begin(set), std::end(set),
-//          [&tuple](const std::vector<std::string>& elem)
-//          {
-//            return yagi::comparers::tuplesEqual(tuple,elem);
-//          });
+      for (auto i = 0; i != set.size(); i++)
+      {
+        //get binding for i-th tuple in the set
+        for (auto j = 0; j != tuple.size(); j++)
+        {
+          varTable.addVariable(tuple[j], set[i][j]);
+        }
+
+        //evaluate formula, if any
+        if (suchFormula)
+        {
+          truthVal = suchFormula->accept(*ctx_).get<bool>();
+          if (truthVal)
+          {
+            break;
+          }
+        }
+        else
+        {
+          //if there's no 'such' formula the result is true if there is at least 1
+          //element in the set, i.e. we enter this loop at least once
+          truthVal = true;
+        }
+      }
     break;
 
     case Quantifier::all:
-      truthVal = set.size() > 0; //todo: whats the semantics of "all <$x> in f"?
-//      truthVal = std::all_of(std::begin(set), std::end(set),
-//          [&tuple](const std::vector<std::string>& elem)
-//          {
-//            return yagi::comparers::tuplesEqual(tuple,elem);
-//          });
+      truthVal = true;
+      for (auto i = 0; i != set.size(); i++)
+      {
+        //get binding for i-th tuple in the set
+        for (auto j = 0; j != tuple.size(); j++)
+        {
+          varTable.addVariable(tuple[j], set[i][j]);
+        }
+
+        //evaluate formula, if any
+        if (suchFormula)
+        {
+          truthVal = truthVal && suchFormula->accept(*ctx_).get<bool>();
+          if (!truthVal)
+          {
+            break;
+          }
+        }
+        else
+        {
+          //if there's no 'such' formula the result is true if there is at least 1
+          //element in the set, i.e. we enter this loop at least once
+          truthVal = true;
+        }
+      }
     break;
 
     default:
       throw std::runtime_error("Unknown formula quantifier!");
 
   }
+
+  if (printFormulaEvaluationResults_)
+  {
+    std::cout << "[Formula] Quantified Formula "
+        << (quantifier == Quantifier::all ? "all " : "exists ") << yagi::tupleToString(tuple)
+        << " in " << yagi::fluentDBDataToString(set) << std::endl;
+    std::cout << "[Result] " << truthVal << std::endl;
+  }
+
+  varTable.removeScope();
 
   return truthVal;
 }
@@ -123,7 +195,10 @@ bool FormulaEvaluator::evaluateConstant(NodeConstant* constant)
   auto ret = constant->getTruthValue();
 
   if (printFormulaEvaluationResults_)
-    std::cout << "[Formula] Constant: " << (ret ? "true" : "false") << std::endl;
+  {
+    std::cout << "[Formula] Constant" << std::endl;
+    std::cout << "[Result] " << ret << std::endl;
+  }
 
   return ret;
 }
@@ -143,25 +218,52 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
     return lhs->accept(*ctx_).get<bool>();
   }
 
-//either both rhs and lhs are <values>...
+  bool ret = false;
+
+  //either both rhs and lhs are <values>...
   if (yagi::treeHelper::isValueNode(lhs.get()) && yagi::treeHelper::isValueNode(rhs.get()))
   {
     auto lhsResult = lhs->accept(*ctx_).get<std::string>();
     auto rhsResult = rhs->accept(*ctx_).get<std::string>();
 
-    return performValueValueComparison(lhsResult, rhsResult, connective);
+    if (lhsResult[0] == '$') //it's a variable
+    {
+      lhsResult = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
+          lhsResult);
+    }
+
+    if (rhsResult[0] == '$') //it's a variable
+    {
+      rhsResult = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
+          rhsResult);
+    }
+
+    ret = performValueValueComparison(lhsResult, rhsResult, connective);
   } //or <setexpr>
   else if (std::dynamic_pointer_cast<NodeSetExpression>(lhs)
       && std::dynamic_pointer_cast<NodeSetExpression>(rhs))
   {
-    auto lhsResult = lhs->accept(*ctx_).get<std::vector<std::vector<std::string>>>();
-    auto rhsResult = rhs->accept(*ctx_).get<std::vector<std::vector<std::string>>>();
+    auto lhsShadowFluent = lhs->accept(*ctx_).get<std::string>();
+    auto rhsShadowFluent = rhs->accept(*ctx_).get<std::string>();
 
-    return performSetSetComparison(lhsResult, rhsResult, connective);
+    //get data form db
+    auto db = DatabaseManager::getInstance().getMainDB();
+    auto lhsResult = db->executeQuery(
+        SQLGenerator::getInstance().getSqlStringSelectAll(lhsShadowFluent));
+    auto rhsResult = db->executeQuery(
+        SQLGenerator::getInstance().getSqlStringSelectAll(rhsShadowFluent));
+
+    ret = performSetSetComparison(lhsResult, rhsResult, connective);
   }
   else
-  throw std::runtime_error("no clue how to evaluate this atom!");
+    throw std::runtime_error("no clue how to evaluate this atom!");
 
+  if (printFormulaEvaluationResults_)
+  {
+    std::cout << "[Result] " << ret << std::endl;
+  }
+
+  return ret;
 }
 
 bool FormulaEvaluator::performValueValueComparison(const std::string& lhs, const std::string& rhs,
@@ -174,22 +276,23 @@ bool FormulaEvaluator::performValueValueComparison(const std::string& lhs, const
     std::cout << "[Formula] Atom: " << lhs << conn.toString() << rhs << std::endl;
   }
 
+  //TODO: clarify semantics!
   switch (connective)
   {
     case AtomConnective::Eq:
       return lhs == rhs;
 
     case AtomConnective::Ge:
-      return lhs.size() >= rhs.size();
+      return lhs >= rhs;
 
     case AtomConnective::Gt:
-      return lhs.size() > rhs.size();
+      return lhs > rhs;
 
     case AtomConnective::Le:
-      return lhs.size() <= rhs.size();
+      return lhs <= rhs;
 
     case AtomConnective::Lt:
-      return lhs.size() < rhs.size();
+      return lhs < rhs;
 
     case AtomConnective::Neq:
       return lhs != rhs;

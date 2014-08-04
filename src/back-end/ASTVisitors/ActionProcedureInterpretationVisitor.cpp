@@ -137,15 +137,18 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     }
   }
 
-  bool apHolds = actionDecl.getActionPrecondition()->accept(*this).tryGetCopy<bool>(false);
-  if (!apHolds)
+  if (auto ap = actionDecl.getActionPrecondition())
   {
-    std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
+    bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
+    if (!apHolds)
+    {
+      std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
 
-    return Any { };
+      return Any { };
+    }
+
+    std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
   }
-
-  std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
 
   auto statements = actionDecl.getActionEffect()->getBlock()->getStatements();
 
@@ -589,6 +592,23 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
       {
         stmt->accept(*this);
       });
+
+  return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
+{
+  auto blocks = choose.getBlocks();
+
+  RandomNumberGenerator rng;
+  int randomIndex = rng.getRandomNumber(0, blocks.size() - 1);
+
+  auto stmts = blocks.at(randomIndex)->getStatements();
+
+  for (const auto& stmt : stmts)
+  {
+    stmt->accept(*this);
+  }
 
   return Any { };
 }
