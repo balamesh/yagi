@@ -2,14 +2,45 @@
 #ifndef ANY_H_
 #define ANY_H_
 
+//TODO: Remove this for final version
+#define ANY_DEBUG
+
 #include <memory>
 #include <utility>
 #include <typeinfo>
 #include <type_traits>
 #include <stdexcept>
+#ifdef ANY_DEBUG
+#include <execinfo.h> // glibc extension
+#include <cxxabi.h>   // GCC extension
+#include <string>
+#include <vector>
+#include <ostream>
+#include <iostream>
+#include <algorithm>
+#ifdef __APPLE__
+#include <sstream>
+#include <iterator>
+#endif
+#endif
 
 namespace yagi {
 namespace container {
+#ifdef ANY_DEBUG
+class AnyException : public std::runtime_error
+{
+public:
+    AnyException(const std::string &msg, std::vector<std::string> st = {}): runtime_error{msg}, stackTrace_{std::move(st)} { }
+    std::vector<std::string> getStackTrace() const { return stackTrace_; }
+    void printStackTrace(std::ostream &os = std::cout) const { std::for_each(std::begin(stackTrace_), std::end(stackTrace_), [&os](const std::string &s){ os << s << std::endl; }); }
+
+private:
+    std::vector<std::string> stackTrace_;
+};
+#else
+using AnyException = std::runtime_error;
+#endif
+
 class Any
 {
 private:
@@ -67,8 +98,64 @@ private:
     std::shared_ptr<HolderBase> holder_;
 
     template<typename T>
-    void check() const { if (empty()) throw std::runtime_error("[any] no value set"); if (!hasType<T>()) throw std::runtime_error("[any] invalid type"); }
+    void check() const
+    {
+#ifdef ANY_DEBUG
+        constexpr int BackTraceSize = 300;
+        std::vector<std::string> backTraceLines;
+        void *backTraceBuffer[BackTraceSize];
+        auto backTraceDepth = backtrace(backTraceBuffer, BackTraceSize);
+        std::unique_ptr<char*, void (*)(void*)> backTraceSymbols{backtrace_symbols(backTraceBuffer, backTraceDepth), std::free};
+        if (backTraceSymbols)
+        {
+            backTraceLines.reserve(backTraceDepth);
+            for (int lineIdx = 0; lineIdx < backTraceDepth; ++lineIdx)
+            {
+#ifdef __APPLE__
+                std::istringstream ssLine(backTraceSymbols.get()[lineIdx]);
+                std::istream_iterator<std::string> lineTokenIterator{ssLine};
+                std::string recombinedLine, backTraceLine{backTraceSymbols.get()[lineIdx]};
+                for (int lineTokenIdx = 0; lineTokenIterator != std::istream_iterator<std::string>{}; ++lineTokenIterator, ++lineTokenIdx)
+                    if (lineTokenIdx == 3)
+                    {
+                        int status;
+                        const std::string functionName = *lineTokenIterator;
+                        std::unique_ptr<char, void(*)(void*)> demangledName{abi::__cxa_demangle(functionName.c_str(), nullptr, 0, &status), std::free};
+                        recombinedLine += (!status && demangledName ? std::string{demangledName.get()} : functionName) + ' ';
+                    }
+                    else
+                        recombinedLine += std::string(*lineTokenIterator) + (lineTokenIdx < 3 ? '\t' : ' ');
+                backTraceLines.push_back(recombinedLine);
+#elif __linux
+                std::string rawBacktraceLine{backTraceSymbols.get()[lineIdx]};
+                auto startPos = rawBacktraceLine.find_first_of('('), endPos = rawBacktraceLine.find_first_of('+');
+                if (startPos != std::string::npos && endPos != std::string::npos && endPos > startPos)
+                {
+                    int status;
+                    const auto functionName = rawBacktraceLine.substr(startPos + 1, endPos - startPos - 1);
+                    std::unique_ptr<char, void(*)(void*)> demangledName{abi::__cxa_demangle(functionName.c_str(), nullptr, 0, &status), std::free};
+                    if (!status && demangledName)
+                    {
+                        backTraceLines.push_back(rawBacktraceLine.replace(startPos + 1, endPos - startPos - 1, demangledName.get()));
+                        continue;
+                    }
+                }
+                backTraceLines.emplace_back(backTraceSymbols.get()[lineIdx]);
+#else
+                backTraceLines.emplace_back(backTraceSymbols.get()[lineIdx]);
+#endif
+            }
+        }
+#define MAKE_EXCEPTION(msg) AnyException{msg, backTraceLines}
+#else
+#define MAKE_EXCEPTION(msg) AnyException{msg}
+#endif
+        if (empty())
+            throw MAKE_EXCEPTION("[any] no value set");
+        if (!hasType<T>())
+            throw MAKE_EXCEPTION("[any] invalid type");
+    }
 };
-} //end namespace
+}
 }
 #endif //ANY_H_

@@ -194,7 +194,15 @@ bool execute(const std::string& line, bool isFileName)
 //    }
 //    else
 //    {
+    try
+    {
       stmt->accept(interpreter);
+    }
+    catch (yagi::container::AnyException& anyEx)
+    {
+      anyEx.printStackTrace();
+    }
+
 //    }
 
   }

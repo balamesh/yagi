@@ -132,10 +132,11 @@ void VariableTable::removeVariableIfExists(const std::string& varName)
 
 void VariableTable::addScope()
 {
-  lvl++;
-
   if (showDiagnosisOutput)
+  {
+    lvl++;
     std::cout << "Adding new scope... Level=" << lvl << std::endl;
+  }
 
   for (auto& var : variables_)
   {
@@ -146,10 +147,11 @@ void VariableTable::addScope()
 
 void VariableTable::removeScope()
 {
-  lvl--;
-
   if (showDiagnosisOutput)
+  {
+    lvl--;
     std::cout << "Removing scope... Level=" << lvl << std::endl;
+  }
 
   std::vector<std::string> removeList { };
   for (auto& var : variables_)
@@ -165,6 +167,7 @@ void VariableTable::removeScope()
       var.second.pop();
     }
 
+    //Remove variable from map if there are no values on the stack
     if (var.second.size() == 0)
     {
       removeList.push_back(var.first);

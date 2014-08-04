@@ -103,6 +103,7 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
 
 bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifiedFormula)
 {
+
   auto quantifier = quantifiedFormula->getQuantifier();
   auto tuple = quantifiedFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
   auto setExprFluentName = quantifiedFormula->getSetExpr()->accept(*ctx_).get<std::string>();

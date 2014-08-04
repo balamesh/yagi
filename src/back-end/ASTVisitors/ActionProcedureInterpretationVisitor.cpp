@@ -534,6 +534,21 @@ Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)
   return Any { };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
+{
+  auto statements = whileLoop.getBlock()->getStatements();
+
+  while (whileLoop.getFormula()->accept(*this).get<bool>())
+  {
+    std::for_each(std::begin(statements), std::end(statements),
+        [this](const std::shared_ptr<NodeStatementBase>& stmt)
+        {
+          stmt->accept(*this);
+        });
+  }
+  return Any { };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
 {
   auto varTuple = forLoop.getTuple()->accept(*this).get<std::vector<std::string>>();
