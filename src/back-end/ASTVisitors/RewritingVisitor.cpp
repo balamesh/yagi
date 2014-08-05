@@ -78,28 +78,38 @@ RewritingVisitor::~RewritingVisitor()
 
 Any RewritingVisitor::visit(NodeIDAssignment& idAssignment)
 {
-  //Build foreach AST for id assignment
-  auto loop = std::make_shared<NodeForLoop>();
-  loop->setSetExpr(idAssignment.getSetExpr());
+  //Build foreach AST for fluent  assignment
+//  auto loop = std::make_shared<NodeForLoop>();
+//  loop->setSetExpr(idAssignment.getSetExpr());
+//
+//
+//
+//  auto tuple = std::make_shared<NodeTuple>();
+//  tuple->addTupleValue(std::make_shared<NodeVariable>("x1"));
+//  tuple->addTupleValue(std::make_shared<NodeVariable>("x2"));
+//  loop->setTuple(tuple);
+//
+//  auto fcall = std::make_shared<NodeProcExecution>();
+//  fcall->setProcToExecName(std::make_shared<NodeID>("+g"));
+//
+//  auto valList = std::make_shared<NodeValueList>();
+//  valList->addValue(std::make_shared<NodeVariable>("x1"));
+//  valList->addValue(std::make_shared<NodeVariable>("x2"));
+//  fcall->setParameters(valList);
+//
+//  auto block = std::make_shared<NodeBlock>();
+//  block->addStatement(fcall);
+//  loop->setBlock(block);
+//
+//  return Any { loop };
 
-  auto tuple = std::make_shared<NodeTuple>();
-  tuple->addTupleValue(std::make_shared<NodeVariable>("x1"));
-  tuple->addTupleValue(std::make_shared<NodeVariable>("x2"));
-  loop->setTuple(tuple);
+  return Any { };
+}
 
-  auto fcall = std::make_shared<NodeProcExecution>();
-  fcall->setProcToExecName(std::make_shared<NodeID>("+g"));
-
-  auto valList = std::make_shared<NodeValueList>();
-  valList->addValue(std::make_shared<NodeVariable>("x1"));
-  valList->addValue(std::make_shared<NodeVariable>("x2"));
-  fcall->setParameters(valList);
-
-  auto block = std::make_shared<NodeBlock>();
-  block->addStatement(fcall);
-  loop->setBlock(block);
-
-  return Any { loop };
+Any RewritingVisitor::visit(NodeTuple& tuple)
+{
+  ActionProcedureInterpretationVisitor apiv;
+  return apiv.visit(tuple);
 }
 
 } /* namespace execution */

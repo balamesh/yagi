@@ -22,6 +22,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "ActionProcedureInterpretationVisitor.h"
 
 namespace yagi {
 namespace execution {
@@ -29,7 +30,8 @@ namespace execution {
 //class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeActionDecl>, public Visitor<
 //    NodeActionEffect>, public Visitor<NodeForLoop>, public Visitor<NodeBlock>, public Visitor<
 //    NodeIDAssignment>, public Visitor<NodeProgram>
-class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignment>
+class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignment>, public Visitor<
+    NodeTuple>
 {
   public:
     RewritingVisitor();
@@ -40,6 +42,7 @@ class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignme
 //    Any visit(NodeForLoop& forLoopAssign);
 //    Any visit(NodeBlock& block);
     Any visit(NodeIDAssignment& idAssignment);
+    Any visit(NodeTuple& tuple);
 //    Any visit(NodeProgram& program);
 };
 

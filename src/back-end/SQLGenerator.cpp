@@ -21,9 +21,29 @@ std::string SQLGenerator::getSqlStringDropTable(const std::string& tableName)
   return "DROP TABLE IF EXISTS " + tableName;
 }
 
+std::vector<std::string> SQLGenerator::getSqlStringsRemoveShadowFluent(const std::string& tableName)
+{
+  //Remove table from shadow fluents table
+  std::vector<std::string> sqlStrings { "DELETE FROM " + SHADOW_FLUENTS_TABLE_NAME_
+      + " WHERE name = '" + tableName + "';" };
+
+  //Delete shadow fluent table
+  sqlStrings.push_back(getSqlStringDropTable(tableName));
+
+  return sqlStrings;
+}
+
 std::string SQLGenerator::getSqlStringMakeTableShadowFluent(const std::string& tableName)
 {
   return "INSERT INTO " + SHADOW_FLUENTS_TABLE_NAME_ + " (name) VALUES ('" + tableName + "');";
+}
+
+std::string SQLGenerator::getSqlStringIsTableShadowFluent(const std::string& tableName)
+{
+  auto ret = "SELECT COUNT(*) FROM " + SHADOW_FLUENTS_TABLE_NAME_ + " WHERE name = '" + tableName + "'";
+  std::cout << ret << std::endl;
+
+  return ret;
 }
 
 std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, int numberOfColumns)

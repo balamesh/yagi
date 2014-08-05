@@ -372,7 +372,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
     db_->executeNonQuery(stmt);
   });
 
-  //add the info the the fluent is a shadow fluent
+  //add the info the that fluent is a shadow fluent
   if (!db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringExistsTable(
           SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_)).size())
@@ -473,15 +473,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   lhsResultVector = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(lhsResult.get<std::string>()));
 
-  if (auto rhs = setExpr.getRhs())
-  {
-    auto rhsResult = rhs->accept(*this);
-
-    //get data from (shadow-) fluent
-    rhsResultVector = db_->executeQuery(
-        SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
-  }
-
   if (auto op = setExpr.getOperator())
   {
     exprOp = op->getOperator();
@@ -490,6 +481,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   {
     return Any { lhsResult.get<std::string>() };
   }
+
+  auto rhs = setExpr.getRhs();
+  auto rhsResult = rhs->accept(*this);
+
+  //get data from (shadow-) fluent
+  rhsResultVector = db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
 
   std::vector<std::vector<std::string>> result;
   if (exprOp == ExprOperator::Plus)
@@ -502,6 +500,16 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   }
   else
     throw std::runtime_error("Unknown <setexpr> operator!");
+
+  //Cleanup fluents for lhs and rhs if they are shadow fluents
+  if (isShadowFluent(lhsResult.get<std::string>(), *db_.get()))
+  {
+    cleanupShadowFluent(lhsResult.get<std::string>(), *db_.get());
+  }
+  if (isShadowFluent(rhsResult.get<std::string>(), *db_.get()))
+  {
+    cleanupShadowFluent(rhsResult.get<std::string>(), *db_.get());
+  }
 
   //Build new <set> and shadow fluent
   NodeSet nodeResult;
@@ -585,6 +593,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
 
   varTable.removeScope();
 
+  //Cleanup shadow fluent in case it is one
+  if (isShadowFluent(setResult.get<std::string>(), *db_.get()))
+  {
+    cleanupShadowFluent(setResult.get<std::string>(), *db_.get());
+  }
+
   return Any { };
 }
 
@@ -657,6 +671,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   }
 
   varTable.removeScope();
+
+  //Cleanup shadow fluent in case it is one
+  if (isShadowFluent(fluentName, *db_.get()))
+  {
+    cleanupShadowFluent(fluentName, *db_.get());
+  }
 
   return Any { };
 }

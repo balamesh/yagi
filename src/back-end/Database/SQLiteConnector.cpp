@@ -51,7 +51,7 @@ void SQLiteConnector::connect()
   connected_ = true;
 }
 
-void SQLiteConnector::executeNonQuery(const std::string& sqlStatement)
+void SQLiteConnector::executeNonQuery(const std::string& sqlStatement) const
 {
   char *zErrMsg = nullptr;
 
@@ -68,7 +68,7 @@ void SQLiteConnector::executeNonQuery(const std::string& sqlStatement)
 
 //based on http://www.codeproject.com/Tips/378808/Accessing-a-SQLite-Database-with-Cplusplus
 std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
-    const std::string& selectSqlStmt)
+    const std::string& selectSqlStmt) const
 {
 
   std::vector<std::vector<std::string>> data;

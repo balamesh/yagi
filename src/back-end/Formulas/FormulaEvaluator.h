@@ -18,6 +18,7 @@
 #include "../Variables/VariableTableManager.h"
 #include "../Database/DatabaseManager.h"
 #include "../SQLGenerator.h"
+#include "../Database/DBHelper.h"
 
 using namespace yagi::execution;
 using namespace yagi::database;

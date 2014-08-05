@@ -8,6 +8,7 @@
 #include <fstream>
 #include <streambuf>
 #include <signal.h>
+#include <exception>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -179,31 +180,34 @@ bool execute(const std::string& line, bool isFileName)
       return true;
     }
 
-//    RewritingVisitor rewriter;
-//    auto newStmt = stmt->accept(rewriter);
-//
-    MainInterpretationVisitor interpreter;
-//    if (newStmt && !newStmt.empty())
-//    {
-//      auto rewrittenStmt = newStmt.get<std::shared_ptr<NodeForLoop>>();
-//      ToStringVisitor toStringVisitorAfterRewrite;
-//      std::cout << "C++ AST (Rewritten): "
-//          << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
-//
-//      rewrittenStmt->accept(interpreter);
-//    }
-//    else
-//    {
-    try
-    {
-      stmt->accept(interpreter);
-    }
-    catch (yagi::container::AnyException& anyEx)
-    {
-      anyEx.printStackTrace();
-    }
+    RewritingVisitor rewriter;
+    auto newStmt = stmt->accept(rewriter);
 
-//    }
+    MainInterpretationVisitor interpreter;
+    if (newStmt && !newStmt.empty())
+    {
+      auto rewrittenStmt = newStmt.get<std::shared_ptr<ASTNodeBase<>>>();
+      ToStringVisitor toStringVisitorAfterRewrite;
+      std::cout << "C++ AST (Rewritten): "
+      << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+
+      rewrittenStmt->accept(interpreter);
+    }
+    else
+    {
+      try
+      {
+        stmt->accept(interpreter);
+      }
+      catch (yagi::container::AnyException& anyEx)
+      {
+        anyEx.printStackTrace();
+      }
+      catch (const std::exception& ex)
+      {
+        std::cerr << "ERROR: " << ex.what() << std::endl;
+      }
+    }
 
   }
 

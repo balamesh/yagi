@@ -46,8 +46,8 @@ class SQLiteConnector : public DatabaseConnectorBase
     virtual ~SQLiteConnector();
 
     virtual void connect() override;
-    virtual void executeNonQuery(const std::string& sqlStatement) override;
-    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) override;
+    virtual void executeNonQuery(const std::string& sqlStatement) const override;
+    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) const override;
 };
 
 } //end namespace

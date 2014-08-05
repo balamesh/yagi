@@ -80,10 +80,10 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
     }
   }
 
-  auto setExprfluentName = inFormula->getSetExpr()->accept(*ctx_).get<std::string>();
+  auto setExprFluentName = inFormula->getSetExpr()->accept(*ctx_).get<std::string>();
 
   auto set = DatabaseManager::getInstance().getMainDB()->executeQuery(
-      SQLGenerator::getInstance().getSqlStringSelectAll(setExprfluentName));
+      SQLGenerator::getInstance().getSqlStringSelectAll(setExprFluentName));
 
   bool ret = std::any_of(std::begin(set), std::end(set),
       [&tuple](const std::vector<std::string>& elem)
@@ -96,6 +96,12 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
     std::cout << "[Formula] Operator 'in' Formula: " << yagi::tupleToString(tuple) << " in "
         << yagi::fluentDBDataToString(set) << std::endl;
     std::cout << "[Result] " << ret << std::endl;
+  }
+
+  //Cleanup shadow fluent in case it is one
+  if (isShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get()))
+  {
+    cleanupShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get());
   }
 
   return ret;
@@ -188,6 +194,12 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
 
   varTable.removeScope();
 
+  //Cleanup shadow fluent in case it is one
+  if (isShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get()))
+  {
+    cleanupShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get());
+  }
+
   return truthVal;
 }
 
@@ -255,6 +267,17 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
         SQLGenerator::getInstance().getSqlStringSelectAll(rhsShadowFluent));
 
     ret = performSetSetComparison(lhsResult, rhsResult, connective);
+
+    //Cleanup shadow fluents in case they are no persistent fluents
+    if (isShadowFluent(lhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get()))
+    {
+      cleanupShadowFluent(lhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get());
+    }
+
+    if (isShadowFluent(rhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get()))
+    {
+      cleanupShadowFluent(rhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get());
+    }
   }
   else
     throw std::runtime_error("no clue how to evaluate this atom!");

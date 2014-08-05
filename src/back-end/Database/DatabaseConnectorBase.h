@@ -43,9 +43,9 @@ class DatabaseConnectorBase
     }
 
     virtual void connect() = 0;
-    virtual void executeNonQuery(const std::string& sqlStatement) = 0;
+    virtual void executeNonQuery(const std::string& sqlStatement) const = 0;
     virtual std::vector<std::vector<std::string>> executeQuery(
-        const std::string& selectSqlStmt) = 0;
+        const std::string& selectSqlStmt) const = 0;
 };
 
 } //end namespace

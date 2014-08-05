@@ -186,6 +186,8 @@ src/utils/DateTimeHelper.cpp
 src/utils/DateTimeHelper.h
 src/utils/RandomNumberGenerator.cpp
 src/utils/RandomNumberGenerator.h
+src/back-end/Database/DBHelper.h
+src/back-end/Database/DBHelper.cpp
 )
 
 add_executable(yagi-unitTests
@@ -344,6 +346,8 @@ src/utils/DateTimeHelper.cpp
 src/utils/DateTimeHelper.h
 src/utils/RandomNumberGenerator.cpp
 src/utils/RandomNumberGenerator.h
+src/back-end/Database/DBHelper.h
+src/back-end/Database/DBHelper.cpp
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

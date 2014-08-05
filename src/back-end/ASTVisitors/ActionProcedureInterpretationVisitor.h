@@ -40,6 +40,7 @@
 #include "../../utils/RandomNumberGenerator.h"
 #include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
 #include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
+#include "../Database/DBHelper.h"
 
 using namespace yagi::database;
 using namespace yagi::container;

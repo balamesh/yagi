@@ -38,6 +38,8 @@ class SQLGenerator
 
     std::string getSqlStringCreateTable(const std::string& tableName, int numberOfColumns);
     std::string getSqlStringMakeTableShadowFluent(const std::string& tableName);
+    std::string getSqlStringIsTableShadowFluent(const std::string& tableName);
+    std::vector<std::string> getSqlStringsRemoveShadowFluent(const std::string& tableName);
     std::string getSqlStringSelectAll(const std::string& tableName);
     std::string getSqlStringDropTable(const std::string& tableName);
     std::string getSqlStringExistsTable(const std::string& tableName);
