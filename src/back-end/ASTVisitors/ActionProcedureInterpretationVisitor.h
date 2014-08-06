@@ -40,6 +40,7 @@
 #include "../../utils/RandomNumberGenerator.h"
 #include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
 #include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
 #include "../Database/DBHelper.h"
 
 using namespace yagi::database;
@@ -80,7 +81,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeValueList>,
     public Visitor<NodePick>,
     public Visitor<NodeChoose>,
-    public Visitor<NodeWhileLoop>
+    public Visitor<NodeWhileLoop>,
+    public Visitor<NodeTest>
 
 {
   private:
@@ -127,6 +129,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodePick& pick);
     Any visit(NodeChoose& choose);
     Any visit(NodeWhileLoop& whileLoop);
+    Any visit(NodeTest& test);
 };
 
 }

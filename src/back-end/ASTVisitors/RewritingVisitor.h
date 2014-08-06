@@ -23,6 +23,9 @@
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
 #include "ActionProcedureInterpretationVisitor.h"
+#include "../Database/DatabaseManager.h"
+
+using namespace yagi::database;
 
 namespace yagi {
 namespace execution {

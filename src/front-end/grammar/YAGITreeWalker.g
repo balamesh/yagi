@@ -57,7 +57,7 @@ domain
 	;
 	
 action_decl
-	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST {ADD_VAR_LIST();} var_list?) (^(IT_EXTERNAL_VARS {ADD_VAR_LIST();} var_list))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? ) 	
+	: ^(IT_ACTION_DECL ID ^(IT_VAR_LIST {ADD_VAR_LIST();} var_list?) (^(IT_EXTERNAL_VARS {ADD_VAR_LIST();} var_list))? formula_outerMost? effect? (^(IT_SIGNAL valexpr))? ) 	
 	{
 	    ADD_ACTION_DECL($ID->toString($ID));
         }

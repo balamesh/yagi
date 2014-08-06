@@ -68,7 +68,24 @@ proc serve($n)
 end proc
 
 proc serveafloor()
-  pick <$n> from fon such
-    serve($n);
-  end pick
+    pick <$n> from fon such
+      serve($n);
+    end pick
+end proc
+
+proc park()
+  if (currFloor == {<"0">}) then
+    open();
+  else
+     down("0");
+     open();
+  end if
+end proc
+
+proc control()
+  while exists <$n> in fon do
+    serveafloor();
+  end while
+  
+  park();
 end proc

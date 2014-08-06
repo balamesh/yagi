@@ -184,7 +184,7 @@ bool execute(const std::string& line, bool isFileName)
     auto newStmt = stmt->accept(rewriter);
 
     MainInterpretationVisitor interpreter;
-    if (newStmt && !newStmt.empty())
+    if (newStmt)
     {
       auto rewrittenStmt = newStmt.get<std::shared_ptr<ASTNodeBase<>>>();
       ToStringVisitor toStringVisitorAfterRewrite;

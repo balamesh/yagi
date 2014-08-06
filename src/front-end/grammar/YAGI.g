@@ -253,11 +253,11 @@ domain
 action_decl
 	:	TOKEN_ACTION ID TOKEN_OPEN_PAREN v1=var_list? TOKEN_CLOSE_PAREN (TOKEN_EXTERNAL TOKEN_OPEN_PAREN v2=var_list TOKEN_CLOSE_PAREN)?
 		(TOKEN_PRECOND formula_outerMost)?
-		effect
+		effect?
 		(TOKEN_SIGNAL valexpr TOKEN_EOL)?
 		TOKEN_END_ACTION
 		
-		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST $v1?) (^(IT_EXTERNAL_VARS $v2))? formula_outerMost? effect (^(IT_SIGNAL valexpr))? )
+		-> ^(IT_ACTION_DECL ID ^(IT_VAR_LIST $v1?) (^(IT_EXTERNAL_VARS $v2))? formula_outerMost? effect? (^(IT_SIGNAL valexpr))? )
 	;
 	
 effect	

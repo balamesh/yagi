@@ -103,11 +103,25 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
   auto procName = procDecl.getProcName()->accept(*this).get<std::string>();
   auto statements = procDecl.getBlock()->getStatements();
 
-  std::for_each(std::begin(statements), std::end(statements),
-      [this](std::shared_ptr<NodeStatementBase> stmt)
+  for (const auto& stmt : statements)
+  {
+    auto ret = stmt->accept(*this);
+
+    //'test' statement returns wether or not it holds
+    if (!ret.empty() && ret.hasType<bool>())
+    {
+      std::string outText = "holds!";
+      if (!ret.get<bool>())
       {
-        stmt->accept(*this);
-      });
+        outText = "does NOT hold!";
+      }
+
+      std::cout << "Test condition in procedure '" << procName << "' " << outText << std::endl;
+
+      if (!ret.get<bool>())
+        break;
+    }
+  }
 
   return Any { };
 }
@@ -116,6 +130,19 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
 {
   auto actionName = actionDecl.getActionName()->accept(*this).get<std::string>();
   auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
+
+  if (auto ap = actionDecl.getActionPrecondition())
+  {
+    bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
+    if (!apHolds)
+    {
+      std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
+
+      return Any { };
+    }
+
+    std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
+  }
 
   if (auto signal = actionDecl.getSignal())
   {
@@ -137,26 +164,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     }
   }
 
-  if (auto ap = actionDecl.getActionPrecondition())
+  if (auto actionEffect = actionDecl.getActionEffect())
   {
-    bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
-    if (!apHolds)
+    auto statements = actionEffect->getBlock()->getStatements();
+    for (const auto& stmt : statements)
     {
-      std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
-
-      return Any { };
+      stmt->accept(*this);
     }
-
-    std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
   }
-
-  auto statements = actionDecl.getActionEffect()->getBlock()->getStatements();
-
-  std::for_each(std::begin(statements), std::end(statements),
-      [this](std::shared_ptr<NodeStatementBase> stmt)
-      {
-        stmt->accept(*this);
-      });
 
   return Any { };
 }
@@ -555,6 +570,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
         });
   }
   return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
+{
+  //return test condition result to handle it in proc execution
+  return Any { test.getFormula()->accept(*this).get<bool>() };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
