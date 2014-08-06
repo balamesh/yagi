@@ -22,6 +22,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
 #include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h"
 #include "ActionProcedureInterpretationVisitor.h"
 #include "../Database/DatabaseManager.h"
 
@@ -30,23 +31,20 @@ using namespace yagi::database;
 namespace yagi {
 namespace execution {
 
-//class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeActionDecl>, public Visitor<
-//    NodeActionEffect>, public Visitor<NodeForLoop>, public Visitor<NodeBlock>, public Visitor<
-//    NodeIDAssignment>, public Visitor<NodeProgram>
 class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignment>, public Visitor<
-    NodeTuple>
+    NodeActionDecl>, public Visitor<NodeActionEffect>
 {
+  private:
+    std::shared_ptr<NodeForLoop> buildAssignmentRewritingLoop(std::string lhsFluentName,
+        SitCalcActionType actionType, std::string rhsFluentName);
+
   public:
     RewritingVisitor();
     virtual ~RewritingVisitor();
 
-//    Any visit(NodeActionDecl& actionDecl);
-//    Any visit(NodeActionEffect& effect);
-//    Any visit(NodeForLoop& forLoopAssign);
-//    Any visit(NodeBlock& block);
+    Any visit(NodeActionDecl& actionDecl);
+    Any visit(NodeActionEffect& effect);
     Any visit(NodeIDAssignment& idAssignment);
-    Any visit(NodeTuple& tuple);
-//    Any visit(NodeProgram& program);
 };
 
 }

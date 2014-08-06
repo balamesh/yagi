@@ -7,6 +7,24 @@
 
 #include "ActionProcedureInterpretationVisitor.h"
 
+#include <memory>
+#include <unordered_map>
+
+#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../Database/DatabaseConnectorBase.h"
+#include "../ExecutableElementsContainer.h"
+#include "../SQLGenerator.h"
+#include "../Signals/IYAGISignalHandler.h"
+#include "../Formulas/IFormulaEvaluator.h"
+#include "../../utils/SetOperations.h"
+#include "../TreeHelper.h"
+#include "../../utils/RandomNumberGenerator.h"
+#include "../Database/DBHelper.h"
+
+using yagi::database::DatabaseConnectorBase;
+using yagi::execution::IYAGISignalHandler;
+using yagi::formula::IFormulaEvaluator;
+
 namespace yagi {
 namespace execution {
 
@@ -605,11 +623,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
       varTable.setVariable(varTuple[i], tuple[i]);
     }
 
-    std::for_each(std::begin(statements), std::end(statements),
-        [this](const std::shared_ptr<NodeStatementBase>& stmt)
-        {
-          stmt->accept(*this);
-        });
+    for (const auto& stmt : statements)
+    {
+      stmt->accept(*this);
+    }
   }
 
   varTable.removeScope();
@@ -621,6 +638,38 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
   }
 
   return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitCalcAction)
+{
+  if (!db_)
+    throw std::runtime_error("No Database passed to InterpretationVisitor!");
+
+  auto actionType = sitCalcAction.getActionType();
+  auto fluentName = sitCalcAction.getFluentName()->accept(*this).get<std::string>();
+
+  std::vector<std::string> argList { };
+  if (auto paramNode = sitCalcAction.getParameters())
+  {
+    argList = paramNode->accept(*this).get<std::vector<std::string>>();
+  }
+
+  if (actionType == SitCalcActionType::Unknown)
+  {
+    throw std::runtime_error("Unknown sit calc action!");
+  }
+
+  //YAGI uses *only* addF and removeF as sitcalc actions per fluent F.
+  //These actions are specified to make a fluent true (or false) for a specific
+  //parameter vector, i.e. a YAGI tuple.
+  //Making "true"/"false" corresponds to a DB insert/delete in this implementation
+  auto sqlString = SQLGenerator::getInstance().getSqlStringForTupleAssign(fluentName, argList,
+      actionType);
+
+  db_->executeNonQuery(sqlString);
+
+  return Any { };
+
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)

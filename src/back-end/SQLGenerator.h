@@ -8,12 +8,13 @@
 #ifndef SQLGENERATOR_H_
 #define SQLGENERATOR_H_
 
-#include <iostream>
+#include <string>
+#include <vector>
 
-#include "../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
-#include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
-#include "../common/ASTNodeTypes/Set/NodeSet.h"
 #include "../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
+#include "../common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h"
+
+class NodeFactDecl;
 
 class SQLGenerator
 {
@@ -49,6 +50,8 @@ class SQLGenerator
 
     std::string getSqlStringForTupleAssign(const std::string& id,
         const std::vector<std::string>& tuple, AssignmentOperator op);
+    std::string getSqlStringForTupleAssign(const std::string& id,
+        const std::vector<std::string>& tuple, SitCalcActionType actionType);
 
     std::string getSqlStringClearTable(const std::string& tableName);
     std::string getSqlStringIsFactTable(const std::string& tableName);

@@ -509,6 +509,38 @@ Any ToStringVisitor::visit(NodePick& pick)
   return Any { astString + ") " };
 }
 
+Any ToStringVisitor::visit(NodeSitCalcActionExecution& sitCalcActionExec)
+{
+  std::string astString = "^([SitCalcAction Exec] ";
+
+  astString += sitCalcActionExec.getFluentName()->accept(*this).tryGetCopy<std::string>(
+      "<unknown>");
+
+  astString += " Action=";
+
+  switch (sitCalcActionExec.getActionType())
+  {
+    case SitCalcActionType::AddAssign:
+      astString += "addAssign";
+    break;
+
+    case SitCalcActionType::RemoveAssign:
+      astString += "removeAssign";
+    break;
+
+    default:
+      astString += "<unknown>";
+    break;
+  }
+
+  if (auto params = sitCalcActionExec.getParameters())
+  {
+    astString += params->accept(*this).tryGetCopy<std::string>("<unknown>");
+  }
+
+  return Any { astString + ") " };
+}
+
 Any ToStringVisitor::visit(NodeProcExecution& procExec)
 {
   std::string astString = "^([Proc Exec] ";

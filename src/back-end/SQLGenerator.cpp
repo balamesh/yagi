@@ -6,6 +6,7 @@
  */
 
 #include "SQLGenerator.h"
+#include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
 
 SQLGenerator::SQLGenerator() :
     FACTS_TABLE_NAME_("_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents")
@@ -40,7 +41,8 @@ std::string SQLGenerator::getSqlStringMakeTableShadowFluent(const std::string& t
 
 std::string SQLGenerator::getSqlStringIsTableShadowFluent(const std::string& tableName)
 {
-  auto ret = "SELECT COUNT(*) FROM " + SHADOW_FLUENTS_TABLE_NAME_ + " WHERE name = '" + tableName + "'";
+  auto ret = "SELECT COUNT(*) FROM " + SHADOW_FLUENTS_TABLE_NAME_ + " WHERE name = '" + tableName
+      + "'";
   std::cout << ret << std::endl;
 
   return ret;
@@ -95,6 +97,7 @@ std::vector<std::string> SQLGenerator::getSqlStringsForIDAssign(const std::strin
 
 }
 
+//TODO: Should not be used anymore...
 std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
     const std::vector<std::string>& tuple, AssignmentOperator op)
 {
@@ -104,6 +107,22 @@ std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
 
   }
   else if (op == AssignmentOperator::RemoveAssign)
+  {
+    return buildRemoveQuery(id, tuple);
+  }
+  else
+    throw std::runtime_error("unknown operator in getSqlStringForTupleAssign");
+}
+
+std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
+    const std::vector<std::string>& tuple, SitCalcActionType actionType)
+{
+  if (actionType == SitCalcActionType::AddAssign)
+  {
+    return buildAddQuery(id, tuple);
+
+  }
+  else if (actionType == SitCalcActionType::RemoveAssign)
   {
     return buildRemoveQuery(id, tuple);
   }

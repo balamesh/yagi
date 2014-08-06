@@ -9,43 +9,55 @@
 #define ACTIONPROCEDUREINTERPRETATIONVISITOR_H_
 
 #include <memory>
-#include <iostream>
+#include <string>
+#include <vector>
 
-#include "../Database/DatabaseConnectorBase.h"
-#include "../Formulas/IFormulaEvaluator.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
-#include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
-#include "../ExecutableElementsContainer.h"
-#include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
-#include "../SQLGenerator.h"
-#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
-#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
-#include "../Variables/VariableTableManager.h"
-#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
-#include "../../utils/SetOperations.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionPrecondition.h"
 #include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeSignal.h"
-#include "../Signals/IYAGISignalHandler.h"
-#include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
-#include "../TreeHelper.h"
-#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
-#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
-#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
-#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
-#include "../../utils/DateTimeHelper.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
-#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
-#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
 #include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
-#include "../../common/ASTNodeTypes/Statements/NodePick.h"
-#include "../../utils/RandomNumberGenerator.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeValueExpression.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtom.h"
+#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeCompoundFormula.h"
+#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
+#include "../../common/ASTNodeTypes/Formula/NodeFormulaConnective.h"
+#include "../../common/ASTNodeTypes/Formula/NodeNegation.h"
+#include "../../common/ASTNodeTypes/Formula/NodeOperatorIn.h"
+#include "../../common/ASTNodeTypes/Formula/NodeQuantifiedFormula.h"
+#include "../../common/ASTNodeTypes/Identifier/NodeID.h"
+#include "../../common/ASTNodeTypes/Set/NodeSet.h"
+#include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 #include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
-#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodePick.h"
+#include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h"
 #include "../../common/ASTNodeTypes/Statements/NodeTest.h"
-#include "../Database/DBHelper.h"
+#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
+#include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
+#include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
+#include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
+#include "../../common/ASTNodeVisitorBase.h"
 
-using namespace yagi::database;
-using namespace yagi::container;
-using namespace yagi::formula;
+namespace yagi {
+namespace database {
+class DatabaseConnectorBase;
+} /* namespace database */
+namespace execution {
+class IYAGISignalHandler;
+} /* namespace execution */
+namespace formula {
+class IFormulaEvaluator;
+} /* namespace formula */
+} /* namespace yagi */
 
 namespace yagi {
 namespace execution {
@@ -82,20 +94,23 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodePick>,
     public Visitor<NodeChoose>,
     public Visitor<NodeWhileLoop>,
-    public Visitor<NodeTest>
+    public Visitor<NodeTest>,
+    public Visitor<NodeSitCalcActionExecution>
 
 {
   private:
-    std::shared_ptr<IFormulaEvaluator> formulaEvaluator_;
-    std::shared_ptr<DatabaseConnectorBase> db_;
+    std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator_;
+    std::shared_ptr<yagi::database::DatabaseConnectorBase> db_;
     std::shared_ptr<IYAGISignalHandler> signalReceiver_;
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
 
   public:
     ActionProcedureInterpretationVisitor();
-    ActionProcedureInterpretationVisitor(std::shared_ptr<IFormulaEvaluator> formulaEvaluator,
-        std::shared_ptr<DatabaseConnectorBase> db, std::shared_ptr<IYAGISignalHandler> signalReceiver);
-    ActionProcedureInterpretationVisitor(std::shared_ptr<DatabaseConnectorBase> db);
+    ActionProcedureInterpretationVisitor(
+        std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
+        std::shared_ptr<yagi::database::DatabaseConnectorBase> db,
+        std::shared_ptr<IYAGISignalHandler> signalReceiver);
+    ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     virtual ~ActionProcedureInterpretationVisitor();
 
     Any visit(NodeActionDecl& actionDecl);
@@ -130,6 +145,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeChoose& choose);
     Any visit(NodeWhileLoop& whileLoop);
     Any visit(NodeTest& test);
+    Any visit(NodeSitCalcActionExecution& sitCalcAction);
 };
 
 }

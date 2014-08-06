@@ -188,6 +188,8 @@ src/utils/RandomNumberGenerator.cpp
 src/utils/RandomNumberGenerator.h
 src/back-end/Database/DBHelper.h
 src/back-end/Database/DBHelper.cpp
+src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
+src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
 )
 
 add_executable(yagi-unitTests
@@ -348,6 +350,8 @@ src/utils/RandomNumberGenerator.cpp
 src/utils/RandomNumberGenerator.h
 src/back-end/Database/DBHelper.h
 src/back-end/Database/DBHelper.cpp
+src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
+src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

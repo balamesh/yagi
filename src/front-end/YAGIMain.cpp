@@ -186,12 +186,16 @@ bool execute(const std::string& line, bool isFileName)
     MainInterpretationVisitor interpreter;
     if (newStmt)
     {
-      auto rewrittenStmt = newStmt.get<std::shared_ptr<ASTNodeBase<>>>();
+      auto rewrittenStmts = newStmt.get<std::vector<std::shared_ptr<ASTNodeBase<>>> >();
       ToStringVisitor toStringVisitorAfterRewrite;
-      std::cout << "C++ AST (Rewritten): "
-      << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
 
-      rewrittenStmt->accept(interpreter);
+      for (const auto& rewrittenStmt : rewrittenStmts)
+      {
+        std::cout << "C++ AST (Rewritten): "
+        << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+
+        rewrittenStmt->accept(interpreter);
+      }
     }
     else
     {

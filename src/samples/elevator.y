@@ -1,5 +1,5 @@
-fact floors[{"1","2","3","4","5","6"}];
-floors = {<"1">, <"2">, <"3">, <"4">, <"5">, <"6">};
+fact floors[{"0","1","2","3","4","5","6"}];
+floors = {<"0">, <"1">, <"2">, <"3">, <"4">, <"5">, <"6">};
 
 fluent fon[{"1","2","3","4","5","6"}];
 fon = {<"3">,<"5">};
@@ -17,15 +17,11 @@ signal:
 end action
 
 action open()
-effect:
-  $dummy = "dummy";
 signal:
   "Open door";
 end action
 
 action close()
-effect:
-  $dummy = "dummy";
 signal:
   "Close door";
 end action
@@ -33,7 +29,7 @@ end action
 action up($n)
 precondition:
   exists <$x> in floors
-  such (currFloor == {<$x>} and $x < $n);
+  such (currFloor == {<$x>} and ($x < $n and $n != "0"));
 effect:
   currFloor = {<$n>};
 signal:
@@ -43,11 +39,18 @@ end action
 action down($n)
 precondition:
   exists <$x> in floors
-  such (currFloor == {<$x>} and $x > $n);
+  such (currFloor == {<$x>} and ($x > $n and $n != "0"));
 effect:
   currFloor = {<$n>};  
 signal:
   "Move down to floor " + $n;
+end action
+
+action park()
+  effect:
+    currFloor = {<"0">};
+  signal:
+    "Parking the elevator!";
 end action
 
 proc goto($n)
@@ -71,15 +74,6 @@ proc serveafloor()
     pick <$n> from fon such
       serve($n);
     end pick
-end proc
-
-proc park()
-  if (currFloor == {<"0">}) then
-    open();
-  else
-     down("0");
-     open();
-  end if
 end proc
 
 proc control()

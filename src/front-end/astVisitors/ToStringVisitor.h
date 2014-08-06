@@ -58,6 +58,7 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
 #include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h"
 
 using namespace yagi::container;
 
@@ -106,7 +107,8 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeSearch>,
     public Visitor<NodeTest>,
     public Visitor<NodeVariableAssignment>,
-    public Visitor<NodeWhileLoop>
+    public Visitor<NodeWhileLoop>,
+    public Visitor<NodeSitCalcActionExecution>
 {
   public:
     Any visit(NodeProgram& program);
@@ -154,6 +156,7 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     Any visit(NodeTest& test);
     Any visit(NodeVariableAssignment& varAssignment);
     Any visit(NodeWhileLoop& whileLoop);
+    Any visit(NodeSitCalcActionExecution& sitCalcActionExec);
 };
 
 #endif /* TOSTRINGVISITOR_H_ */
