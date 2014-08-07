@@ -24,7 +24,7 @@ using SQLiteDB = std::unique_ptr<sqlite3, std::function<void(sqlite3*)>>;
 using SQLiteErrorMsg = std::unique_ptr<char[], std::function<void(char*)>>;
 
 //Based on the samples from http://www.tutorialspoint.com/sqlite/sqlite_c_cpp.htm
-class SQLiteConnector : public DatabaseConnectorBase
+class SQLiteConnector: public DatabaseConnectorBase
 {
   private:
     void cleanup();
@@ -32,10 +32,13 @@ class SQLiteConnector : public DatabaseConnectorBase
     SQLiteDB db_;
 
   public:
-    SQLiteConnector(const std::string& dbName) :
+    SQLiteConnector(const std::string& dbName, bool doCleanup = true) :
         DatabaseConnectorBase(dbName)
     {
-      cleanup();
+      if (doCleanup)
+      {
+        cleanup();
+      }
 
       pDB_ = nullptr;
       db_ = nullptr;
@@ -47,7 +50,10 @@ class SQLiteConnector : public DatabaseConnectorBase
 
     virtual void connect() override;
     virtual void executeNonQuery(const std::string& sqlStatement) const override;
-    virtual std::vector<std::vector<std::string>> executeQuery(const std::string& selectSqlStmt) const override;
+    virtual std::vector<std::vector<std::string>> executeQuery(
+        const std::string& selectSqlStmt) const override;
+
+    int backupDb(const char *zFilename, void (*xProgress)(int, int));
 };
 
 } //end namespace

@@ -33,8 +33,6 @@ class DatabaseManager
     std::unordered_map<std::string, std::shared_ptr<DatabaseConnectorBase>> databases_;
     std::shared_ptr<DatabaseConnectorBase> databaseMain_;
 
-    const std::string MAIN_DB_NAME;
-
   public:
     static DatabaseManager& getInstance()
     {
@@ -42,27 +40,13 @@ class DatabaseManager
       return instance;
     }
 
-    std::shared_ptr<DatabaseConnectorBase> getMainDB()
-    {
-      if (!databaseMain_)
-      {
-        databaseMain_ = std::make_shared<DataBaseConcreteType>(MAIN_DB_NAME);
-      }
+    const std::string MAIN_DB_NAME;
 
-      return databaseMain_;
-    }
-
-    std::shared_ptr<DatabaseConnectorBase> getDBByName(const std::string& name)
-    {
-      auto val = databases_.find(name);
-      if (val == std::end(databases_))
-      {
-        databases_[name] = std::make_shared<DataBaseConcreteType>(name);
-      }
-
-      return databases_[name];
-    }
-
+    std::shared_ptr<DatabaseConnectorBase> getMainDB();
+    std::shared_ptr<DatabaseConnectorBase> getDBByName(const std::string& name);
+    std::shared_ptr<DatabaseConnectorBase> getCloneWithNewName(const std::string& dbNameToClone,
+        const std::string& newDbName);
+    void deleteDB(const std::string& dbName);
 };
 
 } //end namespace

@@ -37,6 +37,7 @@ class VariableTableManager
 
     VariableTable& getVariableTable(const std::string& identifier);
     VariableTable& getMainVariableTable();
+    void deleteVariableTable(const std::string& varTableName);
 };
 
 } /* namespace execution */

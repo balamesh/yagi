@@ -38,5 +38,10 @@ VariableTable& VariableTableManager::getMainVariableTable()
   return getVariableTable(MAIN_VAR_TABLE_ID);
 }
 
+void VariableTableManager::deleteVariableTable(const std::string& varTableName)
+{
+  variableTables_.erase(varTableName);
+}
+
 } /* namespace execution */
 } /* namespace yagi */

@@ -46,6 +46,8 @@
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVarList.h"
 #include "../../common/ASTNodeVisitorBase.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
+#include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
 
 namespace yagi {
 namespace execution {
@@ -101,7 +103,9 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeChoose>,
     public Visitor<NodeWhileLoop>,
     public Visitor<NodeTest>,
-    public Visitor<NodeSitCalcActionExecution>
+    public Visitor<NodeSitCalcActionExecution>,
+    public Visitor<NodeSearch>,
+    public Visitor<NodeBlock>
 
 {
   private:
@@ -153,6 +157,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeWhileLoop& whileLoop);
     Any visit(NodeTest& test);
     Any visit(NodeSitCalcActionExecution& sitCalcAction);
+    Any visit(NodeSearch& search);
+    Any visit(NodeBlock& block);
 };
 
 }

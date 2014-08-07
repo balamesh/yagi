@@ -19,11 +19,16 @@
 #include "../../utils/SetOperations.h"
 #include "../TreeHelper.h"
 #include "../../utils/RandomNumberGenerator.h"
+#include "../Database/DatabaseManager.h"
 #include "../Database/DBHelper.h"
+#include "../Formulas/FormulaEvaluator.h"
+#include "../Signals/CoutCinSignalHandler.h"
 #include "../Variables/VariableTable.h"
+#include "../Variables/VariableTableManager.h"
 
 using yagi::database::DatabaseConnectorBase;
 using yagi::execution::IYAGISignalHandler;
+using yagi::formula::FormulaEvaluator;
 using yagi::formula::IFormulaEvaluator;
 
 namespace yagi {
@@ -128,18 +133,21 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
     auto ret = stmt->accept(*this);
 
     //'test' statement returns wether or not it holds
-    if (!ret.empty() && ret.hasType<bool>())
+    if (auto isTest = std::dynamic_pointer_cast<NodeTest>(stmt))
     {
-      std::string outText = "holds!";
-      if (!ret.get<bool>())
+      if (!ret.empty() && ret.hasType<bool>())
       {
-        outText = "does NOT hold!";
+        std::string outText = "holds!";
+        if (!ret.get<bool>())
+        {
+          outText = "does NOT hold!";
+        }
+
+        std::cout << "Test condition in procedure '" << procName << "' " << outText << std::endl;
+
+        if (!ret.get<bool>())
+          break;
       }
-
-      std::cout << "Test condition in procedure '" << procName << "' " << outText << std::endl;
-
-      if (!ret.get<bool>())
-        break;
     }
   }
 
@@ -157,7 +165,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     {
       std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
 
-      return Any { };
+      return Any { false };
     }
 
     std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
@@ -192,7 +200,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     }
   }
 
-  return Any { };
+  return Any { true };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeValueList& valueList)
@@ -222,6 +230,64 @@ Any ActionProcedureInterpretationVisitor::visit(NodeVarList& varList)
   return Any { variables };
 }
 
+Any ActionProcedureInterpretationVisitor::visit(NodeBlock& block)
+{
+  bool success = true;
+
+  for (const auto& stmt : block.getStatements())
+  {
+    auto ret = stmt->accept(*this);
+    if (ret.hasType<bool>())
+    {
+      bool rc = ret.get<bool>();
+      if (!rc)
+      {
+        success = false;
+        break;
+      }
+    }
+  }
+
+  return Any { success };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
+{
+  //Fire up a temporary db, temporary varTable and search for sequence of actions
+  auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(
+      DatabaseManager::getInstance().MAIN_DB_NAME, "tempDB_" + std::to_string(getNowTicks()));
+
+  std::string tempVarTableName = "tempVarTable_" + std::to_string(getNowTicks());
+  auto tempVarTable = VariableTableManager::getInstance().getVariableTable(tempVarTableName);
+
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
+      std::make_shared<CoutCinSignalHandler>(), tempVarTable);
+
+  auto searchRetVal = search.getBlock()->accept(v);
+
+  if (searchRetVal.get<bool>())
+  {
+    std::cout << ">>>> search found valid path! Executing..." << std::endl;
+
+    for (const auto& stmt : search.getBlock()->getStatements())
+    {
+      stmt->accept(*this);
+    }
+  }
+  else
+  {
+    std::cout << ">>>> search could NOT find valid path!" << std::endl;
+  }
+
+  //Cleanup
+  DatabaseManager::getInstance().deleteDB(tempDB->getDbName());
+  VariableTableManager::getInstance().deleteVariableTable(tempVarTableName);
+
+  return Any { };
+}
+
 Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
 {
   if (!formulaEvaluator_)
@@ -231,6 +297,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     throw std::runtime_error("No Database passed to InterpretationVisitor!");
 
   auto actionOrProcName = procExec.getProcToExecName()->accept(*this).get<std::string>();
+  bool procExecRetVal;
 
   std::vector<std::string> argList { };
   if (auto paramNode = procExec.getParameters())
@@ -254,7 +321,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
       varTable_->addVariable(paramList[i], argList[i]);
     }
 
-    actionToExecute->accept(*this);
+    auto ret = actionToExecute->accept(*this);
+    if (ret.hasType<bool>())
+    {
+      procExecRetVal = ret.get<bool>();
+    }
+    else
+    {
+      procExecRetVal = true;
+    }
   }
   else if (auto procToExecute = ExecutableElementsContainer::getInstance().getProcedure(
       actionOrProcName))
@@ -270,12 +345,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
       varTable_->addVariable(paramList[i], argList[i]);
     }
 
-    procToExecute->accept(*this);
+    auto ret = procToExecute->accept(*this);
+    if (ret.hasType<bool>())
+    {
+      procExecRetVal = ret.get<bool>();
+    }
+    else
+    {
+      procExecRetVal = true;
+    }
   }
 
   varTable_->removeScope();
 
-  return Any { };
+  return Any { procExecRetVal };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeAssignmentOperator& assOp)
