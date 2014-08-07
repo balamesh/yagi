@@ -8,18 +8,21 @@
 #ifndef TREEHELPER_H_
 #define TREEHELPER_H_
 
-#include <memory>
+#include <string>
 
-#include "Variables/VariableTableManager.h"
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
-#include "../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../common/ASTNodeTypes/Variables/NodeVariable.h"
+
+namespace yagi {
+namespace execution {
+class VariableTable;
+} /* namespace execution */
+} /* namespace yagi */
 
 namespace yagi {
 namespace treeHelper {
 
 std::string getValueFromValueNode(ASTNodeBase<>* valueNode,
-    ASTNodeVisitorBase& ctx);
+    ASTNodeVisitorBase& ctx, yagi::execution::VariableTable* varTable);
 bool isValueNode(ASTNodeBase<>* node);
 
 }

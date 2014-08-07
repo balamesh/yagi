@@ -9,43 +9,30 @@
 #define MAININTERPRETATIONVISITOR_H_
 
 #include <memory>
-#include <vector>
-#include <algorithm>
 
-#include "../Database/DatabaseConnectorBase.h"
-#include "../Database/DatabaseManager.h"
-#include "../SQLGenerator.h"
-#include "../../common/ASTNodeVisitorBase.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
-#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
-#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../../common/ASTNodeTypes/ASTNodeBase.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/FluentDecl/NodeFluentDecl.h"
+#include "../../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
+#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
 #include "../../common/ASTNodeTypes/Identifier/NodeID.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
-#include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
-#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
-#include "../../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
-#include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
-#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
-#include "../../common/ASTNodeTypes/Formula/NodeConstant.h"
-#include "../../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
-#include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
 #include "../../common/ASTNodeTypes/Set/NodeSet.h"
-#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
-#include "../ExecutableElementsContainer.h"
-#include "../Formulas/FormulaEvaluator.h"
-#include "ActionProcedureInterpretationVisitor.h"
-#include "../../front-end/astVisitors/ToStringVisitor.h"
+#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeTypes/Statements/NodeFluentQuery.h"
+#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
+#include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
-#include "../../utils/CustomComparers.h"
-#include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
-#include "../Signals/CoutCinSignalHandler.h"
-#include "../../utils/ToStringHelper.h"
-#include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
-#include "../../common/ASTNodeTypes/Statements/NodeConditional.h"
+#include "../../common/ASTNodeVisitorBase.h"
+#include "../../front-end/astVisitors/ToStringVisitor.h"
+#include "../../utils/Any.h"
 
-using namespace yagi::database;
 using namespace yagi::container;
 
 namespace yagi {

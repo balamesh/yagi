@@ -7,6 +7,19 @@
 
 #include "MainInterpretationVisitor.h"
 
+#include "../../utils/ToStringHelper.h"
+#include "../Database/DatabaseManager.h"
+#include "../ExecutableElementsContainer.h"
+#include "../SQLGenerator.h"
+#include "ActionProcedureInterpretationVisitor.h"
+#include "../Formulas/FormulaEvaluator.h"
+#include "../Variables/VariableTableManager.h"
+#include "../Signals/CoutCinSignalHandler.h"
+
+using yagi::database::DatabaseManager;
+
+using namespace yagi::formula;
+
 namespace yagi {
 namespace execution {
 
@@ -111,8 +124,13 @@ Any MainInterpretationVisitor::visit(NodeProcDecl& procDecl)
 
 Any MainInterpretationVisitor::visit(NodeProcExecution& procExec)
 {
-  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
-      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
 
   return Any { v.visit(procExec) };
 }
@@ -155,15 +173,27 @@ Any MainInterpretationVisitor::visit(NodeSetExpression& setExpr)
 
 Any MainInterpretationVisitor::visit(NodeForLoop& forLoop)
 {
-  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
-      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
   return v.visit(forLoop);
 }
 
 Any MainInterpretationVisitor::visit(NodeConditional& conditional)
 {
-  ActionProcedureInterpretationVisitor v(std::make_shared<yagi::formula::FormulaEvaluator>(),
-      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>());
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
   return v.visit(conditional);
 
 }

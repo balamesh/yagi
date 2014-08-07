@@ -48,6 +48,12 @@
 #include "../../common/ASTNodeVisitorBase.h"
 
 namespace yagi {
+namespace execution {
+class VariableTable;
+} /* namespace execution */
+} /* namespace yagi */
+
+namespace yagi {
 namespace database {
 class DatabaseConnectorBase;
 } /* namespace database */
@@ -102,6 +108,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator_;
     std::shared_ptr<yagi::database::DatabaseConnectorBase> db_;
     std::shared_ptr<IYAGISignalHandler> signalReceiver_;
+    yagi::execution::VariableTable* varTable_;
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
 
   public:
@@ -109,7 +116,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     ActionProcedureInterpretationVisitor(
         std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
         std::shared_ptr<yagi::database::DatabaseConnectorBase> db,
-        std::shared_ptr<IYAGISignalHandler> signalReceiver);
+        std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable);
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     virtual ~ActionProcedureInterpretationVisitor();
 

@@ -20,6 +20,7 @@
 #include "../TreeHelper.h"
 #include "../../utils/RandomNumberGenerator.h"
 #include "../Database/DBHelper.h"
+#include "../Variables/VariableTable.h"
 
 using yagi::database::DatabaseConnectorBase;
 using yagi::execution::IYAGISignalHandler;
@@ -29,21 +30,22 @@ namespace yagi {
 namespace execution {
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
-    formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr)
+    formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr)
 {
 
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<DatabaseConnectorBase> db) :
-    formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr)
+    formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr)
 {
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator, std::shared_ptr<DatabaseConnectorBase> db,
-    std::shared_ptr<IYAGISignalHandler> signalReceiver) :
-    formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver)
+    std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable) :
+    formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
+        &varTable)
 {
   formulaEvaluator_->setContext(this);
 }
@@ -147,7 +149,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
 Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
 {
   auto actionName = actionDecl.getActionName()->accept(*this).get<std::string>();
-  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
 
   if (auto ap = actionDecl.getActionPrecondition())
   {
@@ -173,7 +174,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
       //add setting vars to vartable
       for (const auto& varAss : settingVarAssignments)
       {
-        varTable.addVariable(varAss.first, varAss.second);
+        varTable_->addVariable(varAss.first, varAss.second);
       }
     }
     else
@@ -201,7 +202,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueList& valueList)
 
   for (const auto& valueNode : valueNodes)
   {
-    vals.push_back(treeHelper::getValueFromValueNode(valueNode.get(), *this));
+    vals.push_back(treeHelper::getValueFromValueNode(valueNode.get(), *this, varTable_));
   }
 
   return Any { vals };
@@ -237,8 +238,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     argList = paramNode->accept(*this).get<std::vector<std::string>>();
   }
 
-  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
-  varTable.addScope();
+  varTable_->addScope();
 
   std::vector<std::string> paramList { };
   if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName))
@@ -251,7 +251,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     //set param values for action call
     for (auto i = 0; i != paramList.size(); i++)
     {
-      varTable.addVariable(paramList[i], argList[i]);
+      varTable_->addVariable(paramList[i], argList[i]);
     }
 
     actionToExecute->accept(*this);
@@ -267,13 +267,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     //set param values for action call
     for (auto i = 0; i != paramList.size(); i++)
     {
-      varTable.addVariable(paramList[i], argList[i]);
+      varTable_->addVariable(paramList[i], argList[i]);
     }
 
     procToExecute->accept(*this);
   }
 
-  varTable.removeScope();
+  varTable_->removeScope();
 
   return Any { };
 }
@@ -343,7 +343,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
         {
           if (tupleVal[0] == '$') //it's a variable
           {
-            vals.push_back(VariableTableManager::getInstance().getMainVariableTable().getVariableValue(tupleVal));
+            vals.push_back(varTable_->getVariableValue(tupleVal));
           }
           else //it's a string value
           {
@@ -468,12 +468,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
 
   if (auto lhs = valExpr.getLhs())
   {
-    lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this);
+    lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this, varTable_);
   }
 
   if (auto rhs = valExpr.getRhs())
   {
-    rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this);
+    rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this, varTable_);
   }
 
   if (auto op = valExpr.getOperator())
@@ -567,10 +567,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)
 {
-  auto val = yagi::treeHelper::getValueFromValueNode(varAss.getValue().get(), *this);
+  auto val = yagi::treeHelper::getValueFromValueNode(varAss.getValue().get(), *this, varTable_);
   auto varName = varAss.getVariable()->accept(*this).get<std::string>();
 
-  VariableTableManager::getInstance().getMainVariableTable().addVariable(varName, val);
+  varTable_->addVariable(varName, val);
 
   return Any { };
 }
@@ -607,12 +607,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
       SQLGenerator::getInstance().getSqlStringSelectAll(setResult.get<std::string>()));
 
   //add vars to vartable
-  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
-  varTable.addScope();
+  varTable_->addScope();
 
   for (const auto& varName : varTuple)
   {
-    varTable.addVariable(varName);
+    varTable_->addVariable(varName);
   }
 
   //set values to variables and execute <block>
@@ -620,7 +619,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
   {
     for (auto i = 0; i != tuple.size(); i++)
     {
-      varTable.setVariable(varTuple[i], tuple[i]);
+      varTable_->setVariable(varTuple[i], tuple[i]);
     }
 
     for (const auto& stmt : statements)
@@ -629,7 +628,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
     }
   }
 
-  varTable.removeScope();
+  varTable_->removeScope();
 
   //Cleanup shadow fluent in case it is one
   if (isShadowFluent(setResult.get<std::string>(), *db_.get()))
@@ -714,7 +713,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
 Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
 {
-  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
   auto varTuple = pick.getTuple()->accept(*this).get<std::vector<std::string>>();
   auto fluentName = pick.getSetExpr()->accept(*this).get<std::string>();
 
@@ -723,14 +721,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   RandomNumberGenerator rng;
   int randomIndex = rng.getRandomNumber(0, set.size() - 1);
 
-  varTable.addScope();
+  varTable_->addScope();
 
   //pick a value for each unbound variable in varTuple, leave the bound variables as they are
   for (auto i = 0; i != varTuple.size(); i++)
   {
-    if (!varTable.variableExists(varTuple[i]) || !varTable.isVariableInitialized(varTuple[i]))
+    if (!varTable_->variableExists(varTuple[i]) || !varTable_->isVariableInitialized(varTuple[i]))
     {
-      varTable.addVariable(varTuple[i], set[randomIndex][i]);
+      varTable_->addVariable(varTuple[i], set[randomIndex][i]);
     }
   }
 
@@ -740,7 +738,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     stmt->accept(*this);
   }
 
-  varTable.removeScope();
+  varTable_->removeScope();
 
   //Cleanup shadow fluent in case it is one
   if (isShadowFluent(fluentName, *db_.get()))

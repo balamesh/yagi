@@ -7,10 +7,19 @@
 
 #include "FormulaEvaluator.h"
 
+#include "../../utils/CustomComparers.h"
+#include "../../utils/ToStringHelper.h"
+#include "../Database/DBHelper.h"
+#include "../SQLGenerator.h"
+#include "../TreeHelper.h"
+#include "../Variables/VariableTable.h"
+
 namespace yagi {
 namespace formula {
 
-FormulaEvaluator::FormulaEvaluator()
+FormulaEvaluator::FormulaEvaluator(yagi::execution::VariableTable* varTable,
+    yagi::database::DatabaseConnectorBase* db) :
+    varTable_(varTable), db_(db)
 {
 }
 
@@ -75,14 +84,13 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
   {
     if (tuple[i][0] == '$') //it's a variable
     {
-      tuple[i] = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
-          tuple[i]);
+      tuple[i] = varTable_->getVariableValue(tuple[i]);
     }
   }
 
   auto setExprFluentName = inFormula->getSetExpr()->accept(*ctx_).get<std::string>();
 
-  auto set = DatabaseManager::getInstance().getMainDB()->executeQuery(
+  auto set = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(setExprFluentName));
 
   bool ret = std::any_of(std::begin(set), std::end(set),
@@ -98,10 +106,10 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
     std::cout << "[Result] " << ret << std::endl;
   }
 
-  //Cleanup shadow fluent in case it is one
-  if (isShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get()))
+//Cleanup shadow fluent in case it is one
+  if (isShadowFluent(setExprFluentName, *db_))
   {
-    cleanupShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get());
+    cleanupShadowFluent(setExprFluentName, *db_);
   }
 
   return ret;
@@ -115,12 +123,11 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
   auto setExprFluentName = quantifiedFormula->getSetExpr()->accept(*ctx_).get<std::string>();
   auto suchFormula = quantifiedFormula->getSuchFormula();
 
-  auto set = DatabaseManager::getInstance().getMainDB()->executeQuery(
+  auto set = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(setExprFluentName));
 
   bool truthVal = false;
-  auto& varTable = VariableTableManager::getInstance().getMainVariableTable();
-  varTable.addScope();
+  varTable_->addScope();
 
   switch (quantifier)
   {
@@ -130,7 +137,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
         //get binding for i-th tuple in the set
         for (auto j = 0; j != tuple.size(); j++)
         {
-          varTable.addVariable(tuple[j], set[i][j]);
+          varTable_->addVariable(tuple[j], set[i][j]);
         }
 
         //evaluate formula, if any
@@ -158,7 +165,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
         //get binding for i-th tuple in the set
         for (auto j = 0; j != tuple.size(); j++)
         {
-          varTable.addVariable(tuple[j], set[i][j]);
+          varTable_->addVariable(tuple[j], set[i][j]);
         }
 
         //evaluate formula, if any
@@ -192,12 +199,12 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
     std::cout << "[Result] " << truthVal << std::endl;
   }
 
-  varTable.removeScope();
+  varTable_->removeScope();
 
-  //Cleanup shadow fluent in case it is one
-  if (isShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get()))
+//Cleanup shadow fluent in case it is one
+  if (isShadowFluent(setExprFluentName, *db_))
   {
-    cleanupShadowFluent(setExprFluentName, *DatabaseManager::getInstance().getMainDB().get());
+    cleanupShadowFluent(setExprFluentName, *db_);
   }
 
   return truthVal;
@@ -233,7 +240,7 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
 
   bool ret = false;
 
-  //either both rhs and lhs are <values>...
+//either both rhs and lhs are <values>...
   if (yagi::treeHelper::isValueNode(lhs.get()) && yagi::treeHelper::isValueNode(rhs.get()))
   {
     auto lhsResult = lhs->accept(*ctx_).get<std::string>();
@@ -241,13 +248,12 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
 
     if (lhsResult[0] == '$') //it's a variable
     {
-      lhsResult = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
-          lhsResult);
+      lhsResult = varTable_->getVariableValue(lhsResult);
     }
 
     if (rhsResult[0] == '$') //it's a variable
     {
-      rhsResult = VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
+      rhsResult = varTable_->getVariableValue(
           rhsResult);
     }
 
@@ -260,23 +266,22 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
     auto rhsShadowFluent = rhs->accept(*ctx_).get<std::string>();
 
     //get data form db
-    auto db = DatabaseManager::getInstance().getMainDB();
-    auto lhsResult = db->executeQuery(
+    auto lhsResult = db_->executeQuery(
         SQLGenerator::getInstance().getSqlStringSelectAll(lhsShadowFluent));
-    auto rhsResult = db->executeQuery(
+    auto rhsResult = db_->executeQuery(
         SQLGenerator::getInstance().getSqlStringSelectAll(rhsShadowFluent));
 
     ret = performSetSetComparison(lhsResult, rhsResult, connective);
 
     //Cleanup shadow fluents in case they are no persistent fluents
-    if (isShadowFluent(lhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get()))
+    if (isShadowFluent(lhsShadowFluent, *db_))
     {
-      cleanupShadowFluent(lhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get());
+      cleanupShadowFluent(lhsShadowFluent, *db_);
     }
 
-    if (isShadowFluent(rhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get()))
+    if (isShadowFluent(rhsShadowFluent, *db_))
     {
-      cleanupShadowFluent(rhsShadowFluent, *DatabaseManager::getInstance().getMainDB().get());
+      cleanupShadowFluent(rhsShadowFluent, *db_);
     }
   }
   else
@@ -300,7 +305,6 @@ bool FormulaEvaluator::performValueValueComparison(const std::string& lhs, const
     std::cout << "[Formula] Atom: " << lhs << conn.toString() << rhs << std::endl;
   }
 
-  //TODO: clarify semantics!
   switch (connective)
   {
     case AtomConnective::Eq:

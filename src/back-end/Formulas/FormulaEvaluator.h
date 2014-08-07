@@ -8,20 +8,23 @@
 #ifndef FORMULAEVALUATOR_H_
 #define FORMULAEVALUATOR_H_
 
-#include <iostream>
+#include <string>
+#include <vector>
 
+#include "../../common/ASTNodeTypes/Formula/NodeAtomConnective.h"
 #include "IFormulaEvaluator.h"
-#include "../TreeHelper.h"
-#include "../../common/ASTNodeTypes/Expressions/NodeSetExpression.h"
-#include "../../utils/ToStringHelper.h"
-#include "../../utils/CustomComparers.h"
-#include "../Variables/VariableTableManager.h"
-#include "../Database/DatabaseManager.h"
-#include "../SQLGenerator.h"
-#include "../Database/DBHelper.h"
 
-using namespace yagi::execution;
-using namespace yagi::database;
+namespace yagi {
+namespace database {
+class DatabaseConnectorBase;
+} /* namespace database */
+} /* namespace yagi */
+
+namespace yagi {
+namespace execution {
+class VariableTable;
+} /* namespace execution */
+} /* namespace yagi */
 
 namespace yagi {
 namespace formula {
@@ -35,8 +38,12 @@ class FormulaEvaluator: public IFormulaEvaluator
     bool performSetSetComparison(std::vector<std::vector<std::string>>& lhs,
         std::vector<std::vector<std::string>>& rhs, AtomConnective connective);
 
+    yagi::execution::VariableTable* varTable_;
+    yagi::database::DatabaseConnectorBase* db_;
+
   public:
-    FormulaEvaluator();
+    FormulaEvaluator(yagi::execution::VariableTable* varTable,
+        yagi::database::DatabaseConnectorBase* db);
     virtual ~FormulaEvaluator();
 
     virtual bool evaluateConstant(NodeConstant* constant) override;

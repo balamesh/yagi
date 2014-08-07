@@ -4,7 +4,17 @@
  *  Created on: Jul 23, 2014
  *      Author: cmaier
  */
+
 #include "TreeHelper.h"
+
+#include <stdexcept>
+#include <string>
+
+#include "../common/ASTNodeTypes/ASTNodeBase.h"
+#include "../common/ASTNodeTypes/DataTypes/NodeString.h"
+#include "../common/ASTNodeTypes/Variables/NodeVariable.h"
+#include "../utils/Any.h"
+#include "Variables/VariableTable.h"
 
 namespace yagi {
 namespace treeHelper {
@@ -14,7 +24,8 @@ bool isValueNode(ASTNodeBase<>* node)
   return (dynamic_cast<NodeString*>(node) || dynamic_cast<NodeVariable*>(node));
 }
 
-std::string getValueFromValueNode(ASTNodeBase<>* valueNode, ASTNodeVisitorBase& ctx)
+std::string getValueFromValueNode(ASTNodeBase<>* valueNode, ASTNodeVisitorBase& ctx,
+    yagi::execution::VariableTable* varTable)
 {
   auto res = valueNode->accept(ctx).get<std::string>();
 
@@ -25,8 +36,7 @@ std::string getValueFromValueNode(ASTNodeBase<>* valueNode, ASTNodeVisitorBase& 
   }
   else if (dynamic_cast<NodeVariable*>(valueNode))
   {
-    return yagi::execution::VariableTableManager::getInstance().getMainVariableTable().getVariableValue(
-        res);
+    return varTable->getVariableValue(res);
   }
   else
   {
