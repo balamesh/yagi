@@ -119,6 +119,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
         int tupleIndex);
     bool isSearch_;
     std::queue<int> choices_;
+    std::string msgPrefix;
 
   public:
     ActionProcedureInterpretationVisitor();

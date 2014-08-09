@@ -7,9 +7,12 @@
 
 #include "SQLGenerator.h"
 #include "../common/ASTNodeTypes/Declarations/FactDecl/NodeFactDecl.h"
+#include "../utils/CommandLineArgsContainer.h"
 
 SQLGenerator::SQLGenerator() :
-    FACTS_TABLE_NAME_("_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents")
+    printDebugOutput(
+        yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages()), FACTS_TABLE_NAME_(
+        "_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents")
 {
 }
 
@@ -43,7 +46,11 @@ std::string SQLGenerator::getSqlStringIsTableShadowFluent(const std::string& tab
 {
   auto ret = "SELECT COUNT(*) FROM " + SHADOW_FLUENTS_TABLE_NAME_ + " WHERE name = '" + tableName
       + "'";
-  std::cout << ret << std::endl;
+
+  if (printDebugOutput)
+  {
+    std::cout << ret << std::endl;
+  }
 
   return ret;
 }
@@ -71,7 +78,10 @@ std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, 
 
   sql += "UNIQUE " + cols + ");";
 
-  std::cout << sql << std::endl;
+  if (printDebugOutput)
+  {
+    std::cout << sql << std::endl;
+  }
   return sql;
 }
 
@@ -90,7 +100,11 @@ std::vector<std::string> SQLGenerator::getSqlStringsForIDAssign(const std::strin
       {
         auto str = getSqlStringForTupleAssign(id, tuple, op);
         sqlStrings.push_back(str);
-        std::cout << str << std::endl;
+
+        if (printDebugOutput)
+        {
+          std::cout << str << std::endl;
+        }
       });
 
   return sqlStrings;
@@ -212,7 +226,11 @@ std::vector<std::string> SQLGenerator::getSqlStringsForFluentFluentAssign(const 
     }
 
     sqlStrings.push_back(sqlString.substr(0, sqlString.size() - 4) + ");");
-    std::cout << sqlStrings.at(0) << std::endl;
+
+    if (printDebugOutput)
+    {
+      std::cout << sqlStrings.at(0) << std::endl;
+    }
   }
   else
     throw std::runtime_error("unknown operator in getSqlStringsForFluentFluentAssign!");

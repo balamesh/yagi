@@ -27,6 +27,7 @@ class SQLGenerator
     std::string buildAddQuery(const std::string& tableName, const std::vector<std::string>& tuple);
     std::string buildRemoveQuery(const std::string& tableName,
         const std::vector<std::string>& tuple);
+    bool printDebugOutput;
   public:
     static SQLGenerator& getInstance()
     {

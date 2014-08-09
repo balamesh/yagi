@@ -11,6 +11,7 @@
 #include <exception>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <tclap/CmdLine.h>
 
 #include "astClasses/YAGICallbackConnector.h"
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
@@ -20,6 +21,7 @@
 #include "ANTLRParser.h"
 #include "../back-end/Formulas/FormulaEvaluator.h"
 #include "../back-end/ASTVisitors/RewritingVisitor.h"
+#include "../utils/CommandLineArgsContainer.h"
 
 using namespace yagi::formula;
 using namespace yagi::execution;
@@ -34,6 +36,7 @@ using namespace yagi::execution;
 //#pragma GCC diagnostic pop
 //    foo(d);         /* depends on command line options *
 
+void parseCommandLineArgs(int argc, char* argv[]);
 bool execute(const std::string&, bool);
 std::string parseFileName(const std::string&);
 bool isFromFile(const std::string&);
@@ -59,6 +62,16 @@ void executeProgram(int sig)
 
 int main(int argc, char * argv[])
 {
+  try
+  {
+    parseCommandLineArgs(argc, argv);
+  }
+  catch (const std::exception& ex)
+  {
+    std::cerr << "Can't parse command line args! Error: " + std::string { ex.what() } << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
   YAGICallbackConnector::connectCallbacks();
   signal(SIGINT, executeProgram);
   displayWelcome();
@@ -99,6 +112,19 @@ int main(int argc, char * argv[])
   return EXIT_SUCCESS;
 }
 
+void parseCommandLineArgs(int argc, char* argv[])
+{
+  TCLAP::CmdLine cmd("YAGI Interpreter Shell", ' ', "1.0");
+  TCLAP::SwitchArg debugMsg("s", "showDebugMsg", "Shows all the debug messages during runtime.",
+  false);
+  cmd.add(debugMsg);
+
+  cmd.parse(argc, argv);
+
+  yagi::container::CommandLineArgsContainer::getInstance().setShowDebugMessages(
+      debugMsg.getValue());
+}
+
 bool isExit(const std::string& line)
 {
   return (line == "exit"); //todo: trim etc. to make it more robust
@@ -127,7 +153,8 @@ bool execute(const std::string& line, bool isFileName)
   {
     try
     {
-      ast = ANTLRParser::parseYAGICodeFromFile(line, true);
+      ast = ANTLRParser::parseYAGICodeFromFile(line,
+          yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages());
     }
     catch (std::runtime_error& error)
     {
@@ -139,7 +166,8 @@ bool execute(const std::string& line, bool isFileName)
   {
     try
     {
-      ast = ANTLRParser::parseYAGICodeFromText(line, true);
+      ast = ANTLRParser::parseYAGICodeFromText(line,
+          yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages());
     }
     catch (std::runtime_error& error)
     {
@@ -161,8 +189,11 @@ bool execute(const std::string& line, bool isFileName)
   auto stmts = prog->getProgram();
   for (const auto& stmt : stmts)
   {
-    ToStringVisitor toStringVisitor;
-    std::cout << "C++ AST: " << stmt->accept(toStringVisitor).get<std::string>() << std::endl;
+    if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
+    {
+      ToStringVisitor toStringVisitor;
+      std::cout << "C++ AST: " << stmt->accept(toStringVisitor).get<std::string>() << std::endl;
+    }
 
     TypeCheckVisitor typeCheck;
     stmt->accept(typeCheck);
@@ -187,14 +218,17 @@ bool execute(const std::string& line, bool isFileName)
     if (newStmt)
     {
       auto rewrittenStmts = newStmt.get<std::vector<std::shared_ptr<ASTNodeBase<>>> >();
-      ToStringVisitor toStringVisitorAfterRewrite;
 
-      for (const auto& rewrittenStmt : rewrittenStmts)
+      if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
       {
-        std::cout << "C++ AST (Rewritten): "
-        << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+        ToStringVisitor toStringVisitorAfterRewrite;
+        for (const auto& rewrittenStmt : rewrittenStmts)
+        {
+          std::cout << "C++ AST (Rewritten): "
+          << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
 
-        rewrittenStmt->accept(interpreter);
+          rewrittenStmt->accept(interpreter);
+        }
       }
     }
     else

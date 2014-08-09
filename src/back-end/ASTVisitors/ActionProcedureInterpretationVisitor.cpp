@@ -37,7 +37,7 @@ namespace execution {
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false)
+        false), msgPrefix("")
 {
 
 }
@@ -45,7 +45,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<DatabaseConnectorBase> db) :
     formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false)
+        false), msgPrefix("")
 {
 }
 
@@ -53,7 +53,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator, std::shared_ptr<DatabaseConnectorBase> db,
     std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch) :
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
-        &varTable), isSearch_(isSearch)
+        &varTable), isSearch_(isSearch), msgPrefix(isSearch_ ? "[Search] " : "")
 {
   formulaEvaluator_->setContext(this);
 }
@@ -146,7 +146,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
           outText = "does NOT hold!";
         }
 
-        std::cout << "Test condition in procedure '" << procName << "' " << outText << std::endl;
+        std::cout << ">>>> " << msgPrefix << "Test condition in procedure '" << procName << "' "
+            << outText << std::endl;
 
         if (!ret.get<bool>())
           break;
@@ -166,12 +167,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
     if (!apHolds)
     {
-      std::cout << "--> AP for action '" + actionName + "' does NOT hold." << std::endl;
+      std::cout << ">>>> " << msgPrefix << "AP for action '" + actionName + "' does NOT hold."
+          << std::endl;
 
       return Any { false };
     }
 
-    std::cout << "--> AP for action '" + actionName + "' holds." << std::endl;
+    std::cout << ">>>> " << msgPrefix << "AP for action '" + actionName + "' holds." << std::endl;
   }
 
   if (auto signal = actionDecl.getSignal())
@@ -272,7 +274,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   if (searchRetVal.get<bool>())
   {
-    std::cout << ">>>> search found valid path! Executing..." << std::endl;
+    std::cout << ">>>> Search found valid path! Executing..." << std::endl;
     this->choices_ = v.getChoices();
 
     for (const auto& stmt : search.getBlock()->getStatements())
@@ -827,14 +829,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
       if (rc)
       {
-        std::cout << ">>>> Found valid block in 'choose'! Picked block number " << idx + 1
-            << std::endl;
+        std::cout << ">>>> " << msgPrefix << "Found valid block in 'choose'! Picked block number "
+            << idx + 1 << std::endl;
         choices_.push(idx);
         return Any { true };
       }
     }
 
-    return Any { };
+    return Any { false };
   }
 }
 
@@ -865,14 +867,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       auto ret = runBlockForPickedTuple(pick, set, idx);
       if (ret.hasType<bool>() && ret.get<bool>())
       {
-        std::cout << ">>>> Found valid 'pick' value! Picked " << tupleToString(set[idx])
-            << std::endl;
+        std::cout << ">>>> " << msgPrefix << "Found valid 'pick' value! Picked "
+            << tupleToString(set[idx]) << std::endl;
         choices_.push(idx);
-        break;
+
+        return Any { true };
       }
     }
 
-    return Any { };
+    return Any { false };
   }
 
 }

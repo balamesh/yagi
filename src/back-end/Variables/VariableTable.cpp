@@ -7,6 +7,7 @@
 
 #include "VariableTable.h"
 
+#include "../../utils/CommandLineArgsContainer.h"
 namespace yagi {
 namespace execution {
 
@@ -14,7 +15,8 @@ std::string VariableTable::BARRIER_SYMBOL = "#";
 static int lvl = 0;
 
 VariableTable::VariableTable() :
-    showDiagnosisOutput(true)
+    showDiagnosisOutput(
+        yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
 {
 }
 
@@ -25,8 +27,6 @@ VariableTable::~VariableTable()
 bool VariableTable::variableExists(const std::string& varName) const
 {
   auto ret = variables_.find(varName);
-
-  //return (ret != std::end(variables_) && ret->second.size());
   return ret != std::end(variables_);
 }
 

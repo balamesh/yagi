@@ -13,6 +13,7 @@
 #include "../SQLGenerator.h"
 #include "../TreeHelper.h"
 #include "../Variables/VariableTable.h"
+#include "../../utils/CommandLineArgsContainer.h"
 
 namespace yagi {
 namespace formula {
@@ -21,6 +22,8 @@ FormulaEvaluator::FormulaEvaluator(yagi::execution::VariableTable* varTable,
     yagi::database::DatabaseConnectorBase* db) :
     varTable_(varTable), db_(db)
 {
+  printFormulaEvaluationResults_ =
+      yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages();
 }
 
 FormulaEvaluator::~FormulaEvaluator()
@@ -253,8 +256,7 @@ bool FormulaEvaluator::evaluateAtom(NodeAtom* atom)
 
     if (rhsResult[0] == '$') //it's a variable
     {
-      rhsResult = varTable_->getVariableValue(
-          rhsResult);
+      rhsResult = varTable_->getVariableValue(rhsResult);
     }
 
     ret = performValueValueComparison(lhsResult, rhsResult, connective);

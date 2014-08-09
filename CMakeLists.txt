@@ -16,6 +16,7 @@ ExternalProject_Add(
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/gtest_src/include)
+include_directories(${CMAKE_SOURCE_DIR}/tclap-1.2.1/include)
 link_directories(${CMAKE_SOURCE_DIR}/gtest_bin)
 
 set(CPP11_EXTRA_FLAGS "")
@@ -190,6 +191,8 @@ src/back-end/Database/DBHelper.h
 src/back-end/Database/DBHelper.cpp
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
+src/utils/CommandLineArgsContainer.h
+src/utils/CommandLineArgsContainer.cpp
 )
 
 add_executable(yagi-unitTests
@@ -352,6 +355,8 @@ src/back-end/Database/DBHelper.h
 src/back-end/Database/DBHelper.cpp
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
+src/utils/CommandLineArgsContainer.h
+src/utils/CommandLineArgsContainer.cpp
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

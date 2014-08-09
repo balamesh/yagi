@@ -25,19 +25,19 @@ std::unordered_map<std::string, std::string> CoutCinSignalHandler::signal(
   //there is to print
   if (!variables.size())
   {
-    std::cout << "[Signal] " << content << std::endl;
+    std::cout << ">>>> [Signal] " << content << std::endl;
     return std::unordered_map<std::string, std::string> { };
   }
   else //print and wait for input
   {
     std::unordered_map<std::string, std::string> retVals { };
-    std::cout << "[Setting Action Signal] " << content << std::endl;
+    std::cout << ">>>> [Setting Action Signal] " << content << std::endl;
 
     char* buffer = nullptr;
 
     for (const auto& var : variables)
     {
-      buffer = readline(("Enter string-value for variable " + var + ": ").c_str());
+      buffer = readline((">>>> Enter string-value for variable " + var + ": ").c_str());
       retVals[var] = buffer;
     }
 
