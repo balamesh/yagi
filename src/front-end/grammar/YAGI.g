@@ -328,9 +328,9 @@ test
 	;	
 	
 choose	
-	:	TOKEN_CHOOSE b1=block ( TOKEN_OR block )+ TOKEN_END_CHOOSE
+	:	TOKEN_CHOOSE block ( TOKEN_OR block )+ TOKEN_END_CHOOSE
 
-		-> ^(IT_CHOOSE $b1 block+)
+		-> ^(IT_CHOOSE block+)
 	;	
 	
 pick	

@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <queue>
 
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
@@ -114,13 +115,18 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     std::shared_ptr<IYAGISignalHandler> signalReceiver_;
     yagi::execution::VariableTable* varTable_;
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
+    Any runBlockForPickedTuple(const NodePick& pickNode, std::vector<std::vector<std::string>> set,
+        int tupleIndex);
+    bool isSearch_;
+    std::queue<int> choices_;
 
   public:
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(
         std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
         std::shared_ptr<yagi::database::DatabaseConnectorBase> db,
-        std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable);
+        std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch =
+            false);
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     virtual ~ActionProcedureInterpretationVisitor();
 
@@ -159,6 +165,16 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeSitCalcActionExecution& sitCalcAction);
     Any visit(NodeSearch& search);
     Any visit(NodeBlock& block);
+
+    const std::queue<int>& getChoices() const
+    {
+      return choices_;
+    }
+
+    void setChoices(const std::queue<int>& choices)
+    {
+      choices_ = choices;
+    }
 };
 
 }

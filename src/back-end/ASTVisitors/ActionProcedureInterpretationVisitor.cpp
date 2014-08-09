@@ -19,6 +19,7 @@
 #include "../../utils/SetOperations.h"
 #include "../TreeHelper.h"
 #include "../../utils/RandomNumberGenerator.h"
+#include "../../utils/ToStringHelper.h"
 #include "../Database/DatabaseManager.h"
 #include "../Database/DBHelper.h"
 #include "../Formulas/FormulaEvaluator.h"
@@ -35,22 +36,24 @@ namespace yagi {
 namespace execution {
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
-    formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr)
+    formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
+        false)
 {
 
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<DatabaseConnectorBase> db) :
-    formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr)
+    formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
+        false)
 {
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator, std::shared_ptr<DatabaseConnectorBase> db,
-    std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable) :
+    std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch) :
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
-        &varTable)
+        &varTable), isSearch_(isSearch)
 {
   formulaEvaluator_->setContext(this);
 }
@@ -263,13 +266,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-      std::make_shared<CoutCinSignalHandler>(), tempVarTable);
+      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true);
 
   auto searchRetVal = search.getBlock()->accept(v);
 
   if (searchRetVal.get<bool>())
   {
     std::cout << ">>>> search found valid path! Executing..." << std::endl;
+    this->choices_ = v.getChoices();
 
     for (const auto& stmt : search.getBlock()->getStatements())
     {
@@ -781,28 +785,103 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 {
   auto blocks = choose.getBlocks();
 
-  RandomNumberGenerator rng;
-  int randomIndex = rng.getRandomNumber(0, blocks.size() - 1);
-
-  auto stmts = blocks.at(randomIndex)->getStatements();
-
-  for (const auto& stmt : stmts)
+  if (!isSearch_)
   {
-    stmt->accept(*this);
-  }
+    int idx = -1;
+    if (choices_.empty())
+    {
+      RandomNumberGenerator rng;
+      idx = rng.getRandomNumber(0, blocks.size() - 1);
+    }
+    else
+    {
+      idx = choices_.front();
+      choices_.pop();
+    }
 
-  return Any { };
+    auto stmts = blocks.at(idx)->getStatements();
+
+    for (const auto& stmt : stmts)
+    {
+      stmt->accept(*this);
+    }
+
+    return Any { };
+  }
+  else
+  {
+    for (int idx = 0; idx < blocks.size(); idx++)
+    {
+      auto stmts = blocks.at(idx)->getStatements();
+
+      bool rc = true;
+      for (const auto& stmt : stmts)
+      {
+        auto ret = stmt->accept(*this);
+
+        if (ret.hasType<bool>())
+        {
+          rc = rc && ret.get<bool>();
+        }
+      }
+
+      if (rc)
+      {
+        std::cout << ">>>> Found valid block in 'choose'! Picked block number " << idx + 1
+            << std::endl;
+        choices_.push(idx);
+        return Any { true };
+      }
+    }
+
+    return Any { };
+  }
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
 {
-  auto varTuple = pick.getTuple()->accept(*this).get<std::vector<std::string>>();
   auto fluentName = pick.getSetExpr()->accept(*this).get<std::string>();
-
   auto set = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
 
-  RandomNumberGenerator rng;
-  int randomIndex = rng.getRandomNumber(0, set.size() - 1);
+  if (!isSearch_)
+  {
+    int idx = -1;
+    if (choices_.empty())
+    {
+      RandomNumberGenerator rng;
+      idx = rng.getRandomNumber(0, set.size() - 1);
+    }
+    else
+    {
+      idx = choices_.front();
+      choices_.pop();
+    }
+    return runBlockForPickedTuple(pick, set, idx);
+  }
+  else
+  {
+    for (int idx = 0; idx < set.size(); idx++)
+    {
+      auto ret = runBlockForPickedTuple(pick, set, idx);
+      if (ret.hasType<bool>() && ret.get<bool>())
+      {
+        std::cout << ">>>> Found valid 'pick' value! Picked " << tupleToString(set[idx])
+            << std::endl;
+        choices_.push(idx);
+        break;
+      }
+    }
+
+    return Any { };
+  }
+
+}
+
+Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick& pickNode,
+    std::vector<std::vector<std::string>> set, int tupleIndex)
+{
+  auto varTuple = pickNode.getTuple()->accept(*this).get<std::vector<std::string>>();
+  auto fluentName = pickNode.getSetExpr()->accept(*this).get<std::string>();
 
   varTable_->addScope();
 
@@ -811,14 +890,19 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   {
     if (!varTable_->variableExists(varTuple[i]) || !varTable_->isVariableInitialized(varTuple[i]))
     {
-      varTable_->addVariable(varTuple[i], set[randomIndex][i]);
+      varTable_->addVariable(varTuple[i], set[tupleIndex][i]);
     }
   }
 
-  auto stmts = pick.getBlock()->getStatements();
+  auto stmts = pickNode.getBlock()->getStatements();
+  bool success = true;
   for (const auto& stmt : stmts)
   {
-    stmt->accept(*this);
+    auto ret = stmt->accept(*this);
+    if (ret.hasType<bool>())
+    {
+      success = success && ret.get<bool>();
+    }
   }
 
   varTable_->removeScope();
@@ -829,7 +913,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     cleanupShadowFluent(fluentName, *db_.get());
   }
 
-  return Any { };
+  return Any { success };
 }
 
 } /* namespace execution */
