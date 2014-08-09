@@ -22,12 +22,11 @@ class VariableTableManager
     virtual ~VariableTableManager();
     VariableTableManager(VariableTableManager const&);
     void operator=(VariableTableManager const&);
-
-    const std::string MAIN_VAR_TABLE_ID;
-
     std::unordered_map<std::string, VariableTable> variableTables_;
 
   public:
+
+    const std::string MAIN_VAR_TABLE_ID;
 
     static VariableTableManager& getInstance()
     {
@@ -38,6 +37,7 @@ class VariableTableManager
     VariableTable& getVariableTable(const std::string& identifier);
     VariableTable& getMainVariableTable();
     void deleteVariableTable(const std::string& varTableName);
+    VariableTable& getCloneWithNewName(const std::string& tableToClone, const std::string& newTableName);
 };
 
 } /* namespace execution */

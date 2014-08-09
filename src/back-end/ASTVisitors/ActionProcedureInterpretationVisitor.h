@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <queue>
+#include <stack>
 
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
@@ -118,7 +118,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any runBlockForPickedTuple(const NodePick& pickNode, std::vector<std::vector<std::string>> set,
         int tupleIndex);
     bool isSearch_;
-    std::queue<int> choices_;
+    std::stack<int> choices_;
     std::string msgPrefix;
 
   public:
@@ -167,12 +167,12 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeSearch& search);
     Any visit(NodeBlock& block);
 
-    const std::queue<int>& getChoices() const
+    const std::stack<int>& getChoices() const
     {
       return choices_;
     }
 
-    void setChoices(const std::queue<int>& choices)
+    void setChoices(const std::stack<int>& choices)
     {
       choices_ = choices;
     }

@@ -22,10 +22,10 @@ class VariableTable
   private:
     static std::string BARRIER_SYMBOL;
 
-    std::unordered_map<std::string, std::stack<std::tuple<std::string, bool>>> variables_;
+    std::unordered_map<std::string, std::stack<std::tuple<std::string, bool>>>variables_;
     bool showDiagnosisOutput;
 
-  public:
+    public:
     VariableTable();
     virtual ~VariableTable();
 
@@ -39,9 +39,21 @@ class VariableTable
 
     void addScope();
     void removeScope();
-};
+    VariableTable clone();
 
-} /* namespace execution */
+    const std::unordered_map<std::string,std::stack<std::tuple<std::string,bool> > >& getVariables() const
+    {
+      return variables_;
+    }
+
+    void setVariables(const std::unordered_map<std::string,std::stack<std::tuple<std::string,bool> > >& variables)
+    {
+      variables_ = variables;
+    }
+  };
+
+}
+/* namespace execution */
 } /* namespace yagi */
 
 #endif /* VARIABLETABLE_H_ */

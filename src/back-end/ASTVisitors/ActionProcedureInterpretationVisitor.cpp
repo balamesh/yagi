@@ -135,27 +135,32 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
   {
     auto ret = stmt->accept(*this);
 
+    bool success = true;
+    if (ret.hasType<bool>())
+    {
+      success = ret.get<bool>();
+    }
+
     //'test' statement returns wether or not it holds
     if (auto isTest = std::dynamic_pointer_cast<NodeTest>(stmt))
     {
-      if (!ret.empty() && ret.hasType<bool>())
+      std::string outText = "holds!";
+      if (!success)
       {
-        std::string outText = "holds!";
-        if (!ret.get<bool>())
-        {
-          outText = "does NOT hold!";
-        }
-
-        std::cout << ">>>> " << msgPrefix << "Test condition in procedure '" << procName << "' "
-            << outText << std::endl;
-
-        if (!ret.get<bool>())
-          break;
+        outText = "does NOT hold!";
       }
+
+      std::cout << ">>>> " << msgPrefix << "Test condition in procedure '" << procName << "' "
+          << outText << std::endl;
+    }
+
+    if (!success)
+    {
+      return Any { false };
     }
   }
 
-  return Any { };
+  return Any { true };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
@@ -263,7 +268,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
       DatabaseManager::getInstance().MAIN_DB_NAME, "tempDB_" + std::to_string(getNowTicks()));
 
   std::string tempVarTableName = "tempVarTable_" + std::to_string(getNowTicks());
-  auto tempVarTable = VariableTableManager::getInstance().getVariableTable(tempVarTableName);
+  auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
+      VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, tempVarTableName);
 
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
@@ -670,11 +676,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 
   while (whileLoop.getFormula()->accept(*this).get<bool>())
   {
-    std::for_each(std::begin(statements), std::end(statements),
-        [this](const std::shared_ptr<NodeStatementBase>& stmt)
-        {
-          stmt->accept(*this);
-        });
+    for (const auto& stmt : statements)
+    {
+      stmt->accept(*this);
+    }
   }
   return Any { };
 }
@@ -774,13 +779,23 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
     statements = conditional.getElseBlock()->getStatements();
   }
 
-  std::for_each(std::begin(statements), std::end(statements),
-      [this](const std::shared_ptr<NodeStatementBase>& stmt)
-      {
-        stmt->accept(*this);
-      });
+  bool success = true;
+  for (const auto& stmt : statements)
+  {
+    auto ret = stmt->accept(*this);
 
-  return Any { };
+    if (ret.hasType<bool>())
+    {
+      success = success && ret.get<bool>();
+
+      if (!success)
+      {
+        break;
+      }
+    }
+  }
+
+  return Any { success };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
@@ -797,18 +812,28 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     }
     else
     {
-      idx = choices_.front();
+      idx = choices_.top();
       choices_.pop();
     }
 
     auto stmts = blocks.at(idx)->getStatements();
 
+    bool success = true;
     for (const auto& stmt : stmts)
     {
-      stmt->accept(*this);
+      auto ret = stmt->accept(*this);
+
+      if (ret.hasType<bool>())
+      {
+        success = success && ret.get<bool>();
+        if (!success)
+        {
+          break;
+        }
+      }
     }
 
-    return Any { };
+    return Any { success };
   }
   else
   {
@@ -855,9 +880,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     }
     else
     {
-      idx = choices_.front();
+      idx = choices_.top();
       choices_.pop();
     }
+
+    std::cout << ">>>> " << msgPrefix << "Picking value "
+        << tupleToString(set[idx]) << "..." << std::endl;
+
     return runBlockForPickedTuple(pick, set, idx);
   }
   else
@@ -905,6 +934,11 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
     if (ret.hasType<bool>())
     {
       success = success && ret.get<bool>();
+    }
+
+    if (!success)
+    {
+      break;
     }
   }
 

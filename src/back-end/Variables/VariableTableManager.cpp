@@ -33,6 +33,22 @@ VariableTable& VariableTableManager::getVariableTable(const std::string& identif
   return variableTables_[identifier];
 }
 
+VariableTable& VariableTableManager::getCloneWithNewName(const std::string& tableToClone,
+    const std::string& newTableName)
+{
+  auto table = variableTables_.find(tableToClone);
+  bool exists = table != std::end(variableTables_);
+
+  if (!exists)
+  {
+    throw std::runtime_error("Table to clone '" + tableToClone + "' does not exist!");
+  }
+
+  VariableTable newTable = variableTables_[tableToClone].clone();
+  variableTables_[newTableName] = newTable;
+  return variableTables_[newTableName];
+}
+
 VariableTable& VariableTableManager::getMainVariableTable()
 {
   return getVariableTable(MAIN_VAR_TABLE_ID);
