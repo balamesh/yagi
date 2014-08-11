@@ -36,7 +36,16 @@ void SQLiteConnector::connect()
   rc = sqlite3_open(dbName_.c_str(), &pDB_);
 
   db_ = SQLiteDB(pDB_, [rc](sqlite3* database)
-  { if (rc) sqlite3_close(database);});
+  {
+    if (database)
+    {
+      if (sqlite3_close(database) != SQLITE_OK)
+      {
+        int rc = sqlite3_errcode(database);
+        std::cout << "SQLite ERROR: " << sqlite3_errstr(rc) << std::endl;
+      }
+    }
+  });
 
   if (rc)
   {
@@ -103,6 +112,11 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
         break;
       }
     }
+  }
+
+  if (statement)
+  {
+    sqlite3_finalize(statement);
   }
 
   return data;

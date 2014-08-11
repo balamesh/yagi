@@ -884,8 +884,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       choices_.pop();
     }
 
-    std::cout << ">>>> " << msgPrefix << "Picking value "
-        << tupleToString(set[idx]) << "..." << std::endl;
+    std::cout << ">>>> " << msgPrefix << "Picking value " << tupleToString(set[idx]) << "..."
+        << std::endl;
 
     return runBlockForPickedTuple(pick, set, idx);
   }
