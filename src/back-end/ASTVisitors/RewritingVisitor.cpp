@@ -55,44 +55,6 @@ Any RewritingVisitor::visit(NodeActionEffect& effect)
   return Any { };
 }
 
-std::shared_ptr<NodeForLoop> RewritingVisitor::buildAssignmentRewritingLoop(
-    std::string lhsFluentName, SitCalcActionType actionType, std::string rhsFluentName)
-{
-  //Build foreach AST for fluent  assignment
-  auto loop = std::make_shared<NodeForLoop>();
-
-  //ActionProcedureInterpretationVisitor apiv(DatabaseManager::getInstance().getMainDB());
-  auto newSetExpr = std::make_shared<NodeSetExpression>();
-  newSetExpr->setLhs(std::make_shared<NodeID>(rhsFluentName));
-  loop->setSetExpr(newSetExpr);
-
-  ///Deduce variable tuple for for-loop from (shadow) fluent
-  auto tupleCount = DatabaseManager::getInstance().getMainDB()->executeQuery(
-      SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(rhsFluentName)).size();
-
-  auto tuple = std::make_shared<NodeTuple>();
-  auto sitcalcActionExec = std::make_shared<NodeSitCalcActionExecution>();
-  auto functionArgList = std::make_shared<NodeValueList>();
-
-  for (int i = 0; i < tupleCount; i++)
-  {
-    auto var = std::make_shared<NodeVariable>("x" + std::to_string(i));
-    tuple->addTupleValue(var);
-    functionArgList->addValue(var);
-  }
-  loop->setTuple(tuple);
-
-  sitcalcActionExec->setActionType(actionType);
-  sitcalcActionExec->setParameters(functionArgList);
-  sitcalcActionExec->setFluentName(std::make_shared<NodeID>(lhsFluentName));
-
-  auto block = std::make_shared<NodeBlock>();
-  block->addStatement(sitcalcActionExec);
-  loop->setBlock(block);
-
-  return loop;
-}
-
 Any RewritingVisitor::visit(NodeIDAssignment& idAssignment)
 {
 //  std::vector<std::shared_ptr<ASTNodeBase<>>>newNodes

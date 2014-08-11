@@ -380,32 +380,111 @@ Any ActionProcedureInterpretationVisitor::visit(NodeAssignmentOperator& assOp)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 {
-  auto lhs = idAssign.getFluentName()->accept(*this).get<std::string>();
+  std::vector<std::shared_ptr<ASTNodeBase<>>>newNodes;
+
+  auto lhsFluentName = idAssign.getFluentName()->accept(*this).get<std::string>();
 
   //the rhs is a (shadow-)fluent/fact for sure, so we get the name here
-  auto rhs = idAssign.getSetExpr()->accept(*this).get<std::string>();
+  auto rhsFluentName = idAssign.getSetExpr()->accept(*this).get<std::string>();
   auto assignOp = idAssign.getOperator()->accept(*this).get<AssignmentOperator>();
 
-  if (assignOp == AssignmentOperator::Unknown)
+  //Depending on the assignment operator we need to build different node sequences
+  switch (assignOp)
   {
-    throw std::runtime_error("Unknown assign operator!");
+    case AssignmentOperator::AddAssign:
+    newNodes.push_back(
+        std::static_pointer_cast<ASTNodeBase<>>(
+            buildAssignmentRewritingLoop(lhsFluentName, SitCalcActionType::AddAssign,
+                rhsFluentName)));
+    break;
+
+    case AssignmentOperator::RemoveAssign:
+    newNodes.push_back(
+        std::static_pointer_cast<ASTNodeBase<>>(
+            buildAssignmentRewritingLoop(lhsFluentName, SitCalcActionType::RemoveAssign,
+                rhsFluentName)));
+    break;
+
+    //F = F' is specified as F -= F; followed by F += F'
+    case AssignmentOperator::Assign:
+    newNodes.push_back(
+        std::static_pointer_cast<ASTNodeBase<>>(
+            buildAssignmentRewritingLoop(lhsFluentName, SitCalcActionType::RemoveAssign,
+                lhsFluentName)));
+    newNodes.push_back(
+        std::static_pointer_cast<ASTNodeBase<>>(
+            buildAssignmentRewritingLoop(lhsFluentName, SitCalcActionType::AddAssign,
+                rhsFluentName)));
+    break;
+
+    default:
+    throw std::runtime_error("Unknown assignment operator!");
   }
 
-  if (assignOp == AssignmentOperator::Assign)
+  for (const auto& node : newNodes)
   {
-    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(lhs));
+    node->accept(*this);
   }
 
-  //get data from rhs
-  auto data = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhs));
-  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(lhs, data, assignOp);
+//  if (assignOp == AssignmentOperator::Unknown)
+//  {
+//    throw std::runtime_error("Unknown assign operator!");
+//  }
+//
+//  if (assignOp == AssignmentOperator::Assign)
+//  {
+//    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(lhs));
+//  }
+//
+//  //get data from rhs
+//  auto data = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhs));
+//  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(lhs, data, assignOp);
+//
+//  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
+//  {
+//    db_->executeNonQuery(stmt);
+//  });
 
-  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
+  return Any
+  {};
+}
+
+std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignmentRewritingLoop(
+    std::string lhsFluentName, SitCalcActionType actionType, std::string rhsFluentName)
+{
+  //Build foreach AST for fluent  assignment
+  auto loop = std::make_shared<NodeForLoop>();
+
+  //ActionProcedureInterpretationVisitor apiv(DatabaseManager::getInstance().getMainDB());
+  auto newSetExpr = std::make_shared<NodeSetExpression>();
+  newSetExpr->setLhs(std::make_shared<NodeID>(rhsFluentName));
+  loop->setSetExpr(newSetExpr);
+
+  ///Deduce variable tuple for for-loop from (shadow) fluent
+  auto tupleCount = db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(rhsFluentName)).size();
+
+  auto tuple = std::make_shared<NodeTuple>();
+  auto sitcalcActionExec = std::make_shared<NodeSitCalcActionExecution>();
+  auto functionArgList = std::make_shared<NodeValueList>();
+
+  for (int i = 0; i < tupleCount; i++)
   {
-    db_->executeNonQuery(stmt);
-  });
+    auto var = std::make_shared<NodeVariable>("x" + std::to_string(i));
+    tuple->addTupleValue(var);
+    functionArgList->addValue(var);
+  }
+  loop->setTuple(tuple);
 
-  return Any { };
+  sitcalcActionExec->setActionType(actionType);
+  sitcalcActionExec->setParameters(functionArgList);
+  sitcalcActionExec->setFluentName(std::make_shared<NodeID>(lhsFluentName));
+
+  auto block = std::make_shared<NodeBlock>();
+  block->addStatement(sitcalcActionExec);
+  loop->setBlock(block);
+
+  return loop;
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)

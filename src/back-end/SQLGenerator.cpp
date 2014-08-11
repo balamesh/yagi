@@ -131,17 +131,26 @@ std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
 std::string SQLGenerator::getSqlStringForTupleAssign(const std::string& id,
     const std::vector<std::string>& tuple, SitCalcActionType actionType)
 {
+  std::string sqlString = "";
+
   if (actionType == SitCalcActionType::AddAssign)
   {
-    return buildAddQuery(id, tuple);
+    sqlString = buildAddQuery(id, tuple);
 
   }
   else if (actionType == SitCalcActionType::RemoveAssign)
   {
-    return buildRemoveQuery(id, tuple);
+    sqlString = buildRemoveQuery(id, tuple);
   }
   else
     throw std::runtime_error("unknown operator in getSqlStringForTupleAssign");
+
+  if (printDebugOutput)
+  {
+    std::cout << sqlString << std::endl;
+  }
+
+  return sqlString;
 }
 
 std::string SQLGenerator::buildAddQuery(const std::string& id,

@@ -106,7 +106,14 @@ Any MainInterpretationVisitor::visit(NodeFluentQuery& fluentQuery)
 
 Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 {
-  ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
   return v.visit(idAssign);
 }
 

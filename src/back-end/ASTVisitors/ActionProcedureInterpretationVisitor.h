@@ -117,6 +117,9 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
     Any runBlockForPickedTuple(const NodePick& pickNode, std::vector<std::vector<std::string>> set,
         int tupleIndex);
+    std::shared_ptr<NodeForLoop> buildAssignmentRewritingLoop(std::string lhsFluentName,
+        SitCalcActionType actionType, std::string rhsFluentName);
+
     bool isSearch_;
     std::stack<int> choices_;
     std::string msgPrefix;
