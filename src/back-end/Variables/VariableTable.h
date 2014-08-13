@@ -40,6 +40,7 @@ class VariableTable
     void addScope();
     void removeScope();
     VariableTable clone();
+    bool isVariableInCurrentScope(const std::string& varName);
 
     const std::unordered_map<std::string,std::stack<std::tuple<std::string,bool> > >& getVariables() const
     {

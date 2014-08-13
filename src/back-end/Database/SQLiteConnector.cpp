@@ -35,7 +35,7 @@ void SQLiteConnector::connect()
 
   rc = sqlite3_open(dbName_.c_str(), &pDB_);
 
-  db_ = SQLiteDB(pDB_, [rc](sqlite3* database)
+  db_ = SQLiteDB(pDB_, [](sqlite3* database)
   {
     if (database)
     {

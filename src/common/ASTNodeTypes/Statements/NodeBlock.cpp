@@ -15,3 +15,7 @@ NodeBlock::~NodeBlock()
 {
 }
 
+void NodeBlock::replaceStatement(std::shared_ptr<NodeStatementBase>& statement, int idx)
+{
+  statements_[idx] = statement;
+}

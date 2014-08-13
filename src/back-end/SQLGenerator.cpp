@@ -22,7 +22,13 @@ SQLGenerator::~SQLGenerator()
 
 std::string SQLGenerator::getSqlStringDropTable(const std::string& tableName)
 {
-  return "DROP TABLE IF EXISTS " + tableName;
+
+  std::string sql = "DROP TABLE IF EXISTS " + tableName;
+  if (printDebugOutput)
+  {
+    std::cout << sql << std::endl;
+  }
+  return sql;
 }
 
 std::vector<std::string> SQLGenerator::getSqlStringsRemoveShadowFluent(const std::string& tableName)
@@ -55,16 +61,20 @@ std::string SQLGenerator::getSqlStringIsTableShadowFluent(const std::string& tab
   return ret;
 }
 
-std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, int numberOfColumns)
+std::vector<std::string> SQLGenerator::getSqlStringsCreateTableAndDomains(
+    const std::string& tableName, const std::vector<std::vector<std::string>>& domains)
 {
-  std::string sql = "CREATE TABLE " + tableName + "(";
+  std::vector<std::string> sqlStrings;
+
+  std::string sqlCreateMainTable = "CREATE TABLE " + tableName + "(";
   std::string cols = "(";
   std::string colName = "";
+  int numberOfColumns = domains.size();
 
   for (int i = 0; i < numberOfColumns; i++)
   {
     colName = "dom" + std::to_string(i + 1);
-    sql += colName + " TEXT,";
+    sqlCreateMainTable += colName + " TEXT,";
 
     if (i != numberOfColumns - 1)
     {
@@ -76,18 +86,73 @@ std::string SQLGenerator::getSqlStringCreateTable(const std::string& tableName, 
     }
   }
 
-  sql += "UNIQUE " + cols + ");";
+  sqlCreateMainTable += "UNIQUE " + cols + ");";
+  sqlStrings.push_back(sqlCreateMainTable);
+
+  //Build SQL statements for creating tables that hold the domain of the fluent per dimension
+  auto domainTablesStrings = buildSqlStringsForDomainTables(tableName, domains);
+  sqlStrings.insert(sqlStrings.end(), domainTablesStrings.begin(), domainTablesStrings.end());
 
   if (printDebugOutput)
   {
-    std::cout << sql << std::endl;
+    for (const auto& sqlStmt : sqlStrings)
+    {
+      std::cout << sqlStmt << std::endl;
+    }
   }
-  return sql;
+
+  return sqlStrings;
+}
+
+std::vector<std::string> SQLGenerator::buildSqlStringsForDomainTables(const std::string& tableName,
+    const std::vector<std::vector<std::string>>& domains)
+{
+  std::vector<std::string> sqlStrings;
+  std::string domainTableName;
+
+  for (int i = 0; i < domains.size(); i++)
+  {
+    domainTableName = tableName + "_domain_dim" + std::to_string(i + 1);
+    std::string sql = "CREATE TABLE " + domainTableName + "(";
+
+    for (int j = 0; j < domains[i].size(); j++)
+    {
+      auto colName = "val" + std::to_string(j + 1) + " TEXT";
+
+      if (j != domains[i].size() - 1)
+      {
+        sql += colName + ",";
+      }
+      else
+      {
+        sql += colName + ")";
+      }
+    }
+
+    sqlStrings.push_back(sql);
+
+    //insert domain values
+    sqlStrings.push_back(buildAddQuery(domainTableName, domains[i]));
+  }
+
+  return sqlStrings;
+}
+
+std::string SQLGenerator::getSqlStringGetDomainElements(const std::string& fluentName,
+    int dimension)
+{
+  std::string tableName = fluentName + "_domain_dim" + std::to_string(dimension);
+  return getSqlStringSelectAll(tableName);
 }
 
 std::string SQLGenerator::getSqlStringExistsTable(const std::string& tableName)
 {
   return "SELECT * FROM sqlite_master WHERE name = '" + tableName + "' AND type='table'";
+}
+
+std::string SQLGenerator::getSqlStringGetAllTableNames()
+{
+  return "SELECT * FROM sqlite_master WHERE type='table';";
 }
 
 std::vector<std::string> SQLGenerator::getSqlStringsForIDAssign(const std::string& id,
@@ -182,7 +247,14 @@ std::string SQLGenerator::buildRemoveQuery(const std::string& id,
 
 std::string SQLGenerator::getSqlStringSelectAll(const std::string& tableName)
 {
-  return "SELECT * FROM " + tableName;
+  std::string sql = "SELECT * FROM " + tableName;
+
+  if (printDebugOutput)
+  {
+    std::cout << sql << std::endl;
+  }
+
+  return sql;
 }
 
 std::string SQLGenerator::getSqlStringClearTable(const std::string& tableName)

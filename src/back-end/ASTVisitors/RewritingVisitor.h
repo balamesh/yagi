@@ -31,12 +31,22 @@ using namespace yagi::database;
 namespace yagi {
 namespace execution {
 
-class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignment>, public Visitor<
-    NodeActionDecl>, public Visitor<NodeActionEffect>
+class RewritingVisitor: public ASTNodeVisitorBase,
+    public Visitor<NodeIDAssignment>,
+    public Visitor<NodeActionDecl>,
+    public Visitor<NodeActionEffect>,
+    public Visitor<NodeSet>,
+    public Visitor<NodeTuple>,
+    public Visitor<NodePatternMatching>,
+    public Visitor<NodeSetExpression>,
+    public Visitor<NodeVariable>,
+    public Visitor<NodeString>
 {
   private:
-    std::shared_ptr<NodeForLoop> buildAssignmentRewritingLoop(std::string lhsFluentName,
-        SitCalcActionType actionType, std::string rhsFluentName);
+    bool isPatternMatchingTuple(const std::vector<std::string>& tupleElements);
+    std::shared_ptr<NodeForLoop> rewritePatternMatching(const std::string& fluentName,
+        AssignmentOperator assOp, const std::vector<std::string>& tuple);
+    const std::string PATTERN_MATCH_ID;
 
   public:
     RewritingVisitor();
@@ -45,6 +55,12 @@ class RewritingVisitor: public ASTNodeVisitorBase, public Visitor<NodeIDAssignme
     Any visit(NodeActionDecl& actionDecl);
     Any visit(NodeActionEffect& effect);
     Any visit(NodeIDAssignment& idAssignment);
+    Any visit(NodeSet& nodeSet);
+    Any visit(NodeTuple& nodeTuple);
+    Any visit(NodePatternMatching& nodePatternMatching);
+    Any visit(NodeSetExpression& nodeSetExpr);
+    Any visit(NodeVariable& variable);
+    Any visit(NodeString& nodeString);
 };
 
 }

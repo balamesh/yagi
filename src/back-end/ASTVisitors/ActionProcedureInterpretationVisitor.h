@@ -49,6 +49,10 @@
 #include "../../common/ASTNodeVisitorBase.h"
 #include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
 #include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
+#include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
+#include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 
 namespace yagi {
 namespace execution {
@@ -106,14 +110,18 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeTest>,
     public Visitor<NodeSitCalcActionExecution>,
     public Visitor<NodeSearch>,
-    public Visitor<NodeBlock>
-
+    public Visitor<NodeBlock>,
+    public Visitor<NodeIncompleteKnowledge>,
+    public Visitor<NodePatternMatching>,
+    public Visitor<NodeDomainString>,
+    public Visitor<NodeDomainStringElements>
 {
   private:
     std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator_;
     std::shared_ptr<yagi::database::DatabaseConnectorBase> db_;
     std::shared_ptr<IYAGISignalHandler> signalReceiver_;
     yagi::execution::VariableTable* varTable_;
+
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
     Any runBlockForPickedTuple(const NodePick& pickNode, std::vector<std::vector<std::string>> set,
         int tupleIndex);
@@ -123,6 +131,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     bool isSearch_;
     std::stack<int> choices_;
     std::string msgPrefix;
+    const std::string DOMAIN_STRING_ID = "\"";
 
   public:
     ActionProcedureInterpretationVisitor();
@@ -132,6 +141,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
         std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch =
             false);
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
+    ActionProcedureInterpretationVisitor(VariableTable& varTable);
     virtual ~ActionProcedureInterpretationVisitor();
 
     Any visit(NodeActionDecl& actionDecl);
@@ -169,6 +179,10 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeSitCalcActionExecution& sitCalcAction);
     Any visit(NodeSearch& search);
     Any visit(NodeBlock& block);
+    Any visit(NodeIncompleteKnowledge& incompleteKnowledge);
+    Any visit(NodePatternMatching& patternMatching);
+    Any visit(NodeDomainString& nodeDomainString);
+    Any visit(NodeDomainStringElements& nodeDomainStringElements);
 
     const std::stack<int>& getChoices() const
     {

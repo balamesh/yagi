@@ -46,6 +46,25 @@ void VariableTable::addVariable(const std::string& varName)
   variables_[varName].push(std::make_tuple("", false));
 }
 
+bool VariableTable::isVariableInCurrentScope(const std::string& varName)
+{
+  if (showDiagnosisOutput)
+    std::cout << "Checking if variable '" << varName << "' is in current scope..." << std::endl;
+
+  if (!variableExists(varName))
+  {
+    throw std::runtime_error("Variable '" + varName + "' does not exist!");
+  }
+
+  bool isInCurrentScope = !(std::get<0>(variables_[varName].top()) == BARRIER_SYMBOL);
+
+  if (showDiagnosisOutput)
+    std::cout << "Variable '" << varName << "' is " << (isInCurrentScope ? "" : "NOT ")
+        << "in current scope." << std::endl;
+
+  return isInCurrentScope;
+}
+
 std::string VariableTable::getVariableValue(const std::string& varName)
 {
   if (showDiagnosisOutput)

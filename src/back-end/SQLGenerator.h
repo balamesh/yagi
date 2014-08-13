@@ -27,6 +27,9 @@ class SQLGenerator
     std::string buildAddQuery(const std::string& tableName, const std::vector<std::string>& tuple);
     std::string buildRemoveQuery(const std::string& tableName,
         const std::vector<std::string>& tuple);
+    std::vector<std::string> buildSqlStringsForDomainTables(const std::string& tableName,
+        const std::vector<std::vector<std::string>>& domains);
+
     bool printDebugOutput;
   public:
     static SQLGenerator& getInstance()
@@ -38,7 +41,8 @@ class SQLGenerator
     const std::string FACTS_TABLE_NAME_;
     const std::string SHADOW_FLUENTS_TABLE_NAME_;
 
-    std::string getSqlStringCreateTable(const std::string& tableName, int numberOfColumns);
+    std::vector<std::string> getSqlStringsCreateTableAndDomains(const std::string& tableName,
+        const std::vector<std::vector<std::string>>& domains);
     std::string getSqlStringMakeTableShadowFluent(const std::string& tableName);
     std::string getSqlStringIsTableShadowFluent(const std::string& tableName);
     std::vector<std::string> getSqlStringsRemoveShadowFluent(const std::string& tableName);
@@ -62,7 +66,8 @@ class SQLGenerator
     std::vector<std::string> getSqlStringsForFluentFluentAssign(const std::string& lhs,
         const std::string& rhs, AssignmentOperator op, int columnCount);
     std::string getSqlStringNumberOfColumnsInTable(const std::string& tableName);
-
+    std::string getSqlStringGetAllTableNames();
+    std::string getSqlStringGetDomainElements(const std::string& fluentName, int dimension);
 };
 
 #endif /* SQLGENERATOR_H_ */

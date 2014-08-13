@@ -34,6 +34,8 @@ class NodeBlock: public ASTNodeBase<>
     {
       statements_.push_back(statement);
     }
+
+    void replaceStatement(std::shared_ptr<NodeStatementBase>& statement, int idx);
 };
 
 #endif /* NODEBLOCK_H_ */

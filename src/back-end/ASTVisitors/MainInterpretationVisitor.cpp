@@ -65,11 +65,24 @@ Any MainInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
 
 Any MainInterpretationVisitor::visit(NodeFactDecl& factDecl)
 {
+  ActionProcedureInterpretationVisitor apiv;
   auto db = DatabaseManager::getInstance().getMainDB();
   auto tableName = factDecl.getFactName()->accept(*this).get<std::string>();
 
-  db->executeNonQuery(
-      SQLGenerator::getInstance().getSqlStringCreateTable(tableName, factDecl.getDomains().size()));
+  std::vector<std::vector<std::string>> domains;
+  for (const auto& domainNode : factDecl.getDomains())
+  {
+    auto vec = domainNode->accept(apiv).get<std::vector<std::string>>();
+    domains.push_back(vec);
+  }
+
+  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsCreateTableAndDomains(tableName,
+      domains);
+
+  for (const auto& sqlString : sqlStrings)
+  {
+    db->executeNonQuery(sqlString);
+  }
 
   //store in db that it is a fact
   if (!db->executeQuery(
@@ -162,7 +175,8 @@ Any MainInterpretationVisitor::visit(NodeVariable& variable)
 
 Any MainInterpretationVisitor::visit(NodeVariableAssignment& varAss)
 {
-  ActionProcedureInterpretationVisitor apiv;
+  ActionProcedureInterpretationVisitor apiv(
+      VariableTableManager::getInstance().getMainVariableTable());
   return apiv.visit(varAss);
 }
 

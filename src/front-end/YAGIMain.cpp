@@ -215,20 +215,24 @@ bool execute(const std::string& line, bool isFileName)
     auto newStmt = stmt->accept(rewriter);
 
     MainInterpretationVisitor interpreter;
-    if (newStmt)
-    {
-      auto rewrittenStmts = newStmt.get<std::vector<std::shared_ptr<ASTNodeBase<>>> >();
+    auto rewrittenStmt = newStmt ? newStmt.get<std::shared_ptr<NodeForLoop>>() : nullptr;
 
+    if (rewrittenStmt)
+    {
       if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
       {
         ToStringVisitor toStringVisitorAfterRewrite;
-        for (const auto& rewrittenStmt : rewrittenStmts)
-        {
-          std::cout << "C++ AST (Rewritten): "
-          << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+        std::cout << "C++ AST (Rewritten): "
+            << rewrittenStmt->accept(toStringVisitorAfterRewrite).get<std::string>() << std::endl;
+      }
 
-          rewrittenStmt->accept(interpreter);
-        }
+      try
+      {
+        rewrittenStmt->accept(interpreter);
+      }
+      catch (const std::exception& ex)
+      {
+        std::cerr << "ERROR: " << ex.what() << std::endl;
       }
     }
     else
@@ -237,16 +241,11 @@ bool execute(const std::string& line, bool isFileName)
       {
         stmt->accept(interpreter);
       }
-      catch (yagi::container::AnyException& anyEx)
-      {
-        anyEx.printStackTrace();
-      }
       catch (const std::exception& ex)
       {
         std::cerr << "ERROR: " << ex.what() << std::endl;
       }
     }
-
   }
 
   return true;

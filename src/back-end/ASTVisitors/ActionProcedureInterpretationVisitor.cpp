@@ -8,6 +8,7 @@
 #include "ActionProcedureInterpretationVisitor.h"
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
@@ -56,6 +57,13 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
         &varTable), isSearch_(isSearch), msgPrefix(isSearch_ ? "[Search] " : "")
 {
   formulaEvaluator_->setContext(this);
+}
+
+ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(VariableTable& varTable) :
+    formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(&varTable), isSearch_(
+        false), msgPrefix("")
+{
+
 }
 
 ActionProcedureInterpretationVisitor::~ActionProcedureInterpretationVisitor()
@@ -426,25 +434,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
     node->accept(*this);
   }
 
-//  if (assignOp == AssignmentOperator::Unknown)
-//  {
-//    throw std::runtime_error("Unknown assign operator!");
-//  }
-//
-//  if (assignOp == AssignmentOperator::Assign)
-//  {
-//    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(lhs));
-//  }
-//
-//  //get data from rhs
-//  auto data = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(rhs));
-//  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(lhs, data, assignOp);
-//
-//  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
-//  {
-//    db_->executeNonQuery(stmt);
-//  });
-
   return Any
   {};
 }
@@ -470,7 +459,7 @@ std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignme
 
   for (int i = 0; i < tupleCount; i++)
   {
-    auto var = std::make_shared<NodeVariable>("x" + std::to_string(i));
+    auto var = std::make_shared<NodeVariable>("$_x" + std::to_string(i) + "_" + std::to_string(getNowTicks()));
     tuple->addTupleValue(var);
     functionArgList->addValue(var);
   }
@@ -490,11 +479,38 @@ std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignme
 Any ActionProcedureInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
 {
   auto tableName = fluentDecl.getFluentName()->accept(*this).get<std::string>();
+  std::vector<std::vector<std::string>> domains;
 
-  db_->executeNonQuery(
-      SQLGenerator::getInstance().getSqlStringCreateTable(tableName,
-          fluentDecl.getDomains().size()));
+  for (const auto& domainNode : fluentDecl.getDomains())
+  {
+    domains.push_back(domainNode->accept(*this).get<std::vector<std::string>>());
+  }
+
+  auto sqlStrings = SQLGenerator::getInstance().getSqlStringsCreateTableAndDomains(tableName,
+      domains);
+
+  for (const auto& sqlString : sqlStrings)
+  {
+    db_->executeNonQuery(sqlString);
+  }
+
   return Any { };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeDomainString& nodeDomainString)
+{
+  return Any { std::vector<std::string> { DOMAIN_STRING_ID } };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeDomainStringElements& nodeDomainStringElements)
+{
+  std::vector<std::string> domainElements;
+  for (const auto& stringNode : nodeDomainStringElements.getDomainElements())
+  {
+    domainElements.push_back(stringNode->accept(*this).get<std::string>());
+  }
+
+  return Any { domainElements };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
@@ -507,46 +523,43 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
 
   //build strings to add to the DB and deduce domains
   bool first = true;
-  std::for_each(std::begin(tuples), std::end(tuples),
-      [this, &valueSet, &domains, &first](const std::shared_ptr<NodeTuple>& nodeTuple)
+  for (const auto& nodeTuple : tuples)
+  {
+    auto tupleElements = nodeTuple->accept(*this).get<std::vector<std::string>>();
+
+    std::vector<std::string> vals;
+    for (const auto& tupleVal : tupleElements)
+    {
+      if (tupleVal[0] == '$') //it's a variable
       {
-        auto tupleElements = nodeTuple->accept(*this).get<std::vector<std::string>>();
+        vals.push_back(varTable_->getVariableValue(tupleVal));
+      }
+      else //it's a string value
+      {
+        vals.push_back(tupleVal);
+      }
+    }
+    valueSet.push_back(vals);
 
-        std::vector<std::string> vals;
-        for (const auto& tupleVal : tupleElements)
-        {
-          if (tupleVal[0] == '$') //it's a variable
-          {
-            vals.push_back(varTable_->getVariableValue(tupleVal));
-          }
-          else //it's a string value
-          {
-            vals.push_back(tupleVal);
-          }
-        }
-        valueSet.push_back(vals);
+    int idx = 0;
 
-        int idx=0;
+    //add values to respective domains
+    for (const auto& str : vals)
+    {
+      if (!first)
+      {
+        domains[idx].push_back(str);
+      }
+      else
+      {
+        domains.push_back( { str });
+      }
 
-        //add values to respective domains
-        std::for_each(std::begin(vals), std::end(vals),
-            [&domains,&idx,&first](const std::string& str)
-            {
-              if (!first)
-              {
-                domains[idx].push_back(str);
-              }
-              else
-              {
-                domains.push_back(
-                    { str});
-              }
+      idx++;
+    }
 
-              idx++;
-            });
-
-        first = false;
-      });
+    first = false;
+  }
 
   //save shadow fluent to db
   auto shadowFluentName = "shadow" + std::to_string(getNowTicks());
@@ -554,19 +567,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
   NodeFluentDecl shadowFluentNode;
   shadowFluentNode.setFluentName(std::make_shared<NodeID>(shadowFluentName));
 
-  std::for_each(std::begin(domains), std::end(domains),
-      [this, &shadowFluentNode](const std::vector<std::string>& domain)
-      {
-        auto domainNode = std::make_shared<NodeDomainStringElements>();
-
-        std::for_each(std::begin(domain), std::end(domain),
-            [&domainNode](const std::string& str)
-            {
-              domainNode->addStringToDomain(std::make_shared<NodeString>(str));
-            });
-
-        shadowFluentNode.addDomain(domainNode);
-      });
+  for (const auto& domain : domains)
+  {
+    auto domainNode = std::make_shared<NodeDomainStringElements>();
+    for (const auto& str : domain)
+    {
+      domainNode->addStringToDomain(std::make_shared<NodeString>(str));
+    }
+    shadowFluentNode.addDomain(domainNode);
+  }
 
   visit(shadowFluentNode);
 
@@ -574,10 +583,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
   auto sqlStrings = SQLGenerator::getInstance().getSqlStringsForIDAssign(shadowFluentName, valueSet,
       AssignmentOperator::Assign);
 
-  std::for_each(std::begin(sqlStrings), std::end(sqlStrings), [this](const std::string& stmt)
+  for (const auto& stmt : sqlStrings)
   {
     db_->executeNonQuery(stmt);
-  });
+  }
 
   //add the info the that fluent is a shadow fluent
   if (!db_->executeQuery(
@@ -600,12 +609,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeTuple& tuple)
 
   auto values = tuple.getTupleValues();
 
-  std::for_each(std::begin(values), std::end(values),
-      [this, &tupleVals](const std::shared_ptr<ASTNodeBase<>>& value)
-      {
-        auto val = value->accept(*this).get<std::string>();
-        tupleVals.push_back(val);
-      });
+  for (const auto& value : values)
+  {
+    auto val = value->accept(*this).get<std::string>();
+    tupleVals.push_back(val);
+  }
 
   return Any { tupleVals };
 }
@@ -784,15 +792,28 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
 
   for (const auto& varName : varTuple)
   {
-    varTable_->addVariable(varName);
+    if (varName[0] == '$')
+    {
+      if (!varTable_->variableExists(varName))
+      {
+        varTable_->addVariable(varName);
+      }
+    }
   }
 
   //set values to variables and execute <block>
   for (const auto& tuple : set)
   {
-    for (auto i = 0; i != tuple.size(); i++)
+    int tupleValIdx = 0;
+    int varIndex = 0;
+    while (tupleValIdx < tuple.size())
     {
-      varTable_->setVariable(varTuple[i], tuple[i]);
+      if (varTuple[varIndex][0] == '$' && varTable_->isVariableInCurrentScope(varTuple[varIndex]))
+      {
+        varTable_->setVariable(varTuple[varIndex], tuple[tupleValIdx]);
+        tupleValIdx++;
+      }
+      varIndex++;
     }
 
     for (const auto& stmt : statements)
@@ -916,6 +937,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
   }
   else
   {
+
     for (int idx = 0; idx < blocks.size(); idx++)
     {
       auto stmts = blocks.at(idx)->getStatements();
@@ -1030,6 +1052,16 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
   }
 
   return Any { success };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeIncompleteKnowledge& incompleteKnowledge)
+{
+  throw std::runtime_error("Incomplete knowledge is not implemented!");
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodePatternMatching& patternMatching)
+{
+  throw std::runtime_error("Pattern matching note should have been rewritten at this point!");
 }
 
 } /* namespace execution */
