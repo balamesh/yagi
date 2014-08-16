@@ -12,11 +12,18 @@ namespace yagi {
 namespace execution {
 
 std::string VariableTable::BARRIER_SYMBOL = "#";
-static int lvl = 0;
+
+VariableTable::VariableTable(std::string name) :
+    showDiagnosisOutput(
+        yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages()), name_(
+        name), prefix_("[" + name_ + "]: ")
+{
+}
 
 VariableTable::VariableTable() :
     showDiagnosisOutput(
-        yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
+        yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages()), name_(
+        "<unknown>"), prefix_("[" + name_ + "]: ")
 {
 }
 
@@ -33,7 +40,7 @@ bool VariableTable::variableExists(const std::string& varName) const
 void VariableTable::addVariable(const std::string& varName, std::string value)
 {
   if (showDiagnosisOutput)
-    std::cout << "Adding variable '" << varName << "', value=" << value << std::endl;
+    std::cout << prefix_ << "Adding variable '" << varName << "', value=" << value << std::endl;
 
   variables_[varName].push(std::make_tuple(value, true));
 }
@@ -41,7 +48,7 @@ void VariableTable::addVariable(const std::string& varName, std::string value)
 void VariableTable::addVariable(const std::string& varName)
 {
   if (showDiagnosisOutput)
-    std::cout << "Adding variable '" << varName << "', no value" << std::endl;
+    std::cout << prefix_ << "Adding variable '" << varName << "', no value" << std::endl;
 
   variables_[varName].push(std::make_tuple("", false));
 }
@@ -49,7 +56,7 @@ void VariableTable::addVariable(const std::string& varName)
 bool VariableTable::isVariableInCurrentScope(const std::string& varName)
 {
   if (showDiagnosisOutput)
-    std::cout << "Checking if variable '" << varName << "' is in current scope..." << std::endl;
+    std::cout << prefix_ << "Checking if variable '" << varName << "' is in current scope..." << std::endl;
 
   if (!variableExists(varName))
   {
@@ -59,7 +66,7 @@ bool VariableTable::isVariableInCurrentScope(const std::string& varName)
   bool isInCurrentScope = !(std::get<0>(variables_[varName].top()) == BARRIER_SYMBOL);
 
   if (showDiagnosisOutput)
-    std::cout << "Variable '" << varName << "' is " << (isInCurrentScope ? "" : "NOT ")
+    std::cout << prefix_ << "Variable '" << varName << "' is " << (isInCurrentScope ? "" : "NOT ")
         << "in current scope." << std::endl;
 
   return isInCurrentScope;
@@ -68,7 +75,7 @@ bool VariableTable::isVariableInCurrentScope(const std::string& varName)
 std::string VariableTable::getVariableValue(const std::string& varName)
 {
   if (showDiagnosisOutput)
-    std::cout << "Getting value for variable '" << varName << "'" << std::endl;
+    std::cout << prefix_ << "Getting value for variable '" << varName << "'" << std::endl;
 
   if (!variableExists(varName))
   {
@@ -120,7 +127,7 @@ bool VariableTable::isVariableInitialized(const std::string& varName) const
 void VariableTable::setVariable(const std::string& varName, const std::string& value)
 {
   if (showDiagnosisOutput)
-    std::cout << "Setting value for variable '" << varName << "' value=" << value << std::endl;
+    std::cout << prefix_ << "Setting value for variable '" << varName << "' value=" << value << std::endl;
 
   if (!variableExists(varName))
   {
@@ -136,7 +143,7 @@ void VariableTable::removeVariableIfExists(const std::string& varName)
   if (variableExists(varName))
   {
     if (showDiagnosisOutput)
-      std::cout << "Removing variable '" << varName << std::endl;
+      std::cout << prefix_ << "Removing variable '" << varName << std::endl;
 
     if (!variables_[varName].size())
     {
@@ -154,7 +161,7 @@ void VariableTable::addScope()
   if (showDiagnosisOutput)
   {
     lvl++;
-    std::cout << "Adding new scope... Level=" << lvl << std::endl;
+    std::cout << prefix_ << "Adding new scope... Level=" << lvl << std::endl;
   }
 
   for (auto& var : variables_)
@@ -169,7 +176,7 @@ void VariableTable::removeScope()
   if (showDiagnosisOutput)
   {
     lvl--;
-    std::cout << "Removing scope... Level=" << lvl << std::endl;
+    std::cout << prefix_ << "Removing scope... Level=" << lvl << std::endl;
   }
 
   std::vector<std::string> removeList { };
@@ -199,9 +206,9 @@ void VariableTable::removeScope()
   }
 }
 
-VariableTable VariableTable::clone()
+VariableTable VariableTable::clone(const std::string& name)
 {
-  VariableTable clone;
+  VariableTable clone(name);
 
 //  for (const auto& tuple : variables_)
 //  {

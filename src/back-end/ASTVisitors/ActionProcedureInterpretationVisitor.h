@@ -124,14 +124,19 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
 
     Any triggerYagiSignal(NodeSignal& signal, std::vector<std::string> settingVariables);
     Any runBlockForPickedTuple(const NodePick& pickNode, std::vector<std::vector<std::string>> set,
-        int tupleIndex);
+        int tupleIndex, ActionProcedureInterpretationVisitor& ctx);
     std::shared_ptr<NodeForLoop> buildAssignmentRewritingLoop(std::string lhsFluentName,
         SitCalcActionType actionType, std::string rhsFluentName);
 
-    bool isSearch_;
+    bool isSearch_ = false;
     std::stack<int> choices_;
-    std::string msgPrefix;
+    std::string msgPrefix_ = "";
     const std::string DOMAIN_STRING_ID = "\"";
+    std::string name_ = "<main>";
+
+    bool cancelled_ = false;
+    bool doStep_ = false;
+    bool stepDone_ = false;
 
   public:
     ActionProcedureInterpretationVisitor();
@@ -139,7 +144,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
         std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
         std::shared_ptr<yagi::database::DatabaseConnectorBase> db,
         std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch =
-            false);
+            false, const std::string& name = "<main>");
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     ActionProcedureInterpretationVisitor(VariableTable& varTable);
     virtual ~ActionProcedureInterpretationVisitor();
@@ -192,6 +197,21 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     void setChoices(const std::stack<int>& choices)
     {
       choices_ = choices;
+    }
+
+    std::shared_ptr<yagi::database::DatabaseConnectorBase>& getDb()
+    {
+      return db_;
+    }
+
+    yagi::execution::VariableTable*& getVarTable()
+    {
+      return varTable_;
+    }
+
+    const std::string& getName() const
+    {
+      return name_;
     }
 };
 

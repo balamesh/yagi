@@ -8,7 +8,9 @@
 #include "ActionProcedureInterpretationVisitor.h"
 
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
@@ -38,7 +40,7 @@ namespace execution {
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false), msgPrefix("")
+        false), msgPrefix_("")
 {
 
 }
@@ -46,22 +48,30 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<DatabaseConnectorBase> db) :
     formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false), msgPrefix("")
+        false), msgPrefix_("")
 {
+
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<IFormulaEvaluator> formulaEvaluator, std::shared_ptr<DatabaseConnectorBase> db,
-    std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch) :
+    std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch,
+    const std::string& name) :
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
-        &varTable), isSearch_(isSearch), msgPrefix(isSearch_ ? "[Search] " : "")
+        &varTable), isSearch_(isSearch), msgPrefix_(""), name_(name)
 {
   formulaEvaluator_->setContext(this);
+  signalReceiver_->setIsSearch(isSearch);
+  if (isSearch_)
+  {
+    msgPrefix_ = "[Search instance=" + name_ + "] ";
+  }
+
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(VariableTable& varTable) :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(&varTable), isSearch_(
-        false), msgPrefix("")
+        false), msgPrefix_("")
 {
 
 }
@@ -158,7 +168,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
         outText = "does NOT hold!";
       }
 
-      std::cout << ">>>> " << msgPrefix << "Test condition in procedure '" << procName << "' "
+      std::cout << ">>>> " << msgPrefix_ << "Test condition in procedure '" << procName << "' "
           << outText << std::endl;
     }
 
@@ -180,13 +190,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
     if (!apHolds)
     {
-      std::cout << ">>>> " << msgPrefix << "AP for action '" + actionName + "' does NOT hold."
+      std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' does NOT hold."
           << std::endl;
 
       return Any { false };
     }
 
-    std::cout << ">>>> " << msgPrefix << "AP for action '" + actionName + "' holds." << std::endl;
+    std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' holds." << std::endl;
   }
 
   if (auto signal = actionDecl.getSignal())
@@ -281,15 +291,36 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
+  //SynchronizationContext ctx(*search.getBlock().get());
+
+//  ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
+//      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, &ctx);
+
+//auto searchRetVal = ctx.performSearch(&v);
+
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true);
+      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, "<searchMain>");
 
-  auto searchRetVal = search.getBlock()->accept(v);
+  bool searchResult = false;
+  bool finished = false;
+  std::thread t([&]()
+  {
+    searchResult = search.getBlock()->accept(v).get<bool>();
+    finished = true;
+  });
 
-  if (searchRetVal.get<bool>())
+  while (!finished)
+  {
+    std::chrono::milliseconds dura(250);
+    std::this_thread::sleep_for(dura);
+  }
+
+  t.join();
+
+  if (searchResult)
   {
     std::cout << ">>>> Search found valid path! Executing..." << std::endl;
-    this->choices_ = v.getChoices();
+    this->choices_ = v.choices_;
 
     for (const auto& stmt : search.getBlock()->getStatements())
     {
@@ -330,6 +361,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
   std::vector<std::string> paramList { };
   if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName))
   {
+    //Wait here for execution signal
+    if (isSearch_ && name_ != "<searchMain>")
+    {
+      while (!doStep_ && !cancelled_)
+      {
+        std::chrono::milliseconds dura(250);
+        std::this_thread::sleep_for(dura);
+      }
+      doStep_ = false;
+    }
+
     if (auto paramNodeList = actionToExecute->getVarList())
     {
       paramList = paramNodeList->accept(*this).get<std::vector<std::string>>();
@@ -349,6 +391,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     else
     {
       procExecRetVal = true;
+    }
+
+    if (isSearch_ && name_ != "<searchMain>")
+    {
+      //After execution, signal that we're done
+      stepDone_ = true;
     }
   }
   else if (auto procToExecute = ExecutableElementsContainer::getInstance().getProcedure(
@@ -459,7 +507,8 @@ std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignme
 
   for (int i = 0; i < tupleCount; i++)
   {
-    auto var = std::make_shared<NodeVariable>("$_x" + std::to_string(i) + "_" + std::to_string(getNowTicks()));
+    auto var = std::make_shared<NodeVariable>(
+        "$_x" + std::to_string(i) + "_" + std::to_string(getNowTicks()));
     tuple->addTupleValue(var);
     functionArgList->addValue(var);
   }
@@ -766,6 +815,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
     for (const auto& stmt : statements)
     {
       stmt->accept(*this);
+
+      if (isSearch_ && cancelled_)
+      {
+        return Any { };
+      }
     }
   }
   return Any { };
@@ -916,6 +970,9 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       choices_.pop();
     }
 
+    std::cout << ">>>> " << msgPrefix_ << "Choosing block " << std::to_string(idx + 1) << "..."
+        << std::endl;
+
     auto stmts = blocks.at(idx)->getStatements();
 
     bool success = true;
@@ -937,32 +994,133 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
   }
   else
   {
+    std::vector<std::tuple<std::shared_ptr<ActionProcedureInterpretationVisitor>, std::thread>> threads;
+    std::vector<int> results;
 
     for (int idx = 0; idx < blocks.size(); idx++)
     {
-      auto stmts = blocks.at(idx)->getStatements();
+      //Fire up a temporary db, temporary varTable and search for sequence of actions
+      std::string name = "<search " + std::to_string(idx + 1) + ">";
 
-      bool rc = true;
-      for (const auto& stmt : stmts)
+      auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(db_->getDbName(),
+          name + "DB_" + std::to_string(getNowTicks()));
+
+      std::string tempVarTableName = name + "VarTable_" + std::to_string(getNowTicks());
+      auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
+          varTable_->getName(), tempVarTableName);
+
+      auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
+
+      std::shared_ptr<ActionProcedureInterpretationVisitor> v = std::make_shared<
+          ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
+          std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+
+      results.push_back(-1);
+
+      std::thread t([&blocks,idx,&v,&results]()
       {
-        auto ret = stmt->accept(*this);
+        auto stmts = blocks.at(idx)->getStatements();
 
-        if (ret.hasType<bool>())
+        bool rc = true;
+        for (const auto& stmt : stmts)
         {
-          rc = rc && ret.get<bool>();
-        }
-      }
+          auto ret = stmt->accept(*v);
 
-      if (rc)
-      {
-        std::cout << ">>>> " << msgPrefix << "Found valid block in 'choose'! Picked block number "
-            << idx + 1 << std::endl;
-        choices_.push(idx);
-        return Any { true };
-      }
+          if (ret.hasType<bool>())
+          {
+            rc = rc && ret.get<bool>();
+          }
+        }
+
+        results[idx] = rc ? 1 : 0;
+      });
+      threads.push_back(std::make_tuple(v, std::move(t)));
     }
 
-    return Any { false };
+    int successIndex = 0;
+    bool found = false;
+    bool allDoneNoResult = true;
+
+    do
+    {
+      for (auto& thread : threads)
+      {
+        std::get<0>(thread)->doStep_ = true;
+      }
+
+      bool allDoneOneStep = true;
+      allDoneNoResult = true;
+
+      do
+      {
+        allDoneOneStep = true;
+        std::chrono::milliseconds dura(250);
+        std::this_thread::sleep_for(dura);
+
+        for (auto& thread : threads)
+        {
+          allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+        }
+      }
+      while (!allDoneOneStep);
+
+      for (auto& thread : threads)
+      {
+        std::get<0>(thread)->stepDone_ = false;
+      }
+
+      //check if we found a result or all threads are done and we found no result
+      for (successIndex = 0; successIndex < results.size(); successIndex++)
+      {
+        if (results[successIndex] == 1)
+        {
+          found = true;
+          break;
+        }
+        else if (results[successIndex] == 0)
+        {
+          std::get<0>(threads[successIndex])->stepDone_ = true;
+        }
+        else
+        {
+          allDoneNoResult = false;
+        }
+      }
+    }
+    while (!found && !allDoneNoResult);
+
+    Any rc;
+    if (found)
+    {
+
+      std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
+          << successIndex + 1 << std::endl;
+
+      auto threadChoices = std::get<0>(threads[successIndex])->getChoices();
+      while (threadChoices.size())
+      {
+        choices_.push(threadChoices.top());
+        threadChoices.pop();
+      }
+
+      choices_.push(successIndex);
+
+      rc = Any { true };
+    }
+    else
+      rc = Any { false };
+
+    for (auto& thread : threads)
+    {
+      std::get<0>(thread)->cancelled_ = true;
+    }
+
+    for (auto& thread : threads)
+    {
+      std::get<1>(thread).join();
+    }
+
+    return rc;
   }
 }
 
@@ -985,45 +1143,144 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       choices_.pop();
     }
 
-    std::cout << ">>>> " << msgPrefix << "Picking value " << tupleToString(set[idx]) << "..."
+    std::cout << ">>>> " << msgPrefix_ << "Picking value " << tupleToString(set[idx]) << "..."
         << std::endl;
 
-    return runBlockForPickedTuple(pick, set, idx);
+    return runBlockForPickedTuple(pick, set, idx, *this);
   }
   else
   {
+    std::vector<std::tuple<std::shared_ptr<ActionProcedureInterpretationVisitor>, std::thread>> threads;
+    std::vector<int> results;
+
     for (int idx = 0; idx < set.size(); idx++)
     {
-      auto ret = runBlockForPickedTuple(pick, set, idx);
-      if (ret.hasType<bool>() && ret.get<bool>())
-      {
-        std::cout << ">>>> " << msgPrefix << "Found valid 'pick' value! Picked "
-            << tupleToString(set[idx]) << std::endl;
-        choices_.push(idx);
+      //Fire up a temporary db, temporary varTable and search for sequence of actions
+      std::string name = "<search " + std::to_string(idx + 1) + ">";
+      auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(db_->getDbName(),
+          name + "DB_" + std::to_string(getNowTicks()));
 
-        return Any { true };
-      }
+      std::string tempVarTableName = name + "VarTable_" + std::to_string(getNowTicks());
+      auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
+          varTable_->getName(), tempVarTableName);
+
+      auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
+
+      std::shared_ptr<ActionProcedureInterpretationVisitor> v = std::make_shared<
+          ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
+          std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+
+      results.push_back(-1);
+      std::thread t([&pick,&set,idx,&v,&results]()
+      {
+        auto ret = v->runBlockForPickedTuple(pick, set, idx,*v.get());
+        results[idx] = ret.get<bool>() ? 1 : 0;
+      });
+      threads.push_back(std::make_tuple(v, std::move(t)));
     }
 
-    return Any { false };
+    int successIndex = 0;
+    bool found = false;
+    bool allDoneNoResult = true;
+
+    do
+    {
+      for (auto& thread : threads)
+      {
+        std::get<0>(thread)->doStep_ = true;
+      }
+
+      bool allDoneOneStep = true;
+      allDoneNoResult = true;
+
+      do
+      {
+        allDoneOneStep = true;
+        std::chrono::milliseconds dura(250);
+        std::this_thread::sleep_for(dura);
+
+        for (auto& thread : threads)
+        {
+          allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+        }
+      }
+      while (!allDoneOneStep);
+
+      for (auto& thread : threads)
+      {
+        std::get<0>(thread)->stepDone_ = false;
+      }
+
+      //check if we found a result or all threads are done and we found no result
+      for (successIndex = 0; successIndex < results.size(); successIndex++)
+      {
+        if (results[successIndex] == 1)
+        {
+          found = true;
+          break;
+        }
+        else if (results[successIndex] == 0)
+        {
+          std::get<0>(threads[successIndex])->stepDone_ = true;
+        }
+        else
+        {
+          allDoneNoResult = false;
+        }
+      }
+    }
+    while (!found && !allDoneNoResult);
+
+    Any rc;
+    if (found)
+    {
+      std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
+          << tupleToString(set[successIndex]) << std::endl;
+
+      auto threadChoices = std::get<0>(threads[successIndex])->getChoices();
+      while (threadChoices.size())
+      {
+        choices_.push(threadChoices.top());
+        threadChoices.pop();
+      }
+
+      choices_.push(successIndex);
+
+      rc = Any { true };
+    }
+    else
+      rc = Any { false };
+
+    for (auto& thread : threads)
+    {
+      std::get<0>(thread)->cancelled_ = true;
+    }
+
+    for (auto& thread : threads)
+    {
+      std::get<1>(thread).join();
+    }
+    return rc;
   }
 
 }
 
 Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick& pickNode,
-    std::vector<std::vector<std::string>> set, int tupleIndex)
+    std::vector<std::vector<std::string>> set, int tupleIndex,
+    ActionProcedureInterpretationVisitor& ctx)
 {
-  auto varTuple = pickNode.getTuple()->accept(*this).get<std::vector<std::string>>();
-  auto fluentName = pickNode.getSetExpr()->accept(*this).get<std::string>();
+  auto varTuple = pickNode.getTuple()->accept(ctx).get<std::vector<std::string>>();
+  auto fluentName = pickNode.getSetExpr()->accept(ctx).get<std::string>();
 
-  varTable_->addScope();
+  ctx.getVarTable()->addScope();
 
-  //pick a value for each unbound variable in varTuple, leave the bound variables as they are
+//pick a value for each unbound variable in varTuple, leave the bound variables as they are
   for (auto i = 0; i != varTuple.size(); i++)
   {
-    if (!varTable_->variableExists(varTuple[i]) || !varTable_->isVariableInitialized(varTuple[i]))
+    if (!ctx.getVarTable()->variableExists(varTuple[i])
+        || !ctx.getVarTable()->isVariableInitialized(varTuple[i]))
     {
-      varTable_->addVariable(varTuple[i], set[tupleIndex][i]);
+      ctx.getVarTable()->addVariable(varTuple[i], set[tupleIndex][i]);
     }
   }
 
@@ -1031,7 +1288,7 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
   bool success = true;
   for (const auto& stmt : stmts)
   {
-    auto ret = stmt->accept(*this);
+    auto ret = stmt->accept(ctx);
     if (ret.hasType<bool>())
     {
       success = success && ret.get<bool>();
@@ -1043,12 +1300,12 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
     }
   }
 
-  varTable_->removeScope();
+  ctx.getVarTable()->removeScope();
 
   //Cleanup shadow fluent in case it is one
-  if (isShadowFluent(fluentName, *db_.get()))
+  if (isShadowFluent(fluentName, *ctx.getDb().get()))
   {
-    cleanupShadowFluent(fluentName, *db_.get());
+    cleanupShadowFluent(fluentName, *ctx.getDb().get());
   }
 
   return Any { success };

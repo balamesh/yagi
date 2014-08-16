@@ -24,8 +24,12 @@ class VariableTable
 
     std::unordered_map<std::string, std::stack<std::tuple<std::string, bool>>>variables_;
     bool showDiagnosisOutput;
+    int lvl = 0;
+    std::string name_;
+    std::string prefix_;
 
     public:
+    VariableTable(std::string name);
     VariableTable();
     virtual ~VariableTable();
 
@@ -39,7 +43,7 @@ class VariableTable
 
     void addScope();
     void removeScope();
-    VariableTable clone();
+    VariableTable clone(const std::string& name);
     bool isVariableInCurrentScope(const std::string& varName);
 
     const std::unordered_map<std::string,std::stack<std::tuple<std::string,bool> > >& getVariables() const
@@ -50,6 +54,11 @@ class VariableTable
     void setVariables(const std::unordered_map<std::string,std::stack<std::tuple<std::string,bool> > >& variables)
     {
       variables_ = variables;
+    }
+
+    const std::string& getName() const
+    {
+      return name_;
     }
   };
 

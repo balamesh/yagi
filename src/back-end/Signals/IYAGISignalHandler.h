@@ -17,12 +17,20 @@ namespace execution {
 
 class IYAGISignalHandler
 {
+  protected:
+    bool isSearch_ = false;
+
   public:
     IYAGISignalHandler();
     virtual ~IYAGISignalHandler();
 
     virtual std::unordered_map<std::string, std::string> signal(const std::string& content,
         const std::vector<std::string>& variables) = 0;
+
+    void setIsSearch(bool isSearch)
+    {
+      isSearch_ = isSearch;
+    }
 };
 
 } /* namespace execution */

@@ -27,7 +27,7 @@ VariableTable& VariableTableManager::getVariableTable(const std::string& identif
   if (exists)
     return table->second;
 
-  VariableTable t;
+  VariableTable t(identifier);
   variableTables_[identifier] = t;
 
   return variableTables_[identifier];
@@ -44,7 +44,7 @@ VariableTable& VariableTableManager::getCloneWithNewName(const std::string& tabl
     throw std::runtime_error("Table to clone '" + tableToClone + "' does not exist!");
   }
 
-  VariableTable newTable = variableTables_[tableToClone].clone();
+  VariableTable newTable = variableTables_[tableToClone].clone(newTableName);
   variableTables_[newTableName] = newTable;
   return variableTables_[newTableName];
 }
