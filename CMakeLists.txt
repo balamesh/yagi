@@ -193,6 +193,12 @@ src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
 src/utils/CommandLineArgsContainer.h
 src/utils/CommandLineArgsContainer.cpp
+src/back-end/ExogenousEvents/ExoEventProducerSimulator.cpp
+src/back-end/ExogenousEvents/ExoEventProducerSimulator.h
+src/back-end/ExogenousEvents/IExogenousEventConsumer.cpp
+src/back-end/ExogenousEvents/IExogenousEventConsumer.h
+src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
+src/back-end/ExogenousEvents/IExogenousEventProducer.h
 )
 
 add_executable(yagi-unitTests
@@ -357,6 +363,12 @@ src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.h
 src/common/ASTNodeTypes/Statements/NodeSitCalcActionExecution.cpp
 src/utils/CommandLineArgsContainer.h
 src/utils/CommandLineArgsContainer.cpp
+src/back-end/ExogenousEvents/ExoEventProducerSimulator.cpp
+src/back-end/ExogenousEvents/ExoEventProducerSimulator.h
+src/back-end/ExogenousEvents/IExogenousEventConsumer.cpp
+src/back-end/ExogenousEvents/IExogenousEventConsumer.h
+src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
+src/back-end/ExogenousEvents/IExogenousEventProducer.h
 
 src/unitTests/UnitTestHelper.h
 src/unitTests/UnitTestHelper.cpp

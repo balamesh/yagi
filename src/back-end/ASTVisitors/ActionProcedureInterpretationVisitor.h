@@ -9,9 +9,11 @@
 #define ACTIONPROCEDUREINTERPRETATIONVISITOR_H_
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <stack>
+#include <queue>
 
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
@@ -51,8 +53,11 @@
 #include "../../common/ASTNodeTypes/Statements/NodeBlock.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
+#include "../../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainString.h"
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../ExogenousEvents/IExogenousEventConsumer.h"
+#include "../ExogenousEvents/IExogenousEventProducer.h"
 
 namespace yagi {
 namespace execution {
@@ -75,7 +80,8 @@ class IFormulaEvaluator;
 namespace yagi {
 namespace execution {
 
-class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
+class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
+    public ASTNodeVisitorBase,
     public Visitor<NodeActionDecl>,
     public Visitor<NodeConstant>,
     public Visitor<NodeProcExecution>,
@@ -114,7 +120,8 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeIncompleteKnowledge>,
     public Visitor<NodePatternMatching>,
     public Visitor<NodeDomainString>,
-    public Visitor<NodeDomainStringElements>
+    public Visitor<NodeDomainStringElements>,
+    public Visitor<NodeExogenousEventDecl>
 {
   private:
     std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator_;
@@ -127,6 +134,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
         int tupleIndex, ActionProcedureInterpretationVisitor& ctx);
     std::shared_ptr<NodeForLoop> buildAssignmentRewritingLoop(std::string lhsFluentName,
         SitCalcActionType actionType, std::string rhsFluentName);
+    void applyExoEventData();
 
     bool isSearch_ = false;
     std::stack<int> choices_;
@@ -138,6 +146,10 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     bool doStep_ = false;
     bool stepDone_ = false;
 
+    std::queue<std::tuple<std::string,std::unordered_map<std::string, std::string>>> exoEventDataBuffer_;
+    std::mutex exoEventDataBufferMutex_;
+
+    std::shared_ptr<IExogenousEventProducer> exoEventProducer_ = nullptr;
   public:
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(
@@ -148,6 +160,9 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     ActionProcedureInterpretationVisitor(VariableTable& varTable);
     virtual ~ActionProcedureInterpretationVisitor();
+
+    virtual void consumeExoEventData(const std::string& eventName,
+        const std::unordered_map<std::string, std::string>& variablesAndValues) override;
 
     Any visit(NodeActionDecl& actionDecl);
     Any visit(NodeConstant& formulaConstant);
@@ -188,6 +203,7 @@ class ActionProcedureInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodePatternMatching& patternMatching);
     Any visit(NodeDomainString& nodeDomainString);
     Any visit(NodeDomainStringElements& nodeDomainStringElements);
+    Any visit(NodeExogenousEventDecl& nodeExoEventDecl);
 
     const std::stack<int>& getChoices() const
     {

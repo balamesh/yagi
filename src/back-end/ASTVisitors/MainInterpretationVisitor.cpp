@@ -130,6 +130,12 @@ Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
   return v.visit(idAssign);
 }
 
+Any MainInterpretationVisitor::visit(NodeExogenousEventDecl& nodeExoEventDecl)
+{
+  ExecutableElementsContainer::getInstance().addOrReplaceExoEvent(nodeExoEventDecl);
+  return Any { };
+}
+
 Any MainInterpretationVisitor::visit(NodeActionDecl& actionDecl)
 {
   ExecutableElementsContainer::getInstance().addOrReplaceAction(actionDecl);

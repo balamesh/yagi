@@ -29,6 +29,7 @@
 #include "../Signals/CoutCinSignalHandler.h"
 #include "../Variables/VariableTable.h"
 #include "../Variables/VariableTableManager.h"
+#include "../ExogenousEvents/ExoEventProducerSimulator.h"
 
 using yagi::database::DatabaseConnectorBase;
 using yagi::execution::IYAGISignalHandler;
@@ -42,7 +43,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
         false), msgPrefix_("")
 {
-
+  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -50,7 +51,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
         false), msgPrefix_("")
 {
-
+  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -66,6 +67,10 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
   {
     msgPrefix_ = "[Search instance=" + name_ + "] ";
   }
+  else
+  {
+    exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
+  }
 
 }
 
@@ -73,7 +78,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(Varia
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(&varTable), isSearch_(
         false), msgPrefix_("")
 {
-
+  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
 }
 
 ActionProcedureInterpretationVisitor::~ActionProcedureInterpretationVisitor()
@@ -176,6 +181,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
     {
       return Any { false };
     }
+  }
+
+  return Any { true };
+}
+
+Any ActionProcedureInterpretationVisitor::visit(NodeExogenousEventDecl& nodeExoEventDecl)
+{
+  auto exoEventName = nodeExoEventDecl.getExogenousEventName()->accept(*this).get<std::string>();
+  auto exoEventAssignments = nodeExoEventDecl.getBlock();
+
+  auto statements = exoEventAssignments->getStatements();
+  for (const auto& stmt : statements)
+  {
+    stmt->accept(*this);
   }
 
   return Any { true };
@@ -370,6 +389,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
         std::this_thread::sleep_for(dura);
       }
       doStep_ = false;
+    }
+
+    if (!isSearch_)
+    {
+      applyExoEventData();
     }
 
     if (auto paramNodeList = actionToExecute->getVarList())
@@ -1319,6 +1343,46 @@ Any ActionProcedureInterpretationVisitor::visit(NodeIncompleteKnowledge& incompl
 Any ActionProcedureInterpretationVisitor::visit(NodePatternMatching& patternMatching)
 {
   throw std::runtime_error("Pattern matching note should have been rewritten at this point!");
+}
+
+void ActionProcedureInterpretationVisitor::consumeExoEventData(const std::string& eventName,
+    const std::unordered_map<std::string, std::string>& variablesAndValues)
+{
+  std::lock_guard<std::mutex> lock(exoEventDataBufferMutex_);
+  exoEventDataBuffer_.push(std::make_tuple(eventName, variablesAndValues));
+}
+
+void ActionProcedureInterpretationVisitor::applyExoEventData()
+{
+  std::lock_guard<std::mutex> lock(exoEventDataBufferMutex_);
+
+  while (exoEventDataBuffer_.size())
+  {
+    auto exoEventData = exoEventDataBuffer_.front();
+    exoEventDataBuffer_.pop();
+
+    auto exoEventName = std::get<0>(exoEventData);
+    auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName);
+    auto argMap = std::get<1>(exoEventData);
+
+    varTable_->addScope();
+
+    std::vector<std::string> paramList;
+    if (auto paramNodeList = exoEventProg->getArgList())
+    {
+      paramList = paramNodeList->accept(*this).get<std::vector<std::string>>();
+    }
+
+    //set param values for action call
+    for (auto i = 0; i != paramList.size(); i++)
+    {
+      varTable_->addVariable(paramList[i], argMap[paramList[i]]); //TODO: what if param names/count is no the same?
+    }
+
+    exoEventProg->accept(*this);
+
+    varTable_->removeScope();
+  }
 }
 
 } /* namespace execution */
