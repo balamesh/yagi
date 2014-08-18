@@ -18,6 +18,7 @@ namespace yagi {
 namespace database {
 
 bool isShadowFluent(const std::string& fluentName, const DatabaseConnectorBase& db);
+bool isFactTable(const std::string& fluentName, const DatabaseConnectorBase& db);
 void cleanupShadowFluent(const std::string& fluentName, const DatabaseConnectorBase& db);
 
 }

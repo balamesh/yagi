@@ -202,12 +202,12 @@ bool execute(const std::string& line, bool isFileName)
     {
       std::string errorText = "";
       auto errors = typeCheck.getErrorTexts();
-      std::for_each(std::begin(errors), std::end(errors), [&errorText](const std::string& error)
+      for (const auto& error : errors)
       {
         errorText += "[ERROR] " + error + "\n";
-      });
+      }
 
-      std::cout << "Typechecker: " << errorText << std::endl;
+      std::cout << errorText << std::endl;
       return true;
     }
 

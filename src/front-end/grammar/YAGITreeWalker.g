@@ -19,8 +19,9 @@ options
 //******************************************************************************
 //Basic program structure
 //******************************************************************************
+//^(IT_PROGRAM ^(declaration | statement)+)
 program	
-	: ^(IT_PROGRAM declaration* statement*)
+	:  (declaration | statement)+
 	{
 	    ADD_PROGRAM();
         }

@@ -264,7 +264,7 @@ std::string SQLGenerator::getSqlStringClearTable(const std::string& tableName)
 
 std::string SQLGenerator::getSqlStringIsFactTable(const std::string& tableName)
 {
-  return "SELECT COUNT FROM " + FACTS_TABLE_NAME_ + " WHERE name = '" + tableName + "';";
+  return "SELECT COUNT(*)  FROM " + FACTS_TABLE_NAME_ + " WHERE name = '" + tableName + "';";
 }
 
 std::string SQLGenerator::getSqlStringAddFact(const NodeFactDecl& factDecl)
