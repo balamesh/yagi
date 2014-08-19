@@ -72,6 +72,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
   }
 
+  choices_.push_back(std::stack<int> { });
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(VariableTable& varTable) :
@@ -310,13 +311,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
-  //SynchronizationContext ctx(*search.getBlock().get());
-
-//  ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-//      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, &ctx);
-
-//auto searchRetVal = ctx.performSearch(&v);
-
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
       std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, "<searchMain>");
 
@@ -340,6 +334,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   {
     std::cout << ">>>> Search found valid path! Executing..." << std::endl;
     this->choices_ = v.choices_;
+
+    std::vector<int> temp;
+    for (auto& stack : choices_)
+    {
+      while (stack.size())
+      {
+        temp.push_back(stack.top());
+        stack.pop();
+      }
+    }
+
+    while (temp.size())
+    {
+      choicesForOnlineExecution.push(temp[temp.size() - 1]);
+      temp.pop_back();
+    }
 
     for (const auto& stmt : search.getBlock()->getStatements())
     {
@@ -840,11 +850,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
     {
       stmt->accept(*this);
 
-      if (isSearch_ && cancelled_)
+      if (isSearch_ && cancelled_ && name_ != "<searchMain>")
       {
         return Any { };
       }
     }
+
+    choices_.push_back(std::stack<int> { });
   }
   return Any { };
 }
@@ -954,7 +966,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
   }
   else
   {
-    statements = conditional.getElseBlock()->getStatements();
+    if (auto elseBlock = conditional.getElseBlock())
+    {
+      statements = elseBlock->getStatements();
+    }
   }
 
   bool success = true;
@@ -983,15 +998,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
   if (!isSearch_)
   {
     int idx = -1;
-    if (choices_.empty())
+    if (choicesForOnlineExecution.empty())
     {
       RandomNumberGenerator rng;
       idx = rng.getRandomNumber(0, blocks.size() - 1);
     }
     else
     {
-      idx = choices_.top();
-      choices_.pop();
+      idx = choicesForOnlineExecution.top();
+      choicesForOnlineExecution.pop();
     }
 
     std::cout << ">>>> " << msgPrefix_ << "Choosing block " << std::to_string(idx + 1) << "..."
@@ -1116,18 +1131,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
-
       std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
           << successIndex + 1 << std::endl;
 
-      auto threadChoices = std::get<0>(threads[successIndex])->getChoices();
+      auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
       while (threadChoices.size())
       {
-        choices_.push(threadChoices.top());
+        choices_[choices_.size() - 1].push(threadChoices.top());
         threadChoices.pop();
       }
 
-      choices_.push(successIndex);
+      choices_[choices_.size() - 1].push(successIndex);
 
       rc = Any { true };
     }
@@ -1144,6 +1158,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       std::get<1>(thread).join();
     }
 
+    if (found && name_ == "<searchMain>")
+    {
+      db_ = std::get<0>(threads[successIndex])->getDb();
+      formulaEvaluator_ = std::make_shared<FormulaEvaluator>(varTable_, db_.get());
+      formulaEvaluator_->setContext(this);
+    }
+
     return rc;
   }
 }
@@ -1156,15 +1177,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   if (!isSearch_)
   {
     int idx = -1;
-    if (choices_.empty())
+    if (choicesForOnlineExecution.empty())
     {
       RandomNumberGenerator rng;
       idx = rng.getRandomNumber(0, set.size() - 1);
     }
     else
     {
-      idx = choices_.top();
-      choices_.pop();
+      idx = choicesForOnlineExecution.top();
+      choicesForOnlineExecution.pop();
     }
 
     std::cout << ">>>> " << msgPrefix_ << "Picking value " << tupleToString(set[idx]) << "..."
@@ -1261,19 +1282,21 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
           << tupleToString(set[successIndex]) << std::endl;
 
-      auto threadChoices = std::get<0>(threads[successIndex])->getChoices();
+      auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
       while (threadChoices.size())
       {
-        choices_.push(threadChoices.top());
+        choices_[choices_.size() - 1].push(threadChoices.top());
         threadChoices.pop();
       }
 
-      choices_.push(successIndex);
+      choices_[choices_.size() - 1].push(successIndex);
 
       rc = Any { true };
     }
     else
+    {
       rc = Any { false };
+    }
 
     for (auto& thread : threads)
     {
@@ -1284,6 +1307,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     {
       std::get<1>(thread).join();
     }
+
+    if (found && name_ == "<searchMain>")
+    {
+      db_ = std::get<0>(threads[successIndex])->getDb();
+      formulaEvaluator_ = std::make_shared<FormulaEvaluator>(varTable_, db_.get());
+      formulaEvaluator_->setContext(this);
+    }
+
     return rc;
   }
 

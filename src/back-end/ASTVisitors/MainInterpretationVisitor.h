@@ -26,6 +26,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeForLoop.h"
 #include "../../common/ASTNodeTypes/Statements/NodeIDAssignment.h"
 #include "../../common/ASTNodeTypes/Statements/NodeProcExecution.h"
+#include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
 #include "../../common/ASTNodeTypes/Statements/NodeVariableAssignment.h"
 #include "../../common/ASTNodeTypes/Tuple/NodeTuple.h"
 #include "../../common/ASTNodeTypes/Variables/NodeVariable.h"
@@ -56,7 +57,8 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeForLoop>,
     public Visitor<NodeConditional>,
     public Visitor<NodeProcDecl>,
-    public Visitor<NodeExogenousEventDecl>
+    public Visitor<NodeExogenousEventDecl>,
+    public Visitor<NodeSearch>
 {
   private:
     static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
@@ -102,6 +104,7 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeConditional& conditional);
     Any visit(NodeProcDecl& procDecl);
     Any visit(NodeExogenousEventDecl& nodeExoEventDecl);
+    Any visit(NodeSearch& nodeSearch);
 };
 
 } /* namespace execution */

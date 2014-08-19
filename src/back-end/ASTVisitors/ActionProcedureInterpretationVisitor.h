@@ -137,7 +137,9 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     void applyExoEventData();
 
     bool isSearch_ = false;
-    std::stack<int> choices_;
+    std::vector<std::stack<int>> choices_;
+    std::stack<int> choicesForOnlineExecution;
+
     std::string msgPrefix_ = "";
     const std::string DOMAIN_STRING_ID = "\"";
     std::string name_ = "<main>";
@@ -146,17 +148,17 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     bool doStep_ = false;
     bool stepDone_ = false;
 
-    std::queue<std::tuple<std::string,std::unordered_map<std::string, std::string>>> exoEventDataBuffer_;
+    std::queue<std::tuple<std::string, std::unordered_map<std::string, std::string>>>exoEventDataBuffer_;
     std::mutex exoEventDataBufferMutex_;
 
     std::shared_ptr<IExogenousEventProducer> exoEventProducer_ = nullptr;
-  public:
+    public:
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(
         std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
         std::shared_ptr<yagi::database::DatabaseConnectorBase> db,
         std::shared_ptr<IYAGISignalHandler> signalReceiver, VariableTable& varTable, bool isSearch =
-            false, const std::string& name = "<main>");
+        false, const std::string& name = "<main>");
     ActionProcedureInterpretationVisitor(std::shared_ptr<yagi::database::DatabaseConnectorBase> db);
     ActionProcedureInterpretationVisitor(VariableTable& varTable);
     virtual ~ActionProcedureInterpretationVisitor();
@@ -205,15 +207,15 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     Any visit(NodeDomainStringElements& nodeDomainStringElements);
     Any visit(NodeExogenousEventDecl& nodeExoEventDecl);
 
-    const std::stack<int>& getChoices() const
+    const std::stack<int>& getLastChoicesStack() const
     {
-      return choices_;
+      return choices_[choices_.size()-1];
     }
 
-    void setChoices(const std::stack<int>& choices)
-    {
-      choices_ = choices;
-    }
+//    void setChoices(const std::stack<int>& choices)
+//    {
+//      choices_ = choices;
+//    }
 
     std::shared_ptr<yagi::database::DatabaseConnectorBase>& getDb()
     {
@@ -229,7 +231,12 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     {
       return name_;
     }
-};
+
+    std::vector<std::stack<int> >& getChoices()
+    {
+      return choices_;
+    }
+  };
 
 }
 /* namespace execution */

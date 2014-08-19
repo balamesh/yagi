@@ -130,6 +130,19 @@ Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
   return v.visit(idAssign);
 }
 
+Any MainInterpretationVisitor::visit(NodeSearch& nodeSearch)
+{
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
+  return v.visit(nodeSearch);
+}
+
 Any MainInterpretationVisitor::visit(NodeExogenousEventDecl& nodeExoEventDecl)
 {
   ExecutableElementsContainer::getInstance().addOrReplaceExoEvent(nodeExoEventDecl);
