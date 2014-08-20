@@ -39,24 +39,6 @@ Any MainInterpretationVisitor::visit(NodeID& id)
   return v.visit(id);
 }
 
-Any MainInterpretationVisitor::visit(NodeProgram& program)
-{
-  std::for_each(program.getProgram().begin(), program.getProgram().end(),
-      [this](std::shared_ptr<ASTNodeBase<>> stmt)
-      {
-        //safety net to check if only valid YAGI lines and not any
-        //garbage resulting from a bug is considered a line...
-        if (!TypeOk(stmt))
-        {
-          throw std::runtime_error("Invalid node type left on program-level of AST in InterpretationVisitor!");
-        }
-
-        stmt->accept(*this);
-      });
-
-  return Any { };
-}
-
 Any MainInterpretationVisitor::visit(NodeFluentDecl& fluentDecl)
 {
   ActionProcedureInterpretationVisitor v(DatabaseManager::getInstance().getMainDB());

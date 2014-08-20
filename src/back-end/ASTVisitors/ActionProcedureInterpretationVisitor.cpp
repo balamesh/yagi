@@ -39,6 +39,8 @@ using yagi::formula::IFormulaEvaluator;
 namespace yagi {
 namespace execution {
 
+const std::string ActionProcedureInterpretationVisitor::DOMAIN_STRING_ID = "\"";
+
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
         false), msgPrefix_("")

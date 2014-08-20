@@ -209,7 +209,6 @@ TOKEN_FOR_EACH
 //******************************************************************************
 //Basic program structure
 //******************************************************************************
-// -> ^(IT_PROGRAM declaration* statement*)
 program	
 	:	(declaration | statement)+
 	;

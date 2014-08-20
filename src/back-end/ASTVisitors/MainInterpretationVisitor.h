@@ -43,7 +43,6 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeFactDecl>,
     public Visitor<NodeActionDecl>,
-    public Visitor<NodeProgram>,
     public Visitor<NodeFluentQuery>,
     public Visitor<NodeIDAssignment>,
     public Visitor<NodeProcExecution>,
@@ -61,26 +60,6 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeSearch>
 {
   private:
-    static bool TypeOk(std::shared_ptr<ASTNodeBase<>> line)
-    {
-      bool ok = std::dynamic_pointer_cast<NodeFluentDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeFactDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeVariableAssignment>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeIDAssignment>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeActionDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeExogenousEventDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeProcDecl>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeFluentQuery>(line) != nullptr
-          || std::dynamic_pointer_cast<NodeProcExecution>(line) != nullptr;
-
-      if (!ok)
-      {
-        ToStringVisitor v;
-        line->accept(v);
-      }
-
-      return ok;
-    }
 
   public:
     MainInterpretationVisitor();

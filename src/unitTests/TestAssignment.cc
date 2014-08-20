@@ -7,7 +7,7 @@
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 
-TEST(AssignmentTest, assignmentSimple1)
+/*TEST(AssignmentTest, assignmentSimple1)
 {
   auto ast = yagi::unitTestHelper::tryParse("src/samples/AssignmentTest/assignmentSimple1.y");
   if (!ast)
@@ -30,3 +30,4 @@ TEST(AssignmentTest, assignmentConditional1)
     return;
   EXPECT_TRUE(true);
 }
+*/

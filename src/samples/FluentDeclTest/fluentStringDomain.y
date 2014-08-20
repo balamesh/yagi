@@ -1,1 +1,1 @@
-fluent foo [String];                              
+fluent stringDomainFluent [String];                              

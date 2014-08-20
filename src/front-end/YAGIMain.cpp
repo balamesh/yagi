@@ -255,7 +255,7 @@ bool execute(const std::string& line, bool isFileName)
       }
       catch (const std::exception& ex)
       {
-        std::cerr << "ERROR: " << ex.what() << std::endl;
+        std::cerr << "UNEXPECTED ERROR: " << ex.what() << std::endl;
       }
     }
   }

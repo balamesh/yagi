@@ -8,11 +8,12 @@
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 
-TEST(ActionDeclTest, actionDeclSimple)
+/*TEST(ActionDeclTest, actionDeclSimple)
 {
   auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclSimple.y");
-  if (!ast)
-    return;
+
+  EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
+
   EXPECT_TRUE(true);
 }
 
@@ -39,3 +40,4 @@ TEST(ActionDeclTest, actionDeclSettingAction)
     return;
   EXPECT_TRUE(true);
 }
+*/

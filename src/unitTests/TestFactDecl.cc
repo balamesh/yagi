@@ -11,7 +11,7 @@
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 
-TEST(FactDeclTest, factUserDomain)
+/*TEST(FactDeclTest, factUserDomain)
 {
   auto ast = yagi::unitTestHelper::tryParse("src/samples/FactDeclTest/factUserDomain.y");
   if (!ast)
@@ -34,5 +34,5 @@ TEST(FactDeclTest, factZeroArity)
     return;
   EXPECT_TRUE(true);
 }
-
+*/
 #endif /* TESTFACTDECL_H_ */

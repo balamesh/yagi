@@ -141,7 +141,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     std::stack<int> choicesForOnlineExecution;
 
     std::string msgPrefix_ = "";
-    const std::string DOMAIN_STRING_ID = "\"";
     std::string name_ = "<main>";
 
     bool cancelled_ = false;
@@ -153,6 +152,7 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
 
     std::shared_ptr<IExogenousEventProducer> exoEventProducer_ = nullptr;
     public:
+
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(
         std::shared_ptr<yagi::formula::IFormulaEvaluator> formulaEvaluator,
@@ -165,6 +165,8 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
 
     virtual void consumeExoEventData(const std::string& eventName,
         const std::unordered_map<std::string, std::string>& variablesAndValues) override;
+
+    static const std::string DOMAIN_STRING_ID;
 
     Any visit(NodeActionDecl& actionDecl);
     Any visit(NodeConstant& formulaConstant);
