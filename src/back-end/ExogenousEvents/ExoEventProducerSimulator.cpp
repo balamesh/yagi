@@ -15,7 +15,7 @@ ExoEventProducerSimulator::ExoEventProducerSimulator(IExogenousEventConsumer* co
     IExogenousEventProducer(consumer)
 {
 
-  if (ExecutableElementsContainer::getInstance().exoEventExists("testExoEvent"))
+  if (ExecutableElementsContainer::getInstance().exoEventExists("testExoEvent",2))
   {
     //TODO: Test for a specific exo event!
     //Implementation needs to be generalized!

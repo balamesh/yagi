@@ -198,6 +198,18 @@ bool execute(const std::string& line, bool isFileName)
     TypeCheckVisitor typeCheck;
     stmt->accept(typeCheck);
 
+    if (typeCheck.hasWarnings())
+    {
+      std::string warningText = "";
+      auto warnings = typeCheck.getWarningTexts();
+      for (const auto& warning : warnings)
+      {
+        warningText += "[WARNING] " + warning + "\n";
+      }
+
+      std::cout << warningText << std::endl;
+    }
+
     if (typeCheck.hasTypeError())
     {
       std::string errorText = "";

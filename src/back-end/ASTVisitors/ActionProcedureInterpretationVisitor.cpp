@@ -388,7 +388,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
   varTable_->addScope();
 
   std::vector<std::string> paramList { };
-  if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName))
+  if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName, argList.size()))
   {
     //Wait here for execution signal
     if (isSearch_ && name_ != "<searchMain>")
@@ -434,7 +434,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     }
   }
   else if (auto procToExecute = ExecutableElementsContainer::getInstance().getProcedure(
-      actionOrProcName))
+      actionOrProcName, argList.size()))
   {
     if (auto paramNodeList = procToExecute->getArgList())
     {
@@ -1393,8 +1393,8 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
     exoEventDataBuffer_.pop();
 
     auto exoEventName = std::get<0>(exoEventData);
-    auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName);
     auto argMap = std::get<1>(exoEventData);
+    auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName, argMap.size());
 
     varTable_->addScope();
 

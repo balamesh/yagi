@@ -16,6 +16,34 @@
 #include "../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
 #include "../common/ASTNodeTypes/Declarations/ExogenousEventDecl/NodeExogenousEventDecl.h"
 
+//inspired by http://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
+struct ExecElementKey
+{
+    std::string name_;
+    int arity_ = 0;
+
+    bool operator==(const ExecElementKey &other) const
+    {
+      return (name_ == other.name_ && arity_ == other.arity_);
+    }
+};
+
+template<>
+struct std::hash<ExecElementKey>
+{
+    std::size_t operator()(const ExecElementKey& k) const
+    {
+      using std::size_t;
+      using std::hash;
+      using std::string;
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+      return (hash<string>()(k.name_) ^ (hash<int>()(k.arity_) << 1));
+    }
+};
+
 namespace yagi {
 namespace execution {
 
@@ -28,9 +56,9 @@ class ExecutableElementsContainer
       ExecutableElementsContainer();
       ~ExecutableElementsContainer();
 
-      std::unordered_map<std::string, std::shared_ptr<NodeActionDecl>> actions_;
-      std::unordered_map<std::string, std::shared_ptr<NodeProcDecl>> procedures_;
-      std::unordered_map<std::string, std::shared_ptr<NodeExogenousEventDecl>> exoEvents_;
+      std::unordered_map<ExecElementKey, std::shared_ptr<NodeActionDecl>> actions_;
+      std::unordered_map<ExecElementKey, std::shared_ptr<NodeProcDecl>> procedures_;
+      std::unordered_map<ExecElementKey, std::shared_ptr<NodeExogenousEventDecl>> exoEvents_;
 
     public:
       static ExecutableElementsContainer& getInstance()
@@ -39,62 +67,18 @@ class ExecutableElementsContainer
         return instance;
       }
 
-      void addOrReplaceAction(const NodeActionDecl& actionDecl)
-      {
-        actions_[actionDecl.getActionName()->getId()] = std::make_shared<NodeActionDecl>(
-            actionDecl);
-      }
+      void addOrReplaceAction(const NodeActionDecl& actionDecl);
+      std::shared_ptr<NodeActionDecl> getAction(const std::string& actionName, int arity);
+      bool actionExists(const std::string& actionName, int arity);
 
-      std::shared_ptr<NodeActionDecl> getAction(const std::string& actionName)
-      {
-        auto val = actions_.find(actionName);
-        if (val != std::end(actions_))
-        {
-          return actions_[actionName];
-        }
-        return nullptr;
-      }
+      void addOrReplaceProcedure(const NodeProcDecl& procDecl);
+      std::shared_ptr<NodeProcDecl> getProcedure(const std::string& procName, int arity);
+      bool procExists(const std::string& procName, int arity);
 
-      void addOrReplaceProcedure(const NodeProcDecl& procDecl)
-      {
-        procedures_[procDecl.getProcName()->getId()] = std::make_shared<NodeProcDecl>(procDecl);
-      }
-
-      std::shared_ptr<NodeProcDecl> getProcedure(const std::string& actionName)
-      {
-        auto val = procedures_.find(actionName);
-        if (val != std::end(procedures_))
-        {
-          return procedures_[actionName];
-        }
-        return nullptr;
-      }
-
-      void addOrReplaceExoEvent(const NodeExogenousEventDecl& exoEventDecl)
-      {
-        exoEvents_[exoEventDecl.getExogenousEventName()->getId()] = std::make_shared<
-            NodeExogenousEventDecl>(exoEventDecl);
-      }
-
-      std::shared_ptr<NodeExogenousEventDecl> getExoEvent(const std::string& exoEventName)
-      {
-        if (exoEventExists(exoEventName))
-        {
-          return exoEvents_[exoEventName];
-        }
-        return nullptr;
-      }
-
-      bool exoEventExists(const std::string& exoEventName)
-      {
-        auto val = exoEvents_.find(exoEventName);
-        if (val != std::end(exoEvents_))
-        {
-          return true;
-        }
-
-        return false;
-      }
+      void addOrReplaceExoEvent(const NodeExogenousEventDecl& exoEventDecl);
+      std::shared_ptr<NodeExogenousEventDecl> getExoEvent(const std::string& exoEventName,
+          int arity);
+      bool exoEventExists(const std::string& exoEventName, int arity);
   };
 
   } /* namespace execution */
