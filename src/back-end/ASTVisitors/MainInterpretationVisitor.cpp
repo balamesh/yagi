@@ -25,11 +25,31 @@ namespace execution {
 
 MainInterpretationVisitor::MainInterpretationVisitor()
 {
-
+  initDB();
 }
 
 MainInterpretationVisitor::~MainInterpretationVisitor()
 {
+
+}
+
+void MainInterpretationVisitor::initDB()
+{
+  auto db = DatabaseManager::getInstance().getMainDB();
+
+  if (!db->executeQuery(
+      SQLGenerator::getInstance().getSqlStringExistsTable(
+          SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
+  {
+    db->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateFactsTable());
+  }
+
+  if (!db->executeQuery(
+      SQLGenerator::getInstance().getSqlStringExistsTable(
+          SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_)).size())
+  {
+    db->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateShadowFluentsTable());
+  }
 
 }
 
@@ -67,12 +87,12 @@ Any MainInterpretationVisitor::visit(NodeFactDecl& factDecl)
   }
 
   //store in db that it is a fact
-  if (!db->executeQuery(
-      SQLGenerator::getInstance().getSqlStringExistsTable(
-          SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
-  {
-    db->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateFactsTable());
-  }
+//  if (!db->executeQuery(
+//      SQLGenerator::getInstance().getSqlStringExistsTable(
+//          SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
+//  {
+//    db->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateFactsTable());
+//  }
   db->executeNonQuery(SQLGenerator::getInstance().getSqlStringAddFact(factDecl));
 
   return Any { };

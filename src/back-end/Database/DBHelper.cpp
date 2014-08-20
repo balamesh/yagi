@@ -20,6 +20,13 @@ bool isShadowFluent(const std::string& fluentName, const DatabaseConnectorBase& 
 
 bool isFactTable(const std::string& fluentName, const DatabaseConnectorBase& db)
 {
+  if (!db.executeQuery(
+      SQLGenerator::getInstance().getSqlStringExistsTable(
+          SQLGenerator::getInstance().FACTS_TABLE_NAME_)).size())
+  {
+    return false;
+  }
+
   auto ret = db.executeQuery(SQLGenerator::getInstance().getSqlStringIsFactTable(fluentName));
 
   //select count(*) gives back exactly 1 result that's int

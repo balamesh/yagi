@@ -674,12 +674,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSet& set)
   }
 
   //add the info the that fluent is a shadow fluent
-  if (!db_->executeQuery(
-      SQLGenerator::getInstance().getSqlStringExistsTable(
-          SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_)).size())
-  {
-    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateShadowFluentsTable());
-  }
+//  if (!db_->executeQuery(
+//      SQLGenerator::getInstance().getSqlStringExistsTable(
+//          SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_)).size())
+//  {
+//    db_->executeNonQuery(SQLGenerator::getInstance().getSqlStringCreateShadowFluentsTable());
+//  }
 
   db_->executeNonQuery(
       SQLGenerator::getInstance().getSqlStringMakeTableShadowFluent(shadowFluentName));

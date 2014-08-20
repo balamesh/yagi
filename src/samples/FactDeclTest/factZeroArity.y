@@ -1,1 +1,1 @@
-fact zeroAry;                              
+fact factZeroAry;                              

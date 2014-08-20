@@ -1,15 +1,15 @@
-fluent g[{"a","b"}][{"x","y"}];
-g = {<"a","x">, <"b","y">};
+fluent g2[{"a","b"}][{"x","y"}];
+g2 = {<"a","x">, <"b","y">};
 
-fluent h[{"a","b"}][{"x","y"}];
-fluent flu[{"i","j", "k"}];
+fluent h2[{"a","b"}][{"x","y"}];
+fluent flu2[{"i","j", "k"}];
 
 if (true) then
-  h = {<"a","x">};
+  h2 = {<"a","x">};
 end if
 
 if (false) then
-  flu = {<"i">};
+  flu2 = {<"i">};
 else
-  flu = {<"j">};
+  flu2 = {<"j">};
 end if

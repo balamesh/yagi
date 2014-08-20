@@ -60,6 +60,7 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeSearch>
 {
   private:
+    void initDB();
 
   public:
     MainInterpretationVisitor();

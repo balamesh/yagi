@@ -64,8 +64,15 @@ Any RewritingVisitor::visit(NodeIDAssignment& idAssignment)
   std::string fluentName = apiv.visit(*idAssignment.getFluentName().get()).get<std::string>();
   auto assOp = apiv.visit(*idAssignment.getOperator().get()).get<AssignmentOperator>();
 
-  auto tupleSet = idAssignment.getSetExpr()->accept(*this).get<
-      std::vector<std::vector<std::string>>>();
+  auto anyTupleSet = idAssignment.getSetExpr()->accept(*this);
+
+  //it can never be pattern matching if the rhs of the assignment is another fluent
+  if (!anyTupleSet.hasType<std::vector<std::vector<std::string>>>())
+  {
+    return Any { };
+  }
+
+  auto tupleSet = anyTupleSet.get<std::vector<std::vector<std::string>>>();
 
   std::shared_ptr<NodeForLoop> forLoop = nullptr;
   for (const auto& tuple : tupleSet)

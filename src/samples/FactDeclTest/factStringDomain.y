@@ -1,1 +1,1 @@
-fact foo[String];                              
+fact factString[String];                              
