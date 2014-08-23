@@ -9,6 +9,7 @@
 #include "../utils/ToStringHelper.h"
 #include "../back-end/Database/DatabaseManager.h"
 #include "../back-end/SQLGenerator.h"
+#include "../back-end/Database/DBHelper.h"
 
 TEST(AssignmentTest, assignmentSimple1)
 {
@@ -54,6 +55,8 @@ TEST(AssignmentTest, assignmentSimple1)
     EXPECT_TRUE(false);
   }
 
+  cleanupDatabase();
+
 }
 
 TEST(AssignmentTest, assignmentForLoop1)
@@ -70,7 +73,7 @@ TEST(AssignmentTest, assignmentForLoop1)
     std::string expectedG1 { "{<\"a\",\"x\">, <\"b\",\"y\">}" };
     EXPECT_EQ(expectedG1,
         yagi::fluentDBDataToString(
-            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("g1"))));
+            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("g"))));
 
     std::string expectedH { "{<\"a\",\"x\">, <\"b\",\"y\">}" };
     EXPECT_EQ(expectedH,
@@ -88,6 +91,8 @@ TEST(AssignmentTest, assignmentForLoop1)
     std::cout << ex.what() << std::endl;
     EXPECT_TRUE(false);
   }
+
+  cleanupDatabase();
 }
 
 TEST(AssignmentTest, assignmentConditional1)
@@ -105,17 +110,17 @@ TEST(AssignmentTest, assignmentConditional1)
     std::string expectedG2 { "{<\"a\",\"x\">, <\"b\",\"y\">}" };
     EXPECT_EQ(expectedG2,
         yagi::fluentDBDataToString(
-            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("g2"))));
+            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("g"))));
 
     std::string expectedH2 { "{<\"a\",\"x\">}" };
     EXPECT_EQ(expectedH2,
         yagi::fluentDBDataToString(
-            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("h2"))));
+            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("h"))));
 
     std::string expectedFlu2 { "{<\"j\">}" };
     EXPECT_EQ(expectedFlu2,
         yagi::fluentDBDataToString(
-            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("flu2"))));
+            db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("flu"))));
 
   }
   catch (const std::exception& ex)
@@ -123,5 +128,7 @@ TEST(AssignmentTest, assignmentConditional1)
     std::cout << ex.what() << std::endl;
     EXPECT_TRUE(false);
   }
+
+  cleanupDatabase();
 }
 

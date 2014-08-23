@@ -59,6 +59,8 @@ TEST(FactDeclTest, factUserDomain)
     EXPECT_TRUE(false);
   }
 
+  cleanupDatabase();
+
 }
 
 TEST(FactDeclTest, factStringDomain)
@@ -90,6 +92,8 @@ TEST(FactDeclTest, factStringDomain)
     std::cout << ex.what() << std::endl;
     EXPECT_TRUE(false);
   }
+
+  cleanupDatabase();
 }
 
 TEST(FactDeclTest, factZeroArity)
@@ -101,6 +105,8 @@ TEST(FactDeclTest, factZeroArity)
     throw std::runtime_error("Feature not implemented!")
     ;
   }, std::runtime_error);
+
+  cleanupDatabase();
 }
 
 #endif /* TESTFACTDECL_H_ */

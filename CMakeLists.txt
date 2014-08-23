@@ -378,6 +378,7 @@ src/unitTests/TestActionDecl.cc
 src/unitTests/TestAssignment.cc
 src/unitTests/TestFactDecl.cc
 src/unitTests/TestFormula.cc
+src/unitTests/UnitTestElevator.cc
 )
 
 target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})

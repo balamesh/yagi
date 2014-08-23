@@ -6,6 +6,8 @@
  */
 #include "DBHelper.h"
 
+#include "../Database/DatabaseManager.h"
+#include "../SQLGenerator.h"
 namespace yagi {
 namespace database {
 
@@ -52,5 +54,29 @@ void cleanupShadowFluent(const std::string& fluentName, const DatabaseConnectorB
   }
 }
 
+void cleanupDatabase()
+{
+  auto db = DatabaseManager::getInstance().getMainDB();
+
+  auto tableNames = db->executeQuery(SQLGenerator::getInstance().getSqlStringGetAllTableNames());
+  for (const auto& tableName : tableNames)
+  {
+    if ((tableName[1] == SQLGenerator::getInstance().FACTS_TABLE_NAME_)
+        || (tableName[1] == SQLGenerator::getInstance().SHADOW_FLUENTS_TABLE_NAME_))
+    {
+      db->executeNonQuery(SQLGenerator::getInstance().getSqlStringClearTable(tableName[1]));
+    }
+
+    else if (tableName[1] == "sqlite_sequence")
+    {
+      continue;
+    }
+    else
+    {
+      db->executeNonQuery(SQLGenerator::getInstance().getSqlStringDropTable(tableName[1]));
+    }
+  }
+
+}
 }
 }

@@ -7,37 +7,32 @@
 
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
+#include "../back-end/ExecutableElementsContainer.h"
 
-/*TEST(ActionDeclTest, actionDeclSimple)
-{
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclSimple.y");
-
-  EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
-
-  EXPECT_TRUE(true);
-}
-
-TEST(ActionDeclTest, actionDeclWithParameters)
-{
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclWithParameters.y");
-  if (!ast)
-    return;
-  EXPECT_TRUE(true);
-}
-
-TEST(ActionDeclTest, actionDeclSignal)
-{
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclSignal.y");
-  if (!ast)
-    return;
-  EXPECT_TRUE(true);
-}
-
-TEST(ActionDeclTest, actionDeclSettingAction)
-{
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclSettingAction.y");
-  if (!ast)
-    return;
-  EXPECT_TRUE(true);
-}
-*/
+//TEST(ActionDeclTest, actionDeclTest)
+//{
+//  try
+//  {
+//    auto ast = yagi::unitTestHelper::tryParse("src/samples/ActionDeclTest/actionDeclTest.y");
+//    EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
+//
+//    ASTBuilder::getInstance().reset();
+//
+//    EXPECT_NE(
+//        yagi::execution::ExecutableElementsContainer::getInstance().getAction("testAction", 0),
+//        nullptr);
+//
+//    EXPECT_NE(
+//        yagi::execution::ExecutableElementsContainer::getInstance().getAction(
+//            "testActionWithParams", 2), nullptr);
+//
+//    EXPECT_NE(
+//        yagi::execution::ExecutableElementsContainer::getInstance().getAction("testSettingAction",
+//            2), nullptr);
+//  }
+//  catch (const std::exception& ex)
+//  {
+//    std::cout << ex.what() << std::endl;
+//    EXPECT_TRUE(false);
+//  }
+//}

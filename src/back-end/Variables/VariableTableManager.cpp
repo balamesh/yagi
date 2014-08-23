@@ -7,8 +7,12 @@
 
 #include "VariableTableManager.h"
 
+#include <mutex>
+
 namespace yagi {
 namespace execution {
+
+std::mutex varTableManagerMutex;
 
 VariableTableManager::VariableTableManager() :
     MAIN_VAR_TABLE_ID("Main")
@@ -36,17 +40,20 @@ VariableTable& VariableTableManager::getVariableTable(const std::string& identif
 VariableTable& VariableTableManager::getCloneWithNewName(const std::string& tableToClone,
     const std::string& newTableName)
 {
-  auto table = variableTables_.find(tableToClone);
-  bool exists = table != std::end(variableTables_);
-
-  if (!exists)
   {
-    throw std::runtime_error("Table to clone '" + tableToClone + "' does not exist!");
-  }
+    std::lock_guard<std::mutex> lk(varTableManagerMutex);
 
-  VariableTable newTable = variableTables_[tableToClone].clone(newTableName);
-  variableTables_[newTableName] = newTable;
-  return variableTables_[newTableName];
+    auto table = variableTables_.find(tableToClone);
+    bool exists = table != std::end(variableTables_);
+
+    if (!exists)
+    {
+      throw std::runtime_error("Table to clone '" + tableToClone + "' does not exist!");
+    }
+
+    variableTables_[newTableName] = variableTables_[tableToClone].clone(newTableName);
+    return variableTables_[newTableName];
+  }
 }
 
 VariableTable& VariableTableManager::getMainVariableTable()

@@ -28,8 +28,9 @@ struct ExecElementKey
     }
 };
 
+namespace std {
 template<>
-struct std::hash<ExecElementKey>
+struct hash<ExecElementKey>
 {
     std::size_t operator()(const ExecElementKey& k) const
     {
@@ -43,6 +44,7 @@ struct std::hash<ExecElementKey>
       return (hash<string>()(k.name_) ^ (hash<int>()(k.arity_) << 1));
     }
 };
+}
 
 namespace yagi {
 namespace execution {

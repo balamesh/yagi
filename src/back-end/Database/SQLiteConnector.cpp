@@ -7,8 +7,12 @@
 
 #include "SQLiteConnector.h"
 
+#include <mutex>
+
 namespace yagi {
 namespace database {
+
+std::mutex dbMutex;
 
 SQLiteConnector::~SQLiteConnector()
 {
@@ -60,16 +64,20 @@ void SQLiteConnector::connect()
 
 void SQLiteConnector::executeNonQuery(const std::string& sqlStatement) const
 {
-  char *zErrMsg = nullptr;
-
-  SQLiteErrorMsg errorMsg = SQLiteErrorMsg(zErrMsg, [](char* ptr)
-  { if (ptr) sqlite3_free(ptr);});
-
-  /* Execute SQL statement */
-  int rc = sqlite3_exec(db_.get(), sqlStatement.c_str(), nullptr, 0, &zErrMsg);
-  if (rc != SQLITE_OK)
   {
-    throw std::runtime_error(std::string("SQL error: ") + zErrMsg);
+    std::lock_guard<std::mutex> lk(dbMutex);
+
+    char *zErrMsg = nullptr;
+
+    SQLiteErrorMsg errorMsg = SQLiteErrorMsg(zErrMsg, [](char* ptr)
+    { if (ptr) sqlite3_free(ptr);});
+
+    /* Execute SQL statement */
+    int rc = sqlite3_exec(db_.get(), sqlStatement.c_str(), nullptr, 0, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
+      throw std::runtime_error(std::string("SQL error: ") + zErrMsg);
+    }
   }
 }
 
@@ -77,49 +85,52 @@ void SQLiteConnector::executeNonQuery(const std::string& sqlStatement) const
 std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
     const std::string& selectSqlStmt) const
 {
-
-  std::vector<std::vector<std::string>> data;
-  sqlite3_stmt *statement;
-
-  if (sqlite3_prepare(db_.get(), selectSqlStmt.c_str(), -1, &statement, 0) == SQLITE_OK)
   {
-    int ctotal = sqlite3_column_count(statement);
-    int res = 0;
+    std::lock_guard<std::mutex> lk(dbMutex);
 
-    while (1)
+    std::vector<std::vector<std::string>> data;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare(db_.get(), selectSqlStmt.c_str(), -1, &statement, 0) == SQLITE_OK)
     {
-      res = sqlite3_step(statement);
+      int ctotal = sqlite3_column_count(statement);
+      int res = 0;
 
-      if (res == SQLITE_ROW)
+      while (1)
       {
-        std::vector<std::string> row;
-        for (int i = 0; i < ctotal; i++)
+        res = sqlite3_step(statement);
+
+        if (res == SQLITE_ROW)
         {
-          auto val = sqlite3_column_text(statement, i);
-          if (val != nullptr)
+          std::vector<std::string> row;
+          for (int i = 0; i < ctotal; i++)
           {
-            row.push_back((char*) val);
+            auto val = sqlite3_column_text(statement, i);
+            if (val != nullptr)
+            {
+              row.push_back((char*) val);
+            }
+            else
+              row.push_back("<db-null>");
           }
-          else
-            row.push_back("<db-null>");
+
+          data.push_back(row);
         }
 
-        data.push_back(row);
-      }
-
-      if (res == SQLITE_DONE || res == SQLITE_ERROR)
-      {
-        break;
+        if (res == SQLITE_DONE || res == SQLITE_ERROR)
+        {
+          break;
+        }
       }
     }
-  }
 
-  if (statement)
-  {
-    sqlite3_finalize(statement);
-  }
+    if (statement)
+    {
+      sqlite3_finalize(statement);
+    }
 
-  return data;
+    return data;
+  }
 }
 
 /*
@@ -143,50 +154,54 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
  */
 int SQLiteConnector::backupDb(const char *zFilename, void (*xProgress)(int, int))
 {
-  int rc; /* Function return code */
-  sqlite3 *pFile; /* Database connection opened on zFilename */
-  sqlite3_backup *pBackup; /* Backup handle used to copy data */
-
-  /* Open the database file identified by zFilename. */
-  rc = sqlite3_open(zFilename, &pFile);
-  if (rc == SQLITE_OK)
   {
+    std::lock_guard<std::mutex> lk(dbMutex);
 
-    /* Open the sqlite3_backup object used to accomplish the transfer */
-    pBackup = sqlite3_backup_init(pFile, "main", pDB_, "main");
-    if (pBackup)
+    int rc; /* Function return code */
+    sqlite3 *pFile; /* Database connection opened on zFilename */
+    sqlite3_backup *pBackup; /* Backup handle used to copy data */
+
+    /* Open the database file identified by zFilename. */
+    rc = sqlite3_open(zFilename, &pFile);
+    if (rc == SQLITE_OK)
     {
 
-      /* Each iteration of this loop copies 5 database pages from database
-       ** pDb to the backup database. If the return value of backup_step()
-       ** indicates that there are still further pages to copy, sleep for
-       ** 250 ms before repeating. */
-      do
+      /* Open the sqlite3_backup object used to accomplish the transfer */
+      pBackup = sqlite3_backup_init(pFile, "main", pDB_, "main");
+      if (pBackup)
       {
-        rc = sqlite3_backup_step(pBackup, 5);
 
-        if (xProgress)
+        /* Each iteration of this loop copies 5 database pages from database
+         ** pDb to the backup database. If the return value of backup_step()
+         ** indicates that there are still further pages to copy, sleep for
+         ** 250 ms before repeating. */
+        do
         {
-          xProgress(sqlite3_backup_remaining(pBackup), sqlite3_backup_pagecount(pBackup));
-        }
+          rc = sqlite3_backup_step(pBackup, 5);
 
-        if (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED)
-        {
-          sqlite3_sleep(250);
+          if (xProgress)
+          {
+            xProgress(sqlite3_backup_remaining(pBackup), sqlite3_backup_pagecount(pBackup));
+          }
+
+          if (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED)
+          {
+            sqlite3_sleep(50);
+          }
         }
+        while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
+
+        /* Release resources allocated by backup_init(). */
+        (void) sqlite3_backup_finish(pBackup);
       }
-      while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
-
-      /* Release resources allocated by backup_init(). */
-      (void) sqlite3_backup_finish(pBackup);
+      rc = sqlite3_errcode(pFile);
     }
-    rc = sqlite3_errcode(pFile);
-  }
 
-  /* Close the database connection opened on database file zFilename
-   ** and return the result of this function. */
-  (void) sqlite3_close(pFile);
-  return rc;
+    /* Close the database connection opened on database file zFilename
+     ** and return the result of this function. */
+    (void) sqlite3_close(pFile);
+    return rc;
+  }
 }
 
 } //namespace end

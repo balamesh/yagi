@@ -9,6 +9,7 @@
 #define ASTNODEBASE_H_
 
 #include "../../common/ASTNodeVisitorBase.h"
+#include <mutex>
 
 using namespace yagi::container;
 
@@ -26,10 +27,13 @@ class ASTNodeBase
 {
   public:
     typedef R ReturnType;
-    virtual ~ASTNodeBase() {}
+    virtual ~ASTNodeBase()
+    {
+    }
 
     virtual R accept(ASTNodeVisitorBase &) = 0;
   protected:
+
     template<class T>
     static ReturnType acceptImpl(T& visited, ASTNodeVisitorBase& guest)
     {

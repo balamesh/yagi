@@ -14,6 +14,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <atomic>
 
 #include "../../common/ASTNodeTypes/DataTypes/NodeString.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeValueList.h"
@@ -143,9 +144,9 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     std::string msgPrefix_ = "";
     std::string name_ = "<main>";
 
-    bool cancelled_ = false;
-    bool doStep_ = false;
-    bool stepDone_ = false;
+    std::atomic_bool cancelled_;
+    std::atomic_bool doStep_;
+    std::atomic_bool stepDone_;
 
     std::queue<std::tuple<std::string, std::unordered_map<std::string, std::string>>>exoEventDataBuffer_;
     std::mutex exoEventDataBufferMutex_;

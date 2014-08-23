@@ -10,6 +10,7 @@
 #include "../back-end/Database/DatabaseManager.h"
 #include "../back-end/SQLGenerator.h"
 #include "../back-end/ASTVisitors/ActionProcedureInterpretationVisitor.h"
+#include "../back-end/Database/DBHelper.h"
 
 TEST(FluentDeclTest, fluentUserDomain)
 {
@@ -51,6 +52,8 @@ TEST(FluentDeclTest, fluentUserDomain)
     std::cout << ex.what() << std::endl;
     EXPECT_TRUE(false);
   }
+
+  cleanupDatabase();
 }
 
 TEST(FluentDeclTest, fluentStringDomain)
@@ -83,6 +86,8 @@ TEST(FluentDeclTest, fluentStringDomain)
     EXPECT_TRUE(false);
   }
 
+  cleanupDatabase();
+
 }
 
 TEST(FluentDeclTest, fluentZeroArity)
@@ -94,4 +99,6 @@ TEST(FluentDeclTest, fluentZeroArity)
     throw std::runtime_error("Feature not implemented!")
     ;
   }, std::runtime_error);
+
+  cleanupDatabase();
 }

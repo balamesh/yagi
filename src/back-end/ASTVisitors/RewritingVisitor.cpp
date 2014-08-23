@@ -37,7 +37,7 @@ Any RewritingVisitor::visit(NodeActionEffect& effect)
   auto block = effect.getBlock();
   auto stmts = block->getStatements();
 
-  for (int i = 0; i < stmts.size(); i++)
+  for (size_t i = 0; i < stmts.size(); i++)
   {
     auto ret = stmts[i]->accept(*this);
     if (!ret.empty())
@@ -97,7 +97,7 @@ std::shared_ptr<NodeForLoop> RewritingVisitor::rewritePatternMatching(const std:
   std::vector<std::shared_ptr<NodeForLoop>> loops;
   auto assTuple = std::make_shared<NodeTuple>();
 
-  for (int i = 0; i < tuple.size(); i++)
+  for (size_t i = 0; i < tuple.size(); i++)
   {
     if (tuple[i] == PATTERN_MATCH_ID)
     {

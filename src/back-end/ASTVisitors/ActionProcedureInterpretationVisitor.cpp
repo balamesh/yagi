@@ -40,6 +40,7 @@ namespace yagi {
 namespace execution {
 
 const std::string ActionProcedureInterpretationVisitor::DOMAIN_STRING_ID = "\"";
+std::mutex coutMutex;
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
@@ -63,6 +64,10 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
         &varTable), isSearch_(isSearch), msgPrefix_(""), name_(name)
 {
+  doStep_ = false;
+  stepDone_ = false;
+  cancelled_ = false;
+
   formulaEvaluator_->setContext(this);
   signalReceiver_->setIsSearch(isSearch);
   if (isSearch_)
@@ -176,8 +181,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
         outText = "does NOT hold!";
       }
 
-      std::cout << ">>>> " << msgPrefix_ << "Test condition in procedure '" << procName << "' "
-          << outText << std::endl;
+      {
+        std::lock_guard<std::mutex> lk(coutMutex);
+        std::cout << ">>>> " << msgPrefix_ << "Test condition in procedure '" << procName << "' "
+            << outText << std::endl;
+      }
     }
 
     if (!success)
@@ -212,13 +220,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
     if (!apHolds)
     {
-      std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' does NOT hold."
-          << std::endl;
+      {
+        std::lock_guard<std::mutex> lk(coutMutex);
+        std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' does NOT hold."
+            << std::endl;
+      }
 
       return Any { false };
     }
 
-    std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' holds." << std::endl;
+    {
+      std::lock_guard<std::mutex> lk(coutMutex);
+      std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' holds."
+          << std::endl;
+    }
   }
 
   if (auto signal = actionDecl.getSignal())
@@ -317,7 +332,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
       std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, "<searchMain>");
 
   bool searchResult = false;
-  bool finished = false;
+
+  std::atomic_bool finished;
+  finished = false;
+
   std::thread t([&]()
   {
     searchResult = search.getBlock()->accept(v).get<bool>();
@@ -326,7 +344,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   while (!finished)
   {
-    std::chrono::milliseconds dura(250);
+    std::chrono::milliseconds dura(50);
     std::this_thread::sleep_for(dura);
   }
 
@@ -390,16 +408,18 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
   varTable_->addScope();
 
   std::vector<std::string> paramList { };
-  if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName, argList.size()))
+  if (auto actionToExecute = ExecutableElementsContainer::getInstance().getAction(actionOrProcName,
+      argList.size()))
   {
     //Wait here for execution signal
     if (isSearch_ && name_ != "<searchMain>")
     {
       while (!doStep_ && !cancelled_)
       {
-        std::chrono::milliseconds dura(250);
+        std::chrono::milliseconds dura(50);
         std::this_thread::sleep_for(dura);
       }
+
       doStep_ = false;
     }
 
@@ -414,7 +434,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     }
 
     //set param values for action call
-    for (auto i = 0; i != paramList.size(); i++)
+    for (size_t i = 0; i != paramList.size(); i++)
     {
       varTable_->addVariable(paramList[i], argList[i]);
     }
@@ -444,7 +464,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     }
 
     //set param values for action call
-    for (auto i = 0; i != paramList.size(); i++)
+    for (size_t i = 0; i != paramList.size(); i++)
     {
       varTable_->addVariable(paramList[i], argList[i]);
     }
@@ -541,7 +561,7 @@ std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignme
   auto sitcalcActionExec = std::make_shared<NodeSitCalcActionExecution>();
   auto functionArgList = std::make_shared<NodeValueList>();
 
-  for (int i = 0; i < tupleCount; i++)
+  for (size_t i = 0; i < tupleCount; i++)
   {
     auto var = std::make_shared<NodeVariable>(
         "$_x" + std::to_string(i) + "_" + std::to_string(getNowTicks()));
@@ -896,7 +916,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
   //set values to variables and execute <block>
   for (const auto& tuple : set)
   {
-    int tupleValIdx = 0;
+    size_t tupleValIdx = 0;
     int varIndex = 0;
     while (tupleValIdx < tuple.size())
     {
@@ -1037,8 +1057,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
   {
     std::vector<std::tuple<std::shared_ptr<ActionProcedureInterpretationVisitor>, std::thread>> threads;
     std::vector<int> results;
+    std::mutex chooseMutex;
+    std::shared_ptr<ActionProcedureInterpretationVisitor> v = nullptr;
 
-    for (int idx = 0; idx < blocks.size(); idx++)
+    for (size_t idx = 0; idx < blocks.size(); idx++)
     {
       //Fire up a temporary db, temporary varTable and search for sequence of actions
       std::string name = "<search " + std::to_string(idx + 1) + ">";
@@ -1052,20 +1074,28 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
-      std::shared_ptr<ActionProcedureInterpretationVisitor> v = std::make_shared<
-          ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-          std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+      {
+        std::lock_guard<std::mutex> lk(chooseMutex);
+        v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
+            std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+      }
 
       results.push_back(-1);
 
-      std::thread t([&blocks,idx,&v,&results]()
+      std::thread t([&blocks,idx,&v,&results,&chooseMutex]()
       {
+        ActionProcedureInterpretationVisitor* ctx = nullptr;
+
+        {
+          std::lock_guard<std::mutex> lk(chooseMutex);
+          ctx = v.get();
+        }
         auto stmts = blocks.at(idx)->getStatements();
 
         bool rc = true;
         for (const auto& stmt : stmts)
         {
-          auto ret = stmt->accept(*v);
+          auto ret = stmt->accept(*ctx);
 
           if (ret.hasType<bool>())
           {
@@ -1073,12 +1103,16 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
           }
         }
 
-        results[idx] = rc ? 1 : 0;
+        {
+          std::lock_guard<std::mutex> lk(chooseMutex);
+          results[idx] = rc ? 1 : 0;
+        }
+        v->stepDone_ = true;
       });
       threads.push_back(std::make_tuple(v, std::move(t)));
     }
 
-    int successIndex = 0;
+    size_t successIndex = 0;
     bool found = false;
     bool allDoneNoResult = true;
 
@@ -1095,12 +1129,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       do
       {
         allDoneOneStep = true;
-        std::chrono::milliseconds dura(250);
+        std::chrono::milliseconds dura(50);
         std::this_thread::sleep_for(dura);
 
-        for (auto& thread : threads)
+        //for (auto& thread : threads)
+        for (size_t i = 0; i < threads.size(); i++)
         {
-          allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+          auto& thread = threads[i];
+
+          int res;
+          {
+            std::lock_guard<std::mutex> lk(chooseMutex);
+            res = results[i];
+          }
+
+          if (res == -1)
+            allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
         }
       }
       while (!allDoneOneStep);
@@ -1113,14 +1157,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       //check if we found a result or all threads are done and we found no result
       for (successIndex = 0; successIndex < results.size(); successIndex++)
       {
-        if (results[successIndex] == 1)
+        int res = 0;
+        {
+          std::lock_guard<std::mutex> lk(chooseMutex);
+          res = results[successIndex];
+        }
+
+        if (res == 1)
         {
           found = true;
           break;
         }
-        else if (results[successIndex] == 0)
+        else if (res == 0)
         {
-          std::get<0>(threads[successIndex])->stepDone_ = true;
+          //std::get<0>(threads[successIndex])->stepDone_ = true;
         }
         else
         {
@@ -1133,8 +1183,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
-      std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
-          << successIndex + 1 << std::endl;
+      {
+        std::lock_guard<std::mutex> lk(coutMutex);
+        std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
+            << successIndex + 1 << std::endl;
+      }
 
       auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
       while (threadChoices.size())
@@ -1199,8 +1252,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   {
     std::vector<std::tuple<std::shared_ptr<ActionProcedureInterpretationVisitor>, std::thread>> threads;
     std::vector<int> results;
+    std::mutex pickSearchResultMutex;
 
-    for (int idx = 0; idx < set.size(); idx++)
+    std::shared_ptr<ActionProcedureInterpretationVisitor> v = nullptr;
+    for (size_t idx = 0; idx < set.size(); idx++)
     {
       //Fire up a temporary db, temporary varTable and search for sequence of actions
       std::string name = "<search " + std::to_string(idx + 1) + ">";
@@ -1213,20 +1268,27 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
 
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
-      std::shared_ptr<ActionProcedureInterpretationVisitor> v = std::make_shared<
-          ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
+      v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
           std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
 
-      results.push_back(-1);
-      std::thread t([&pick,&set,idx,&v,&results]()
+      {
+        std::lock_guard<std::mutex> lk(pickSearchResultMutex);
+        results.push_back(-1);
+      }
+      std::thread t([&pick,&set,idx,&v,&results, &pickSearchResultMutex]()
       {
         auto ret = v->runBlockForPickedTuple(pick, set, idx,*v.get());
-        results[idx] = ret.get<bool>() ? 1 : 0;
-      });
+
+        {
+          std::lock_guard<std::mutex> lk(pickSearchResultMutex);
+          results[idx] = ret.get<bool>() ? 1 : 0;
+        }
+        //v->stepDone_ = true;
+        });
       threads.push_back(std::make_tuple(v, std::move(t)));
     }
 
-    int successIndex = 0;
+    size_t successIndex = 0;
     bool found = false;
     bool allDoneNoResult = true;
 
@@ -1243,12 +1305,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       do
       {
         allDoneOneStep = true;
-        std::chrono::milliseconds dura(250);
+        std::chrono::milliseconds dura(50);
         std::this_thread::sleep_for(dura);
 
-        for (auto& thread : threads)
+        //for (auto& thread : threads)
+        for (size_t i = 0; i < threads.size(); i++)
         {
-          allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+          auto& thread = threads[i];
+
+          int res;
+          {
+            std::lock_guard<std::mutex> lk(pickSearchResultMutex);
+            res = results[i];
+          }
+
+          if (res == -1)
+            allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
         }
       }
       while (!allDoneOneStep);
@@ -1261,14 +1333,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       //check if we found a result or all threads are done and we found no result
       for (successIndex = 0; successIndex < results.size(); successIndex++)
       {
-        if (results[successIndex] == 1)
+        int res;
+        {
+          std::lock_guard<std::mutex> lk(pickSearchResultMutex);
+          res = results[successIndex];
+        }
+
+        if (res == 1)
         {
           found = true;
           break;
         }
-        else if (results[successIndex] == 0)
+        else if (res == 0)
         {
-          std::get<0>(threads[successIndex])->stepDone_ = true;
+          //std::get<0>(threads[successIndex])->stepDone_ = true;
         }
         else
         {
@@ -1332,7 +1410,7 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
   ctx.getVarTable()->addScope();
 
 //pick a value for each unbound variable in varTuple, leave the bound variables as they are
-  for (auto i = 0; i != varTuple.size(); i++)
+  for (size_t i = 0; i != varTuple.size(); i++)
   {
     if (!ctx.getVarTable()->variableExists(varTuple[i])
         || !ctx.getVarTable()->isVariableInitialized(varTuple[i]))
@@ -1396,7 +1474,8 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
 
     auto exoEventName = std::get<0>(exoEventData);
     auto argMap = std::get<1>(exoEventData);
-    auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName, argMap.size());
+    auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName,
+        argMap.size());
 
     varTable_->addScope();
 
@@ -1407,7 +1486,7 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
     }
 
     //set param values for action call
-    for (auto i = 0; i != paramList.size(); i++)
+    for (size_t i = 0; i != paramList.size(); i++)
     {
       varTable_->addVariable(paramList[i], argMap[paramList[i]]); //TODO: what if param names/count is no the same?
     }

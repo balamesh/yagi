@@ -210,11 +210,6 @@ VariableTable VariableTable::clone(const std::string& name)
 {
   VariableTable clone(name);
 
-//  for (const auto& tuple : variables_)
-//  {
-//    clone.
-//  }
-
   clone.setVariables(this->variables_); //TODO: is this a shallow copy?
   return clone;
 }

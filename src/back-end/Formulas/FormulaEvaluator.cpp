@@ -83,7 +83,7 @@ bool FormulaEvaluator::evaluateInFormula(NodeOperatorIn* inFormula)
 {
   auto tuple = inFormula->getTuple()->accept(*ctx_).get<std::vector<std::string>>();
 
-  for (auto i = 0; i != tuple.size(); i++)
+  for (size_t i = 0; i != tuple.size(); i++)
   {
     if (tuple[i][0] == '$') //it's a variable
     {
@@ -135,10 +135,10 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
   switch (quantifier)
   {
     case Quantifier::exists:
-      for (auto i = 0; i != set.size(); i++)
+      for (size_t i = 0; i != set.size(); i++)
       {
         //get binding for i-th tuple in the set
-        for (auto j = 0; j != tuple.size(); j++)
+        for (size_t j = 0; j != tuple.size(); j++)
         {
           varTable_->addVariable(tuple[j], set[i][j]);
         }
@@ -163,10 +163,10 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
 
     case Quantifier::all:
       truthVal = true;
-      for (auto i = 0; i != set.size(); i++)
+      for (size_t i = 0; i != set.size(); i++)
       {
         //get binding for i-th tuple in the set
-        for (auto j = 0; j != tuple.size(); j++)
+        for (size_t j = 0; j != tuple.size(); j++)
         {
           varTable_->addVariable(tuple[j], set[i][j]);
         }

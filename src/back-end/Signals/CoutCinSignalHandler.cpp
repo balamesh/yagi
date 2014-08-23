@@ -7,8 +7,11 @@
 
 #include "CoutCinSignalHandler.h"
 
+#include <mutex>
 namespace yagi {
 namespace execution {
+
+std::mutex signalMutex;
 
 CoutCinSignalHandler::CoutCinSignalHandler()
 {
@@ -25,8 +28,11 @@ std::unordered_map<std::string, std::string> CoutCinSignalHandler::signal(
   //there is to print
   if (!variables.size())
   {
-    std::cout << ">>>> " << (!isSearch_ ? "[Signal] " : "[Search] [Signal] ") << content
-        << std::endl;
+    {
+      std::lock_guard<std::mutex> lk(signalMutex);
+      std::cout << ">>>> " << (!isSearch_ ? "[Signal] " : "[Search] [Signal] ") << content
+          << std::endl;
+    }
     return std::unordered_map<std::string, std::string> { };
   }
   else //print and wait for input

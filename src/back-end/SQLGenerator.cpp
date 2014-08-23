@@ -110,12 +110,12 @@ std::vector<std::string> SQLGenerator::buildSqlStringsForDomainTables(const std:
   std::vector<std::string> sqlStrings;
   std::string domainTableName;
 
-  for (int i = 0; i < domains.size(); i++)
+  for (size_t i = 0; i < domains.size(); i++)
   {
     domainTableName = tableName + "_domain_dim" + std::to_string(i + 1);
     std::string sql = "CREATE TABLE " + domainTableName + "(";
 
-    for (int j = 0; j < domains[i].size(); j++)
+    for (size_t j = 0; j < domains[i].size(); j++)
     {
       auto colName = "val" + std::to_string(j + 1) + " TEXT";
 
