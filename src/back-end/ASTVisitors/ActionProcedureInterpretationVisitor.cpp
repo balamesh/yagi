@@ -64,10 +64,6 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     formulaEvaluator_(formulaEvaluator), db_(db), signalReceiver_(signalReceiver), varTable_(
         &varTable), isSearch_(isSearch), msgPrefix_(""), name_(name)
 {
-  doStep_ = false;
-  stepDone_ = false;
-  cancelled_ = false;
-
   formulaEvaluator_->setContext(this);
   signalReceiver_->setIsSearch(isSearch);
   if (isSearch_)
@@ -1057,7 +1053,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
   {
     std::vector<std::tuple<std::shared_ptr<ActionProcedureInterpretationVisitor>, std::thread>> threads;
     std::vector<int> results;
-    std::mutex chooseMutex;
+    std::mutex chooseSearchResultMutex;
+    std::mutex chooseVisitorMutex;
     std::shared_ptr<ActionProcedureInterpretationVisitor> v = nullptr;
 
     for (size_t idx = 0; idx < blocks.size(); idx++)
@@ -1075,19 +1072,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
       {
-        std::lock_guard<std::mutex> lk(chooseMutex);
+        std::lock_guard<std::mutex> lk(chooseVisitorMutex);
         v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
             std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
       }
 
-      results.push_back(-1);
+      {
+        std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
+        results.push_back(-1);
+      }
 
-      std::thread t([&blocks,idx,&v,&results,&chooseMutex]()
+      std::thread t([&blocks,idx,v,&results,&chooseVisitorMutex,&chooseSearchResultMutex]()
       {
         ActionProcedureInterpretationVisitor* ctx = nullptr;
 
         {
-          std::lock_guard<std::mutex> lk(chooseMutex);
+          std::lock_guard<std::mutex> lk(chooseVisitorMutex);
           ctx = v.get();
         }
         auto stmts = blocks.at(idx)->getStatements();
@@ -1104,10 +1104,9 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
         }
 
         {
-          std::lock_guard<std::mutex> lk(chooseMutex);
+          std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
           results[idx] = rc ? 1 : 0;
         }
-        v->stepDone_ = true;
       });
       threads.push_back(std::make_tuple(v, std::move(t)));
     }
@@ -1118,6 +1117,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
     do
     {
+
       for (auto& thread : threads)
       {
         std::get<0>(thread)->doStep_ = true;
@@ -1139,7 +1139,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
           int res;
           {
-            std::lock_guard<std::mutex> lk(chooseMutex);
+            std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
             res = results[i];
           }
 
@@ -1159,7 +1159,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       {
         int res = 0;
         {
-          std::lock_guard<std::mutex> lk(chooseMutex);
+          std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
           res = results[successIndex];
         }
 
@@ -1275,7 +1275,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
         std::lock_guard<std::mutex> lk(pickSearchResultMutex);
         results.push_back(-1);
       }
-      std::thread t([&pick,&set,idx,&v,&results, &pickSearchResultMutex]()
+      std::thread t([&pick,&set,idx,v,&results, &pickSearchResultMutex]()
       {
         auto ret = v->runBlockForPickedTuple(pick, set, idx,*v.get());
 
@@ -1283,8 +1283,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
           std::lock_guard<std::mutex> lk(pickSearchResultMutex);
           results[idx] = ret.get<bool>() ? 1 : 0;
         }
-        //v->stepDone_ = true;
-        });
+
+      });
       threads.push_back(std::make_tuple(v, std::move(t)));
     }
 

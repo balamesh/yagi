@@ -144,9 +144,10 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     std::string msgPrefix_ = "";
     std::string name_ = "<main>";
 
-    std::atomic_bool cancelled_;
-    std::atomic_bool doStep_;
-    std::atomic_bool stepDone_;
+    std::atomic_bool cancelled_ { false };
+    std::atomic_bool doStep_ { false };
+    std::atomic_bool stepDone_ { false };
+    std::atomic_bool waitForNextStep { false };
 
     std::queue<std::tuple<std::string, std::unordered_map<std::string, std::string>>>exoEventDataBuffer_;
     std::mutex exoEventDataBufferMutex_;
@@ -214,11 +215,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     {
       return choices_[choices_.size()-1];
     }
-
-//    void setChoices(const std::stack<int>& choices)
-//    {
-//      choices_ = choices;
-//    }
 
     std::shared_ptr<yagi::database::DatabaseConnectorBase>& getDb()
     {

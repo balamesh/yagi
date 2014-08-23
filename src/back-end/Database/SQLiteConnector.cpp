@@ -7,6 +7,7 @@
 
 #include "SQLiteConnector.h"
 
+#include <fstream>
 #include <mutex>
 
 namespace yagi {
@@ -154,6 +155,15 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
  */
 int SQLiteConnector::backupDb(const char *zFilename, void (*xProgress)(int, int))
 {
+  {
+    std::lock_guard<std::mutex> lk(dbMutex);
+    std::ifstream src(dbName_, std::ios::binary);
+    std::ofstream dst(zFilename, std::ios::binary);
+
+    dst << src.rdbuf();
+  }
+  return 0;
+
   {
     std::lock_guard<std::mutex> lk(dbMutex);
 
