@@ -19,7 +19,11 @@ include_directories(${CMAKE_SOURCE_DIR}/gtest_src/include)
 include_directories(${CMAKE_SOURCE_DIR}/tclap-1.2.1/include)
 link_directories(${CMAKE_SOURCE_DIR}/gtest_bin)
 
+set(CMAKE_BUILD_TYPE Release)
 set(CPP11_EXTRA_FLAGS "")
+SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+
 
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11 -pthread  ${CPP11_EXTRA_FLAGS} ${CMAKE_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "-pthread ${CMAKE_EXE_LINKER_FLAGS} ${CPP11_EXTRA_FLAGS}")
@@ -378,7 +382,8 @@ src/unitTests/TestActionDecl.cc
 src/unitTests/TestAssignment.cc
 src/unitTests/TestFactDecl.cc
 src/unitTests/TestFormula.cc
-src/unitTests/UnitTestElevator.cc
+src/unitTests/TestElevator.cc
+src/unitTests/TestExpr.cc
 )
 
 target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})

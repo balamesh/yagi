@@ -155,63 +155,69 @@ std::vector<std::vector<std::string>> SQLiteConnector::executeQuery(
  */
 int SQLiteConnector::backupDb(const char *zFilename, void (*xProgress)(int, int))
 {
+  try
   {
     std::lock_guard<std::mutex> lk(dbMutex);
     std::ifstream src(dbName_, std::ios::binary);
     std::ofstream dst(zFilename, std::ios::binary);
 
     dst << src.rdbuf();
+    return 0;
   }
-  return 0;
-
+  catch (std::exception& ex)
   {
-    std::lock_guard<std::mutex> lk(dbMutex);
-
-    int rc; /* Function return code */
-    sqlite3 *pFile; /* Database connection opened on zFilename */
-    sqlite3_backup *pBackup; /* Backup handle used to copy data */
-
-    /* Open the database file identified by zFilename. */
-    rc = sqlite3_open(zFilename, &pFile);
-    if (rc == SQLITE_OK)
-    {
-
-      /* Open the sqlite3_backup object used to accomplish the transfer */
-      pBackup = sqlite3_backup_init(pFile, "main", pDB_, "main");
-      if (pBackup)
-      {
-
-        /* Each iteration of this loop copies 5 database pages from database
-         ** pDb to the backup database. If the return value of backup_step()
-         ** indicates that there are still further pages to copy, sleep for
-         ** 250 ms before repeating. */
-        do
-        {
-          rc = sqlite3_backup_step(pBackup, 5);
-
-          if (xProgress)
-          {
-            xProgress(sqlite3_backup_remaining(pBackup), sqlite3_backup_pagecount(pBackup));
-          }
-
-          if (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED)
-          {
-            sqlite3_sleep(50);
-          }
-        }
-        while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
-
-        /* Release resources allocated by backup_init(). */
-        (void) sqlite3_backup_finish(pBackup);
-      }
-      rc = sqlite3_errcode(pFile);
-    }
-
-    /* Close the database connection opened on database file zFilename
-     ** and return the result of this function. */
-    (void) sqlite3_close(pFile);
-    return rc;
+    std::cout << ex.what() << std::endl;
+    return -1;
   }
+
+//  {
+//    std::lock_guard<std::mutex> lk(dbMutex);
+//
+//    int rc; /* Function return code */
+//    sqlite3 *pFile; /* Database connection opened on zFilename */
+//    sqlite3_backup *pBackup; /* Backup handle used to copy data */
+//
+//    /* Open the database file identified by zFilename. */
+//    rc = sqlite3_open(zFilename, &pFile);
+//    if (rc == SQLITE_OK)
+//    {
+//
+//      /* Open the sqlite3_backup object used to accomplish the transfer */
+//      pBackup = sqlite3_backup_init(pFile, "main", pDB_, "main");
+//      if (pBackup)
+//      {
+//
+//        /* Each iteration of this loop copies 5 database pages from database
+//         ** pDb to the backup database. If the return value of backup_step()
+//         ** indicates that there are still further pages to copy, sleep for
+//         ** 250 ms before repeating. */
+//        do
+//        {
+//          rc = sqlite3_backup_step(pBackup, 5);
+//
+//          if (xProgress)
+//          {
+//            xProgress(sqlite3_backup_remaining(pBackup), sqlite3_backup_pagecount(pBackup));
+//          }
+//
+//          if (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED)
+//          {
+//            sqlite3_sleep(50);
+//          }
+//        }
+//        while (rc == SQLITE_OK || rc == SQLITE_BUSY || rc == SQLITE_LOCKED);
+//
+//        /* Release resources allocated by backup_init(). */
+//        (void) sqlite3_backup_finish(pBackup);
+//      }
+//      rc = sqlite3_errcode(pFile);
+//    }
+//
+//    /* Close the database connection opened on database file zFilename
+//     ** and return the result of this function. */
+//    (void) sqlite3_close(pFile);
+//    return rc;
+//  }
 }
 
 } //namespace end

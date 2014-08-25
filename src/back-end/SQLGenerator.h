@@ -40,6 +40,7 @@ class SQLGenerator
 
     const std::string FACTS_TABLE_NAME_;
     const std::string SHADOW_FLUENTS_TABLE_NAME_;
+    const std::string ZEROARY_COLUMN_NAME;
 
     std::vector<std::string> getSqlStringsCreateTableAndDomains(const std::string& tableName,
         const std::vector<std::vector<std::string>>& domains);

@@ -751,12 +751,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
 
   if (auto lhs = valExpr.getLhs())
   {
-    lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this, varTable_);
+    if (auto recursiveValExpr = std::dynamic_pointer_cast<NodeValueExpression>(lhs))
+    {
+      lhsResult = recursiveValExpr->accept(*this).get<std::string>();
+    }
+    else lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this, varTable_);
   }
 
   if (auto rhs = valExpr.getRhs())
   {
-    rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this, varTable_);
+    if (auto recursiveValExpr = std::dynamic_pointer_cast<NodeValueExpression>(rhs))
+    {
+      lhsResult = recursiveValExpr->accept(*this).get<std::string>();
+    }
+    else rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this, varTable_);
   }
 
   if (auto op = valExpr.getOperator())
@@ -765,12 +773,16 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
   }
   else
   {
+//    auto nodeString = std::make_shared<NodeString>(lhsResult);
+//    return Any { nodeString };
     return Any { lhsResult };
   }
 
   if (exprOp == ExprOperator::Plus)
   {
     return Any { lhsResult + rhsResult };
+//    auto nodeString = std::make_shared<NodeString>(lhsResult + rhsResult);
+//    return Any { nodeString };
   }
   else
     throw std::runtime_error("Unknown <setexpr> operator!");
@@ -785,7 +797,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   auto lhs = setExpr.getLhs();
   auto lhsResult = lhs->accept(*this);
 
-  //get data from (shadow-) fluent
+//get data from (shadow-) fluent
   lhsResultVector = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(lhsResult.get<std::string>()));
 
@@ -801,7 +813,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   auto rhs = setExpr.getRhs();
   auto rhsResult = rhs->accept(*this);
 
-  //get data from (shadow-) fluent
+//get data from (shadow-) fluent
   rhsResultVector = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(rhsResult.get<std::string>()));
 
@@ -817,7 +829,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
   else
     throw std::runtime_error("Unknown <setexpr> operator!");
 
-  //Cleanup fluents for lhs and rhs if they are shadow fluents
+//Cleanup fluents for lhs and rhs if they are shadow fluents
   if (isShadowFluent(lhsResult.get<std::string>(), *db_.get()))
   {
     cleanupShadowFluent(lhsResult.get<std::string>(), *db_.get());
@@ -827,7 +839,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSetExpression& setExpr)
     cleanupShadowFluent(rhsResult.get<std::string>(), *db_.get());
   }
 
-  //Build new <set> and shadow fluent
+//Build new <set> and shadow fluent
   NodeSet nodeResult;
 
   std::for_each(std::begin(result), std::end(result),
@@ -881,7 +893,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
 {
-  //return test condition result to handle it in proc execution
+//return test condition result to handle it in proc execution
   return Any { test.getFormula()->accept(*this).get<bool>() };
 }
 
@@ -891,11 +903,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
   auto setResult = forLoop.getSetExpr()->accept(*this);
   auto statements = forLoop.getBlock()->getStatements();
 
-  //get data from shadow fluent set
+//get data from shadow fluent set
   auto set = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringSelectAll(setResult.get<std::string>()));
 
-  //add vars to vartable
+//add vars to vartable
   varTable_->addScope();
 
   for (const auto& varName : varTuple)
@@ -909,7 +921,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
     }
   }
 
-  //set values to variables and execute <block>
+//set values to variables and execute <block>
   for (const auto& tuple : set)
   {
     size_t tupleValIdx = 0;
@@ -932,7 +944,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)
 
   varTable_->removeScope();
 
-  //Cleanup shadow fluent in case it is one
+//Cleanup shadow fluent in case it is one
   if (isShadowFluent(setResult.get<std::string>(), *db_.get()))
   {
     cleanupShadowFluent(setResult.get<std::string>(), *db_.get());
@@ -960,10 +972,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
     throw std::runtime_error("Unknown sit calc action!");
   }
 
-  //YAGI uses *only* addF and removeF as sitcalc actions per fluent F.
-  //These actions are specified to make a fluent true (or false) for a specific
-  //parameter vector, i.e. a YAGI tuple.
-  //Making "true"/"false" corresponds to a DB insert/delete in this implementation
+//YAGI uses *only* addF and removeF as sitcalc actions per fluent F.
+//These actions are specified to make a fluent true (or false) for a specific
+//parameter vector, i.e. a YAGI tuple.
+//Making "true"/"false" corresponds to a DB insert/delete in this implementation
   auto sqlString = SQLGenerator::getInstance().getSqlStringForTupleAssign(fluentName, argList,
       actionType);
 
@@ -1437,7 +1449,7 @@ Any ActionProcedureInterpretationVisitor::runBlockForPickedTuple(const NodePick&
 
   ctx.getVarTable()->removeScope();
 
-  //Cleanup shadow fluent in case it is one
+//Cleanup shadow fluent in case it is one
   if (isShadowFluent(fluentName, *ctx.getDb().get()))
   {
     cleanupShadowFluent(fluentName, *ctx.getDb().get());

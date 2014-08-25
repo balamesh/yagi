@@ -1,5 +1,5 @@
 /*
- * UnitTestElevator.cc
+ * TestElevator.cc
  *
  *  Created on: Aug 20, 2014
  *      Author: cmaier

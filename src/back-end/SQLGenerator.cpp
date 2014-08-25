@@ -12,7 +12,7 @@
 SQLGenerator::SQLGenerator() :
     printDebugOutput(
         yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages()), FACTS_TABLE_NAME_(
-        "_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents")
+        "_facts"), SHADOW_FLUENTS_TABLE_NAME_("_shadowFluents"), ZEROARY_COLUMN_NAME("_zeroAry")
 {
 }
 
@@ -86,7 +86,27 @@ std::vector<std::string> SQLGenerator::getSqlStringsCreateTableAndDomains(
     }
   }
 
-  sqlCreateMainTable += "UNIQUE " + cols + ");";
+  //CREATE TABLE f2(dom1 TEXT,UNIQUE (dom1));
+  if (numberOfColumns > 0)
+  {
+    sqlCreateMainTable += "UNIQUE " + cols + ");";
+  }
+  else
+  {
+    sqlCreateMainTable += ZEROARY_COLUMN_NAME + " TEXT, UNIQUE (" + ZEROARY_COLUMN_NAME + "));";
+    sqlStrings.push_back(sqlCreateMainTable);
+
+    if (printDebugOutput)
+    {
+      for (const auto& sqlStmt : sqlStrings)
+      {
+        std::cout << sqlStmt << std::endl;
+      }
+    }
+
+    return sqlStrings;
+  }
+
   sqlStrings.push_back(sqlCreateMainTable);
 
   //Build SQL statements for creating tables that hold the domain of the fluent per dimension
