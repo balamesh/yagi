@@ -50,6 +50,7 @@ class ExoEventNotifier
     }
 
     void registerEventConsumer(IExogenousEventConsumer* consumer);
+    void registerEventConsumerIfNotRegistered(IExogenousEventConsumer* consumer);
     void unRegisterEventConsumer(IExogenousEventConsumer* consumer);
     bool isConsumerRegistered(IExogenousEventConsumer* consumer);
 };

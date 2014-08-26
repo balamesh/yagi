@@ -53,6 +53,22 @@ void ExoEventNotifier::registerEventConsumer(IExogenousEventConsumer* consumer)
   }
 }
 
+void ExoEventNotifier::registerEventConsumerIfNotRegistered(IExogenousEventConsumer* consumer)
+{
+  if (isConsumerRegistered(consumer))
+  {
+    return;
+  }
+
+  exoEventConsumers_[consumer->getExoEventConsumerName()] = consumer;
+
+  if (!threadRunning_)
+  {
+    waitForExoEventData();
+    threadRunning_ = true;
+  }
+}
+
 void ExoEventNotifier::unRegisterEventConsumer(IExogenousEventConsumer* consumer)
 {
   if (isConsumerRegistered(consumer))

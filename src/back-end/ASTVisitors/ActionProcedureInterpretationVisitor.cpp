@@ -47,7 +47,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
         false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
-  ExoEventNotifier::getInstance().registerEventConsumer(this);
+  ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -56,7 +56,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
         false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
-  ExoEventNotifier::getInstance().registerEventConsumer(this);
+  ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -75,7 +75,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
   else
   {
     this->exoEventConsumerName_ = name_;
-    ExoEventNotifier::getInstance().registerEventConsumer(this);
+    ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
   }
 
   choices_.push_back(std::stack<int> { });
@@ -86,7 +86,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(Varia
         false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
-  ExoEventNotifier::getInstance().registerEventConsumer(this);
+  ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
 }
 
 ActionProcedureInterpretationVisitor::~ActionProcedureInterpretationVisitor()

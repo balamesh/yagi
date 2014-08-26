@@ -200,12 +200,6 @@ TOKEN_FOR_EACH
   IT_ATOM_VALEXPR;
 } 
 
-//Somehow ANTLR generates code with unknown symbol _empty
-//Just null it out...
-@header {
-    #define _empty NULL
-}
-
 //******************************************************************************
 //Basic program structure
 //******************************************************************************
