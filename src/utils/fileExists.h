@@ -8,15 +8,17 @@
 #ifndef FILEEXISTS_H_
 #define FILEEXISTS_H_
 
-inline bool fileExists (const std::string& name) {
-    if (FILE *file = fopen(name.c_str(), "r")) {
-        fclose(file);
-        return true;
-    } else {
-        return false;
-    }
+inline bool fileExists(const std::string& name)
+{
+  if (FILE *file = fopen(name.c_str(), "r"))
+  {
+    fclose(file);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
-
-
 
 #endif /* FILEEXISTS_H_ */

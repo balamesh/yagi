@@ -15,12 +15,25 @@ namespace execution {
 
 class IExogenousEventConsumer
 {
+  protected:
+    std::string exoEventConsumerName_ = "<unknown>";
+
   public:
     IExogenousEventConsumer();
     virtual ~IExogenousEventConsumer();
 
     virtual void consumeExoEventData(const std::string& eventName,
         const std::unordered_map<std::string, std::string>& variablesAndValues) = 0;
+
+    const std::string& getExoEventConsumerName() const
+    {
+      return exoEventConsumerName_;
+    }
+
+    void setExoEventConsumerName(const std::string& exoEventConsumerName)
+    {
+      exoEventConsumerName_ = exoEventConsumerName;
+    }
 };
 
 } /* namespace execution */

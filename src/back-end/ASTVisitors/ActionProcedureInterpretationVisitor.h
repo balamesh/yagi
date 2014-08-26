@@ -152,7 +152,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     std::queue<std::tuple<std::string, std::unordered_map<std::string, std::string>>>exoEventDataBuffer_;
     std::mutex exoEventDataBufferMutex_;
 
-    std::shared_ptr<IExogenousEventProducer> exoEventProducer_ = nullptr;
     public:
 
     ActionProcedureInterpretationVisitor();

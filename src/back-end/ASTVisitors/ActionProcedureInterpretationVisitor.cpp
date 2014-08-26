@@ -29,7 +29,7 @@
 #include "../Signals/CoutCinSignalHandler.h"
 #include "../Variables/VariableTable.h"
 #include "../Variables/VariableTableManager.h"
-#include "../ExogenousEvents/ExoEventProducerSimulator.h"
+#include "../ExogenousEvents/ExoEventNotifier.h"
 
 using yagi::database::DatabaseConnectorBase;
 using yagi::execution::IYAGISignalHandler;
@@ -46,7 +46,8 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
         false), msgPrefix_("")
 {
-  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
+  this->exoEventConsumerName_ = name_;
+  ExoEventNotifier::getInstance().registerEventConsumer(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -54,7 +55,8 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
         false), msgPrefix_("")
 {
-  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
+  this->exoEventConsumerName_ = name_;
+  ExoEventNotifier::getInstance().registerEventConsumer(this);
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
@@ -72,7 +74,8 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
   }
   else
   {
-    exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
+    this->exoEventConsumerName_ = name_;
+    ExoEventNotifier::getInstance().registerEventConsumer(this);
   }
 
   choices_.push_back(std::stack<int> { });
@@ -82,12 +85,13 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(Varia
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(&varTable), isSearch_(
         false), msgPrefix_("")
 {
-  exoEventProducer_ = std::make_shared<ExoEventProducerSimulator>(this);
+  this->exoEventConsumerName_ = name_;
+  ExoEventNotifier::getInstance().registerEventConsumer(this);
 }
 
 ActionProcedureInterpretationVisitor::~ActionProcedureInterpretationVisitor()
 {
-
+  ExoEventNotifier::getInstance().unRegisterEventConsumer(this);
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeID& id)
@@ -755,7 +759,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
     {
       lhsResult = recursiveValExpr->accept(*this).get<std::string>();
     }
-    else lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this, varTable_);
+    else
+      lhsResult = yagi::treeHelper::getValueFromValueNode(lhs.get(), *this, varTable_);
   }
 
   if (auto rhs = valExpr.getRhs())
@@ -764,7 +769,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeValueExpression& valExpr)
     {
       lhsResult = recursiveValExpr->accept(*this).get<std::string>();
     }
-    else rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this, varTable_);
+    else
+      rhsResult = yagi::treeHelper::getValueFromValueNode(rhs.get(), *this, varTable_);
   }
 
   if (auto op = valExpr.getOperator())

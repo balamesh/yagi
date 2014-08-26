@@ -12,13 +12,10 @@ namespace execution {
 
 IExogenousEventConsumer::IExogenousEventConsumer()
 {
-  // TODO Auto-generated constructor stub
-
 }
 
 IExogenousEventConsumer::~IExogenousEventConsumer()
 {
-  // TODO Auto-generated destructor stub
 }
 
 } /* namespace execution */
