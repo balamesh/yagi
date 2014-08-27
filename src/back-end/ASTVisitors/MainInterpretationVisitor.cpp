@@ -237,7 +237,58 @@ Any MainInterpretationVisitor::visit(NodeConditional& conditional)
       VariableTableManager::getInstance().getMainVariableTable());
 
   return v.visit(conditional);
+}
 
+Any MainInterpretationVisitor::visit(NodeTest& nodeTest)
+{
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
+  return nodeTest.accept(v);
+}
+
+Any MainInterpretationVisitor::visit(NodeChoose& nodeChoose)
+{
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
+  return nodeChoose.accept(v);
+}
+
+Any MainInterpretationVisitor::visit(NodePick& nodePick)
+{
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
+  return nodePick.accept(v);
+}
+
+Any MainInterpretationVisitor::visit(NodeWhileLoop& nodeWhileLoop)
+{
+  auto formulaEvaluator = std::make_shared<FormulaEvaluator>(
+      &VariableTableManager::getInstance().getMainVariableTable(),
+      DatabaseManager::getInstance().getMainDB().get());
+
+  ActionProcedureInterpretationVisitor v(formulaEvaluator,
+      DatabaseManager::getInstance().getMainDB(), std::make_shared<CoutCinSignalHandler>(),
+      VariableTableManager::getInstance().getMainVariableTable());
+
+  return nodeWhileLoop.accept(v);
 }
 
 }/* namespace execution */

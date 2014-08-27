@@ -2,7 +2,7 @@
  * ActionProcedureInterpretationVisitor.cpp
  *
  *  Created on: Jul 19, 2014
- *      Author: cmaier
+ *      Author: cmaierN
  */
 
 #include "ActionProcedureInterpretationVisitor.h"
@@ -899,8 +899,21 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
 {
-//return test condition result to handle it in proc execution
-  return Any { test.getFormula()->accept(*this).get<bool>() };
+  //return test condition result to handle it in proc execution
+  bool testHolds = test.getFormula()->accept(*this).get<bool>();
+
+  std::string outText = "holds!";
+  if (!testHolds)
+  {
+    outText = "does NOT hold!";
+  }
+
+  {
+    std::lock_guard<std::mutex> lk(coutMutex);
+    std::cout << ">>>> " << msgPrefix_ << "Test condition " << outText << std::endl;
+  }
+
+  return Any { testHolds };
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeForLoop& forLoop)

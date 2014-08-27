@@ -33,6 +33,10 @@
 #include "../../common/ASTNodeVisitorBase.h"
 #include "../../front-end/astVisitors/ToStringVisitor.h"
 #include "../../utils/Any.h"
+#include "../../common/ASTNodeTypes/Statements/NodeTest.h"
+#include "../../common/ASTNodeTypes/Statements/NodeChoose.h"
+#include "../../common/ASTNodeTypes/Statements/NodePick.h"
+#include "../../common/ASTNodeTypes/Statements/NodeWhileLoop.h"
 
 using namespace yagi::container;
 
@@ -57,7 +61,11 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeConditional>,
     public Visitor<NodeProcDecl>,
     public Visitor<NodeExogenousEventDecl>,
-    public Visitor<NodeSearch>
+    public Visitor<NodeSearch>,
+    public Visitor<NodeTest>,
+    public Visitor<NodeChoose>,
+    public Visitor<NodePick>,
+    public Visitor<NodeWhileLoop>
 {
   private:
     void initDB();
@@ -85,6 +93,10 @@ class MainInterpretationVisitor: public ASTNodeVisitorBase,
     Any visit(NodeProcDecl& procDecl);
     Any visit(NodeExogenousEventDecl& nodeExoEventDecl);
     Any visit(NodeSearch& nodeSearch);
+    Any visit(NodeTest& nodeTest);
+    Any visit(NodeChoose& nodeChoose);
+    Any visit(NodePick& nodePick);
+    Any visit(NodeWhileLoop& nodeWhileLoop);
 };
 
 } /* namespace execution */
