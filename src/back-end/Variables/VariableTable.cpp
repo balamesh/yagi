@@ -8,6 +8,9 @@
 #include "VariableTable.h"
 
 #include "../../utils/CommandLineArgsContainer.h"
+
+#include <stdexcept>
+
 namespace yagi {
 namespace execution {
 
