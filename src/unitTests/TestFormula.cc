@@ -15,7 +15,7 @@ TEST(FormulaTest, formulaAtomSetExpr1)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/FormulaTest/formulaExpr.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/FormulaTest/formulaExpr.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
@@ -42,7 +42,7 @@ TEST(FormulaTest, formulaNegation)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/FormulaTest/formulaNegation.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/FormulaTest/formulaNegation.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 

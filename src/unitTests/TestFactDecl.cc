@@ -18,7 +18,7 @@ TEST(FactDeclTest, factUserDomain)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/FactDeclTest/factUserDomain.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/FactDeclTest/factUserDomain.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
@@ -67,7 +67,7 @@ TEST(FactDeclTest, factStringDomain)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/FactDeclTest/factStringDomain.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/FactDeclTest/factStringDomain.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
@@ -98,7 +98,7 @@ TEST(FactDeclTest, factStringDomain)
 
 TEST(FactDeclTest, factZeroArity)
 {
-  auto ast = yagi::unitTestHelper::tryParse("src/samples/FactDeclTest/factZeroArity.y");
+  auto ast = yagi::unitTestHelper::tryParse("samples/FactDeclTest/factZeroArity.y");
 
   ASSERT_THROW(
   {

@@ -1,10 +1,20 @@
-To build YAGI, do the following:
+- To build YAGI, do the following:
 
 1. Download 'libantlr3c-3.4.tar.gz' from http://www.antlr3.org/download/C/
 2. Unpack, ./configure, make, make install
 3. In the YAGI root dir, run 'cmake .' and 'make'
 
-The cmake script automatically downloads an builds the Google C++ unit test framework gtest.
-The make command builds executeables "yagi" (the integerpreter application) and "yagi-unitTests" (runs all the unit tests).
+To run the YAGI interpreter shell run the output binary "yagi" created with the steps above.
 
-Currently the unit tests only work on systems that supports -pthread.
+- Addtionally, you can compile the YAGI unit tests:
+
+1. Go to [YAGI Root Dir]/unitTests
+2. Run 'cmake .' and 'make'
+
+To run the YAGI unit tests run the output binary "yagi-unitTests" created with the steps above.
+The YAGI sample scripts used for unit testing can be found in [YAGI Root Dir]/unitTests/samples.
+
+- Addtional Information
+
+The cmake script for the unit tests automatically downloads an builds the Google C++ unit test framework "gtest".
+Currently the unit tests only work on systems that support -pthread.

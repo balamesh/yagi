@@ -18,7 +18,7 @@ TEST(ExprTest, exprTest)
   try
   {
 
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/ExprTest/exprTest.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/ExprTest/exprTest.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 

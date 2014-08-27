@@ -15,7 +15,7 @@ TEST(AssignmentTest, assignmentSimple1)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/AssignmentTest/assignmentSimple1.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/AssignmentTest/assignmentSimple1.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -63,7 +63,7 @@ TEST(AssignmentTest, assignmentForLoop1)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("src/samples/AssignmentTest/assignmentForLoop1.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/AssignmentTest/assignmentForLoop1.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -100,7 +100,7 @@ TEST(AssignmentTest, assignmentConditional1)
   try
   {
     auto ast = yagi::unitTestHelper::tryParse(
-        "src/samples/AssignmentTest/assignmentConditional1.y");
+        "samples/AssignmentTest/assignmentConditional1.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
