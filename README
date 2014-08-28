@@ -16,5 +16,16 @@ The YAGI sample scripts used for unit testing can be found in [YAGI Root Dir]/un
 
 - Addtional Information
 
-The cmake script for the unit tests automatically downloads an builds the Google C++ unit test framework "gtest".
-Currently the unit tests only work on systems that support -pthread.
+* The cmake script for the unit tests automatically downloads an builds the Google C++ unit test framework "gtest".
+* Currently the unit tests only work on systems that support -pthread.
+
+- Versions
+
+The following library/compiler versions were used for implementation:
+
+- gcc 4.8.2
+- clang 3.5-1
+- sqlite 3.8.2
+- gtest 1.7.0
+- libantlr 3.4
+- tclap 1.2.1
