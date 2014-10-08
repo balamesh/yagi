@@ -9,8 +9,13 @@
 #define SIGNALHANDLERFACTORY_H_
 
 #include <memory>
+#ifndef ASRAEL
 #include "CoutCinSignalHandler.h"
+#define SignalHandler CoutCinSignalHandler
+#else
 #include "AsraelSignalHandler.h"
+#define SignalHandler AsraelSignalHandler
+#endif
 
 namespace yagi {
 namespace execution {
@@ -24,7 +29,7 @@ namespace execution {
 class SignalHandlerFactory final
 {
   private:
-    using ConcreteSignalHandlerType = AsraelSignalHandler;
+    using ConcreteSignalHandlerType = SignalHandler;
 
     SignalHandlerFactory();
     ~SignalHandlerFactory();
