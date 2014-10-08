@@ -209,6 +209,8 @@ add_executable(yagi-unitTests
 ../src/back-end/ExogenousEvents/IExogenousEventProducer.h
 ../src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 ../src/back-end/ExogenousEvents/ExoEventNotifier.h
+../src/back-end/Signals/SignalHandlerFactory.cpp
+../src/back-end/Signals/SignalHandlerFactory.h
 
 ../src/unitTests/UnitTestHelper.h
 ../src/unitTests/UnitTestHelper.cpp
