@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories("src")
 include_directories(${CMAKE_SOURCE_DIR}/tclap-1.2.1/include)
+include_directories($ENV{ASRAEL_INCLUDE})
 
 set(CMAKE_BUILD_TYPE Release)
 set(CPP11_EXTRA_FLAGS "")
@@ -168,6 +169,8 @@ src/back-end/Signals/IYAGISignalHandler.cpp
 src/back-end/Signals/IYAGISignalHandler.h
 src/back-end/Signals/CoutCinSignalHandler.cpp
 src/back-end/Signals/CoutCinSignalHandler.h
+src/back-end/Signals/AsraelSignalHandler.cpp
+src/back-end/Signals/AsraelSignalHandler.h
 src/utils/SetOperations.cpp
 src/utils/SetOperations.h
 src/back-end/TreeHelper.cpp
@@ -194,4 +197,4 @@ src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 src/back-end/ExogenousEvents/ExoEventNotifier.h
 )
 
-target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})
+target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES} asrael-c++ xmlrpc++)
