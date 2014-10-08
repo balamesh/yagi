@@ -26,7 +26,7 @@
 #include "../Database/DatabaseManager.h"
 #include "../Database/DBHelper.h"
 #include "../Formulas/FormulaEvaluator.h"
-#include "../Signals/CoutCinSignalHandler.h"
+#include "../Signals/SignalHandlerFactory.h"
 #include "../Variables/VariableTable.h"
 #include "../Variables/VariableTableManager.h"
 #include "../ExogenousEvents/ExoEventNotifier.h"
@@ -329,7 +329,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-      std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, "<searchMain>");
+      SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, "<searchMain>");
 
   bool searchResult = false;
 
@@ -1105,7 +1105,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       {
         std::lock_guard<std::mutex> lk(chooseVisitorMutex);
         v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-            std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+            SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
       }
 
       {
@@ -1300,7 +1300,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
       v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-          std::make_shared<CoutCinSignalHandler>(), tempVarTable, true, name);
+          SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
 
       {
         std::lock_guard<std::mutex> lk(pickSearchResultMutex);

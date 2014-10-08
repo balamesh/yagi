@@ -192,6 +192,9 @@ src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
 src/back-end/ExogenousEvents/IExogenousEventProducer.h
 src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 src/back-end/ExogenousEvents/ExoEventNotifier.h
+src/back-end/Signals/SignalHandlerFactory.cpp
+src/back-end/Signals/SignalHandlerFactory.h
+
 )
 
 target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})
