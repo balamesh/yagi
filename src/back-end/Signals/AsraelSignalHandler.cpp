@@ -15,7 +15,7 @@ std::mutex signalMutexAsrael;
 
 AsraelSignalHandler::AsraelSignalHandler()
 {
-    //connectSimulator();
+    connectSimulator();
 }
 
 AsraelSignalHandler::~AsraelSignalHandler()
@@ -26,7 +26,7 @@ std::vector<std::string> AsraelSignalHandler::chopParameters(std::string params)
 {
     std::vector<std::string> plist;
 
-    std::size_t found = params.find_first_of("_");
+    std::size_t found = params.find_first_of(" ");
 
     while (found!=std::string::npos)
     {
@@ -34,7 +34,7 @@ std::vector<std::string> AsraelSignalHandler::chopParameters(std::string params)
         std::string p1 = params.substr(found+1);
         plist.push_back(p);
         params = p1;
-        found = params.find_first_of("_");
+        found = params.find_first_of(" ");
     }
     plist.push_back(params);
     return plist;
@@ -50,30 +50,62 @@ int AsraelSignalHandler::connectSimulator(std::string level)
 std::unordered_map<std::string, std::string> AsraelSignalHandler::signal(
     const std::string& content, const std::vector<std::string>& variables)
 {
+  AsrealRemoteCommandResponse response;
   //no variables passed => no setting actions, just print whatever
   //there is to print
   if (!variables.size())
   {
-    {
-      std::lock_guard<std::mutex> lk(signalMutexAsrael);
-      std::cout << ">>>> " << (!isSearch_ ? "[Signal] " : "[Search] [Signal] ") << content
-          << std::endl;
-    }
+    std::lock_guard<std::mutex> lk(signalMutexAsrael);
+
+    std::vector<std::string> params = chopParameters(content);
+
+    std::string action_name = params.front();
+    params.erase(params.begin());
+
+    response = client.executeCommand("Gargamel", action_name, params);
+
     return std::unordered_map<std::string, std::string> { };
   }
   else //print and wait for input
   {
     std::unordered_map<std::string, std::string> retVals { };
-    std::cout << ">>>> "
-        << (!isSearch_ ? "[Setting Action Signal] " : "[Search] [Setting Action Signal] ")
-        << content << std::endl;
 
-    char* buffer = nullptr;
-
-    for (const auto& var : variables)
+    if (variables.size()!=1)
     {
-      buffer = readline((">>>> Enter string-value for variable " + var + ": ").c_str());
-      retVals[var] = buffer;
+        std::cout << "asrael allows only setting actions that bind one variable!" << std::endl;
+        return retVals;
+    }
+
+    std::string var = variables.front();
+
+    std::cout << content << std::endl;
+
+    std::vector<std::string> params = chopParameters(content);
+
+    std::string action_name = params.front();
+    params.erase(params.begin());
+
+
+    for(std::vector<std::string>::iterator i=params.begin();i!=params.end();i++)
+    {
+        std::cout << *i << std::endl;
+    }
+
+    response = client.executeCommand("Gargamel", action_name, params);
+
+    if (response.code_==TRUE)
+    {
+        std::cout << "sending result: " << response.message_ << std::endl;
+        retVals[var]="true";
+    }
+    else if (response.code_==FALSE)
+    {
+        std::cout << "sensing result: " << response.message_ << std::endl;
+        retVals[var]="false";
+    }
+    else
+    {
+        std::cout << "error: " << response.message_ << std::endl;
     }
 
     return retVals;

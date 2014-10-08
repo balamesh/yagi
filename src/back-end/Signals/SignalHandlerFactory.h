@@ -10,6 +10,7 @@
 
 #include <memory>
 #include "CoutCinSignalHandler.h"
+#include "AsraelSignalHandler.h"
 
 namespace yagi {
 namespace execution {
@@ -23,7 +24,7 @@ namespace execution {
 class SignalHandlerFactory final
 {
   private:
-    using ConcreteSignalHandlerType = CoutCinSignalHandler;
+    using ConcreteSignalHandlerType = AsraelSignalHandler;
 
     SignalHandlerFactory();
     ~SignalHandlerFactory();
