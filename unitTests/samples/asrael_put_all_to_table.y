@@ -1,6 +1,7 @@
 fluent see[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
 fluent isat[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}][{"Microwave","Table","Stove"}];
 fluent at[{"Microwave","Table","Stove"}];
+fluent hold[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
 
 
 action look_for($o) external ($x)
@@ -21,6 +22,22 @@ signal:
   "Move "+$p;
 end action
 
+action take($o)
+effect:
+  isat -= {<$o,_>};
+  hold = {<$o>};
+signal:
+  "Take "+$o;
+end action
+
+action put($p)
+effect:
+
+  hold -={<$o>};
+signal:
+  "Put " + $p;
+end action
+
 action check_above($o1,$o2) external ($x)
 effect:
   if ($x == "true") then
@@ -31,3 +48,13 @@ effect:
 signal:
   "IsAt " + $o1 + " " + $o2 ;
 end action
+
+proc transport($o,$p)
+
+  move_to($o);
+  take($o);
+  move_to($p);
+  put($p);
+
+end proc
+
