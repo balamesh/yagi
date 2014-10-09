@@ -30,10 +30,12 @@ signal:
   "Take "+$o;
 end action
 
-action put($p)
+action put($o)
 effect:
-
   hold -={<$o>};
+  foreach <$x> in at do
+    isat += {<$o, $x>};
+  end for
 signal:
   "Put " + $p;
 end action
@@ -47,6 +49,11 @@ effect:
   end if 
 signal:
   "IsAt " + $o1 + " " + $o2 ;
+end action
+
+action load_level($l)
+signal:
+  "LoadLevel " + $l;
 end action
 
 proc transport($o,$p)

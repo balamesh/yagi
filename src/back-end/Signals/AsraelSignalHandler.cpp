@@ -62,7 +62,24 @@ std::unordered_map<std::string, std::string> AsraelSignalHandler::signal(
     std::string action_name = params.front();
     params.erase(params.begin());
 
-    response = client.executeCommand("Gargamel", action_name, params);
+    //helper action - loading level - needs God
+    if (action_name == "LoadLevel")
+    {
+        response = client.executeCommand("God", action_name, params);
+    }
+    else
+    {
+        // primitive action
+        response = client.executeCommand("Gargamel", action_name, params);
+    }
+    if (response.code_==TRUE)
+    {
+        std::cout << "action " <<  action_name << " executed sucessfully" << std::endl;
+    }
+    else
+    {
+        std::cout << "action " <<  action_name << " failed" << std::endl;
+    }
 
     return std::unordered_map<std::string, std::string> { };
   }
