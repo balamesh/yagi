@@ -168,7 +168,16 @@ std::shared_ptr<NodeForLoop> RewritingVisitor::rewritePatternMatching(const std:
 
   nodeAssign->setFluentName(std::make_shared<NodeID>(fluentName));
   auto op = std::make_shared<NodeAssignmentOperator>();
-  op->fromString("+="); //TODO
+
+  if (assOp == AssignmentOperator::AddAssign || assOp == AssignmentOperator::Assign)
+  {
+    op->fromString("+=");
+  }
+  else
+  {
+    op->fromString("-=");
+  }
+
   nodeAssign->setOperator(op);
   auto set = std::make_shared<NodeSet>();
 
