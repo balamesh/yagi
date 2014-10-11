@@ -22,6 +22,7 @@
 #include "../back-end/Formulas/FormulaEvaluator.h"
 #include "../back-end/ASTVisitors/RewritingVisitor.h"
 #include "../utils/CommandLineArgsContainer.h"
+#include "../utils/StringManipulationHelper.h"
 
 using namespace yagi::formula;
 using namespace yagi::execution;
@@ -138,9 +139,20 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
   return (res.first == std::end(potentialPrefix));
 }
 
+bool isSuffixOf(const std::string& potentialSuffix, const std::string& text)
+{
+  auto res = std::mismatch(potentialSuffix.rbegin(), potentialSuffix.rend(),
+      text.rbegin());
+
+  return (res.first == potentialSuffix.rend());
+}
+
 bool isFromFile(const std::string& line)
 {
-  return isPrefixOf(std::string { "import" }, line); //TODO: rethink that!
+  std::string tmp{line};
+
+  //c++11 regex is still not available in this compiler version, so this must suffice for the moment.
+  return isPrefixOf(std::string { "import(" }, trim(tmp)) && isSuffixOf(std::string{");"}, trim(tmp));
 }
 
 bool execute(const std::string& line, bool isFileName)
@@ -278,5 +290,6 @@ void displayWelcome()
   std::cout << "*You can enter multiline statements by pressing [ENTER].    *" << std::endl;
   std::cout << "*Press [CTRL+C] to execute the entered command              *" << std::endl;
   std::cout << "*Press [CTRL+D] (or enter 'exit') to quit the application   *" << std::endl;
+  std::cout << "*Write 'import(\"myFile.txt\");' to load a YAGI src file      *" << std::endl;
   std::cout << "*************************************************************" << std::endl;
 }

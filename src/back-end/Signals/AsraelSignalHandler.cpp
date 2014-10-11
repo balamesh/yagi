@@ -11,6 +11,8 @@
 namespace yagi {
 namespace execution {
 
+#ifdef ASRAEL
+
 std::mutex signalMutexAsrael;
 
 AsraelSignalHandler::AsraelSignalHandler()
@@ -128,6 +130,8 @@ std::unordered_map<std::string, std::string> AsraelSignalHandler::signal(
     return retVals;
   }
 }
+
+#endif
 
 } /* namespace execution */
 } /* namespace yagi */

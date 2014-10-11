@@ -12,6 +12,8 @@
 #include <iostream>
 #include <readline/readline.h>
 
+#ifdef ASRAEL
+
 #include <asrael_remote_control_client.h>
 
 namespace yagi {
@@ -34,5 +36,7 @@ private:
 
 } /* namespace execution */
 } /* namespace yagi */
+
+#endif
 
 #endif /* ASRAELSIGNALHANDLER_H_ */
