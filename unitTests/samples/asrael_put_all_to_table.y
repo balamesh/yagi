@@ -6,6 +6,11 @@ fluent hold[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2
 fluent objects[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
 objects={<"Fork1">,<"Bread4">,<"Ham1">,<"Cheese2">,<"Ham3">,<"Spoon1">,<"Tomatoes3">,<"Ham2">,<"BeigePlate3">,<"WoodenBowl">,<"Knife1">};
 
+fluent containers[{"UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
+containers={<"UpperCabinet1">,<"UpperCabinet2">,<"UpperCabinet3">,<"UpperCabinet4">,<"UpperCabinet5">,<"BaseCabinet1">,<"BaseCabinet2">,<"BaseCabinet3">,<"BaseCabinet4">,<"BC6_Drawer1">};
+
+fluent open[{"UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
+
 action look_for($o) external ($x)
 effect:
   if ($x == "true") then
@@ -42,6 +47,13 @@ signal:
   "Put " + $o;
 end action
 
+action open_container($c)
+effect:
+  open += {<$c>};
+signal:
+  "Open "+$c;
+end action
+
 action check_above($o1,$o2) external ($x)
 effect:
   if ($x == "true") then
@@ -67,12 +79,31 @@ proc transport($o,$p)
 
 end proc
 
+proc locate($o)
+
+  foreach <$c> in containers do
+     
+    if(not (<$c> in open)) then
+
+      move_to($c);
+      open_container($c);
+
+    end if
+  end for
+
+end proc
+
 proc collect()
 
   foreach <$o> in objects do
     look_for($o);
     if (<$o> in see) then
       transport($o,"Table");
+    else
+      locate($o);
+      if (<$o> in see) then
+        transport($o,"Table");
+      end if
     end if
   end for 
 
