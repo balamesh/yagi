@@ -3,6 +3,8 @@ fluent isat[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2
 fluent at[{"Microwave","Table","Stove"}];
 fluent hold[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
 
+fluent objects[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
+objects={<"Fork1">,<"Bread4">,<"Ham1">,<"Cheese2">,<"Ham3">,<"Spoon1">,<"Tomatoes3">,<"Ham2">,<"BeigePlate3">,<"WoodenBowl">,<"Knife1">};
 
 action look_for($o) external ($x)
 effect:
@@ -37,7 +39,7 @@ effect:
     isat += {<$o, $x>};
   end for
 signal:
-  "Put " + $p;
+  "Put " + $o;
 end action
 
 action check_above($o1,$o2) external ($x)
@@ -62,6 +64,17 @@ proc transport($o,$p)
   take($o);
   move_to($p);
   put($p);
+
+end proc
+
+proc collect()
+
+  foreach <$o> in objects do
+    look_for($o);
+    if (<$o> in see) then
+      transport($o,"Table");
+    end if
+  end for 
 
 end proc
 
