@@ -14,7 +14,7 @@
 
 #ifdef ASRAEL
 
-#include <asrael_remote_control_client.h>
+#include <asrael/asrael_remote_control_client.h>
 
 namespace yagi {
 namespace execution {
