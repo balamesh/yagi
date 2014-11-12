@@ -371,6 +371,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
       temp.pop_back();
     }
 
+    //since SignalHandlerFactory might still think we are in 'search mode'
+    //we need to tell it otherwise...
+    //Since we can collapse cascaded search blocks without changing the semantics
+    //(still needs to be done!) from this point on we are guaranteed to be not in 'search mode' anymore
+    this->signalReceiver_->setIsSearch(false);
+
     for (const auto& stmt : search.getBlock()->getStatements())
     {
       stmt->accept(*this);
