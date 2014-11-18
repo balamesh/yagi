@@ -21,6 +21,7 @@ class CommandLineArgsContainer
       void operator=(CommandLineArgsContainer const&);
 
       bool showDebugMessages_;
+      bool showNoMessages_;
 
     public:
       static CommandLineArgsContainer& getInstance()
@@ -37,6 +38,16 @@ class CommandLineArgsContainer
       void setShowDebugMessages(bool showDebugMessages)
       {
         showDebugMessages_ = showDebugMessages;
+      }
+
+      bool getShowNoMessages() const
+      {
+        return showNoMessages_;
+      }
+
+      void setShowNoMessages(bool showNoMessages)
+      {
+        showNoMessages_ = showNoMessages;
       }
   };
 

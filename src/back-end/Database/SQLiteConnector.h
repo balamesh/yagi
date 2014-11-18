@@ -46,6 +46,32 @@ class SQLiteConnector: public DatabaseConnectorBase
       connect();
     }
     ;
+
+    SQLiteConnector(const std::string& dbName, sqlite3 *pDB) :
+        DatabaseConnectorBase(dbName)
+    {
+      pDB_ = pDB;
+
+      db_ = SQLiteDB(pDB_, [](sqlite3* database)
+      {
+        if (database)
+        {
+          if (sqlite3_close(database) != SQLITE_OK)
+          {
+            int rc = sqlite3_errcode(database);
+            std::cout << "SQLite ERROR: " << sqlite3_errstr(rc) << std::endl;
+          }
+        }
+      });
+
+      //Gives a major performance improvement!
+      executeNonQuery("PRAGMA synchronous = OFF;");
+
+      connected_ = true;
+
+    }
+    ;
+
     virtual ~SQLiteConnector();
 
     virtual void connect() override;
@@ -54,6 +80,7 @@ class SQLiteConnector: public DatabaseConnectorBase
         const std::string& selectSqlStmt) const override;
 
     int backupDb(const char *zFilename, void (*xProgress)(int, int));
+    sqlite3 *backupDb(void (*xProgress)(int, int));
 };
 
 } //end namespace

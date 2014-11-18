@@ -77,11 +77,16 @@ std::shared_ptr<DatabaseConnectorBase> DatabaseManager::getCloneWithNewName(
       sqliteDBToClone = std::dynamic_pointer_cast<SQLiteConnector>(databaseMain_);
     }
 
-    if (sqliteDBToClone->backupDb(newDbName.c_str(), nullptr) == 0)
-    {
-      databases_[newDbName] = std::make_shared<DataBaseConcreteType>(newDbName, false);
-      return databases_[newDbName];
-    }
+//    if (sqliteDBToClone->backupDb(newDbName.c_str(), nullptr) == 0)
+//    {
+//      databases_[newDbName] = std::make_shared<DataBaseConcreteType>(newDbName, false);
+//      return databases_[newDbName];
+//    }
+
+    auto newDB = sqliteDBToClone->backupDb(nullptr);
+    databases_[newDbName] = std::make_shared<DataBaseConcreteType>(newDbName, newDB);
+    return databases_[newDbName];
+
 
     return nullptr;
   }

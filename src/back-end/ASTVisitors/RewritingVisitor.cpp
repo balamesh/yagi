@@ -10,6 +10,7 @@
 
 #include "../../common/ASTNodeTypes/Statements/NodeAssignmentOperator.h"
 #include "../../front-end/astVisitors/ToStringVisitor.h"
+#include "../../utils/CommandLineArgsContainer.h"
 #include "../SQLGenerator.h"
 namespace yagi {
 namespace execution {
@@ -50,7 +51,11 @@ Any RewritingVisitor::visit(NodeActionEffect& effect)
 
         ToStringVisitor tsv;
         auto ret = loop->accept(tsv).get<std::string>();
-        std::cout << "Replaced pattern match for loop : " << ret << std::endl;
+
+        if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+        {
+          std::cout << "Replaced pattern match for loop : " << ret << std::endl;
+        }
       }
     }
   }
@@ -69,7 +74,8 @@ Any RewritingVisitor::visit(NodeIDAssignment& idAssignment)
   //it can never be pattern matching if the rhs of the assignment is another fluent
   if (!anyTupleSet.hasType<std::vector<std::vector<std::string>>>())
   {
-    return Any { };
+    return Any
+    {};
   }
 
   auto tupleSet = anyTupleSet.get<std::vector<std::vector<std::string>>>();

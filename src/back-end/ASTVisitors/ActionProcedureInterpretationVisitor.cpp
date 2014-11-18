@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
+#include "../../utils/CommandLineArgsContainer.h"
 #include "../Database/DatabaseConnectorBase.h"
 #include "../ExecutableElementsContainer.h"
 #include "../SQLGenerator.h"
@@ -181,6 +182,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
         outText = "does NOT hold!";
       }
 
+      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "Test condition in procedure '" << procName << "' "
@@ -220,6 +222,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
     if (!apHolds)
     {
+      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' does NOT hold."
@@ -229,6 +232,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
       return Any { false };
     }
 
+    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
     {
       std::lock_guard<std::mutex> lk(coutMutex);
       std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' holds."
@@ -352,7 +356,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   if (searchResult)
   {
-    std::cout << ">>>> Search found valid path! Executing..." << std::endl;
+    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    {
+      std::cout << ">>>> Search found valid path! Executing..." << std::endl;
+    }
     this->choices_ = v.choices_;
 
     std::vector<int> temp;
@@ -384,7 +391,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   }
   else
   {
-    std::cout << ">>>> search could NOT find valid path!" << std::endl;
+    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    {
+      std::cout << ">>>> search could NOT find valid path!" << std::endl;
+    }
   }
 
   //Cleanup
@@ -914,6 +924,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
     outText = "does NOT hold!";
   }
 
+  if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
   {
     std::lock_guard<std::mutex> lk(coutMutex);
     std::cout << ">>>> " << msgPrefix_ << "Test condition " << outText << std::endl;
@@ -1064,8 +1075,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       choicesForOnlineExecution.pop();
     }
 
-    std::cout << ">>>> " << msgPrefix_ << "Choosing block " << std::to_string(idx + 1) << "..."
-        << std::endl;
+    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    {
+      std::cout << ">>>> " << msgPrefix_ << "Choosing block " << std::to_string(idx + 1) << "..."
+          << std::endl;
+    }
 
     auto stmts = blocks.at(idx)->getStatements();
 
@@ -1220,6 +1234,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
+      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
@@ -1280,8 +1295,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       choicesForOnlineExecution.pop();
     }
 
-    std::cout << ">>>> " << msgPrefix_ << "Picking value " << tupleToString(set[idx]) << "..."
-        << std::endl;
+    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    {
+      std::cout << ">>>> " << msgPrefix_ << "Picking value " << tupleToString(set[idx]) << "..."
+          << std::endl;
+    }
 
     return runBlockForPickedTuple(pick, set, idx, *this);
   }
@@ -1396,8 +1414,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     Any rc;
     if (found)
     {
-      std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
-          << tupleToString(set[successIndex]) << std::endl;
+      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+      {
+        std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
+            << tupleToString(set[successIndex]) << std::endl;
+      }
 
       auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
       while (threadChoices.size())

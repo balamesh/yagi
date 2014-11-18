@@ -24,6 +24,9 @@
 #include "../utils/CommandLineArgsContainer.h"
 #include "../utils/StringManipulationHelper.h"
 
+#include <chrono>
+
+
 using namespace yagi::formula;
 using namespace yagi::execution;
 
@@ -55,9 +58,7 @@ void executeProgram(int sig)
   { program += " " + line;});
 
   add_history(program.c_str());
-
   execute(program, false);
-
   lines.clear();
 }
 
@@ -120,10 +121,17 @@ void parseCommandLineArgs(int argc, char* argv[])
   false);
   cmd.add(debugMsg);
 
+  TCLAP::SwitchArg noMsg("n", "showNoMsg", "Shows no messages at all. Primarily for runtime measurements.",
+    false);
+  cmd.add(noMsg);
+
   cmd.parse(argc, argv);
 
   yagi::container::CommandLineArgsContainer::getInstance().setShowDebugMessages(
       debugMsg.getValue());
+
+  yagi::container::CommandLineArgsContainer::getInstance().setShowNoMessages(
+       noMsg.getValue());
 }
 
 bool isExit(const std::string& line)
@@ -199,6 +207,10 @@ bool execute(const std::string& line, bool isFileName)
     throw std::runtime_error("AST root is no program!");
 
   auto stmts = prog->getProgram();
+
+  typedef std::chrono::high_resolution_clock Clock;
+  auto t1 = Clock::now();
+
   for (const auto& stmt : stmts)
   {
     if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
@@ -271,6 +283,11 @@ bool execute(const std::string& line, bool isFileName)
       }
     }
   }
+
+  auto t2 = Clock::now();
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+  std::cout << "Execution Time [ms]: " << ms.count() << std::endl;
+
 
   return true;
 }

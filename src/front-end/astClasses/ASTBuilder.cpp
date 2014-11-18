@@ -441,7 +441,7 @@ void ASTBuilder::addNegation()
 }
 void ASTBuilder::addConnectedFormula()
 {
-  //we have something of the form <formula_connective> <atom> <formula>
+  //we have something of the form <formula_connective> <formula1> <formula2>
   //an atom can be just "true" or "false..
   auto rhs = getFrontElement<NodeFormulaBase>();
 
@@ -455,13 +455,13 @@ void ASTBuilder::addConnectedFormula()
   compoundFormula->setRightOperand(rhs);
   ast.pop();
 
-  auto lhs_atom = getFrontElement<NodeAtom>();
+  auto lhs_formula = getFrontElement<NodeFormulaBase>();
   auto lhs_constant = getFrontElement<NodeConstant>();
 
   //sanity check
-  if (lhs_atom == nullptr && lhs_constant == nullptr)
+  if (lhs_formula == nullptr && lhs_constant == nullptr)
   {
-    throw std::runtime_error("Compound formula lhs is neither an atom nor a constant!");
+    throw std::runtime_error("Compound formula lhs is neither an formula nor a constant!");
   }
 
   compoundFormula->setLeftOperand(getFrontElement<NodeFormulaBase>());
