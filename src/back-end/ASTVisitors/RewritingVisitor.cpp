@@ -52,7 +52,7 @@ Any RewritingVisitor::visit(NodeActionEffect& effect)
         ToStringVisitor tsv;
         auto ret = loop->accept(tsv).get<std::string>();
 
-        if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+        if (CommandLineArgsContainer::getInstance().getShowDebugMessages())
         {
           std::cout << "Replaced pattern match for loop : " << ret << std::endl;
         }

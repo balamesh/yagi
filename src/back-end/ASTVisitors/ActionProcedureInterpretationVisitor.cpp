@@ -144,7 +144,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeOperatorIn& inFormula)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSignal& signal)
 {
-  return triggerYagiSignal(signal, std::vector<std::string> { });
+  if (!this->isSearch_ && this->name_ != "reproduceStateVisitor")
+  {
+    return triggerYagiSignal(signal, std::vector<std::string> { });
+  }
+
+  return Any { };
 }
 
 Any ActionProcedureInterpretationVisitor::triggerYagiSignal(NodeSignal& signal,
@@ -184,7 +189,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcDecl& procDecl)
         outText = "does NOT hold!";
       }
 
-      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages() || !this->isSearch_)
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "Test condition in procedure '" << procName << "' "
@@ -224,7 +229,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
     bool apHolds = ap->accept(*this).tryGetCopy<bool>(false);
     if (!apHolds)
     {
-      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' does NOT hold."
@@ -234,7 +240,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeActionDecl& actionDecl)
       return Any { false };
     }
 
-    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
     {
       std::lock_guard<std::mutex> lk(coutMutex);
       std::cout << ">>>> " << msgPrefix_ << "AP for action '" + actionName + "' holds."
@@ -324,7 +331,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeBlock& block)
 
 Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 {
-  //Fire up a temporary db, temporary varTable and search for sequence of actions
+//Fire up a temporary db, temporary varTable and search for sequence of actions
   auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(
       DatabaseManager::getInstance().MAIN_DB_NAME, "tempDB_" + std::to_string(getNowTicks()));
 
@@ -342,6 +349,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   std::atomic_bool finished;
   finished = false;
 
+  std::cout << "Searching for solution..." << std::endl;
+
   std::thread t([&]()
   {
     searchResult = search.getBlock()->accept(v).get<bool>();
@@ -358,21 +367,9 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
 
   if (searchResult)
   {
-    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
-    {
-      std::cout << ">>>> Search found valid path! Executing..." << std::endl;
-    }
-    this->choices_ = v.choices_;
 
-//    std::vector<int> temp;
-//    for (auto& stack : choices_)
-//    {
-//      while (stack.size())
-//      {
-//        temp.push_back(stack.top());
-//        stack.pop();
-//      }
-//    }
+    std::cout << ">>>> Search found valid path! Executing..." << std::endl;
+    this->choices_ = v.choices_;
 
     while (choices_.size())
     {
@@ -393,13 +390,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   }
   else
   {
-    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
-    {
-      std::cout << ">>>> search could NOT find valid path!" << std::endl;
-    }
+    std::cout << ">>>> search could NOT find valid path!" << std::endl;
   }
 
-  //Cleanup
+//Cleanup
   DatabaseManager::getInstance().deleteDB(tempDB->getDbName());
   VariableTableManager::getInstance().deleteVariableTable(tempVarTableName);
 
@@ -514,11 +508,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeIDAssignment& idAssign)
 
   auto lhsFluentName = idAssign.getFluentName()->accept(*this).get<std::string>();
 
-  //the rhs is a (shadow-)fluent/fact for sure, so we get the name here
+//the rhs is a (shadow-)fluent/fact for sure, so we get the name here
   auto rhsFluentName = idAssign.getSetExpr()->accept(*this).get<std::string>();
   auto assignOp = idAssign.getOperator()->accept(*this).get<AssignmentOperator>();
 
-  //Depending on the assignment operator we need to build different node sequences
+//Depending on the assignment operator we need to build different node sequences
   switch (assignOp)
   {
     case AssignmentOperator::AddAssign:
@@ -914,7 +908,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
       {
         if (!first)
         {
-          std::string reproduceStateVarTableName = "reproduceStateVarTable" + std::to_string(getNowTicks());
+          std::string reproduceStateVarTableName = "reproduceStateVarTable"
+              + std::to_string(getNowTicks());
           auto reproduceStateDB = DatabaseManager::getInstance().getCloneWithNewName(
               DatabaseManager::getInstance().MAIN_DB_NAME,
               "reproduceStateDB_" + std::to_string(getNowTicks()));
@@ -922,12 +917,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
           auto& reproduceStateVarTable = VariableTableManager::getInstance().getCloneWithNewName(
               VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, reproduceStateVarTableName);
 
-          auto reproduceStateFormulaEvaluator = std::make_shared<FormulaEvaluator>(&reproduceStateVarTable,
-              reproduceStateDB.get());
+          auto reproduceStateFormulaEvaluator = std::make_shared<FormulaEvaluator>(
+              &reproduceStateVarTable, reproduceStateDB.get());
 
-          ActionProcedureInterpretationVisitor reproduceStateVisitor(reproduceStateFormulaEvaluator, reproduceStateDB,
-              SignalHandlerFactory::getInstance().getSignalHandler(), reproduceStateVarTable, false,
-              "reproduceStateVisitor");
+          ActionProcedureInterpretationVisitor reproduceStateVisitor(reproduceStateFormulaEvaluator,
+              reproduceStateDB, SignalHandlerFactory::getInstance().getSignalHandler(),
+              reproduceStateVarTable, false, "reproduceStateVisitor");
 
           reproduceStateVisitor.choicesForOnlineExecution = bfsStatesQueue->at(0)->getChoices();
 
@@ -1016,7 +1011,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
     outText = "does NOT hold!";
   }
 
-  if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+  if (CommandLineArgsContainer::getInstance().getShowDebugMessages() || !this->isSearch_)
   {
     std::lock_guard<std::mutex> lk(coutMutex);
     std::cout << ">>>> " << msgPrefix_ << "Test condition " << outText << std::endl;
@@ -1181,7 +1176,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       choicesForOnlineExecution.erase(std::begin(choicesForOnlineExecution));
     }
 
-    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
     {
       std::cout << ">>>> " << msgPrefix_ << "Choosing block " << std::to_string(idx + 1) << "..."
           << std::endl;
@@ -1353,7 +1349,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
         }
       }
 
-      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
       {
         std::lock_guard<std::mutex> lk(coutMutex);
         std::cout << ">>>> " << msgPrefix_ << "Found valid block in 'choose'! Picked block number "
@@ -1408,7 +1405,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       choicesForOnlineExecution.erase(std::begin(choicesForOnlineExecution));
     }
 
-    if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
     {
       std::cout << ">>>> " << msgPrefix_ << "Picking value " << tupleToString(set[idx]) << "..."
           << std::endl;
@@ -1542,7 +1540,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
         }
       }
 
-      if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
       {
         std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
             << tupleToString(set[successIndex]) << std::endl;
