@@ -200,6 +200,9 @@ src/back-end/ExogenousEvents/ExoEventNotifier.h
 src/back-end/Signals/SignalHandlerFactory.cpp
 src/back-end/Signals/SignalHandlerFactory.h
 src/utils/StringManipulationHelper.h
+src/back-end/BfsDataContainer.h
+src/back-end/BfsDataContainer.cpp
+src/back-end/Formulas/NumericStringCompare.h
 )
 
 target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})
@@ -379,6 +382,9 @@ src/back-end/ExogenousEvents/ExoEventNotifier.h
 src/back-end/Signals/SignalHandlerFactory.cpp
 src/back-end/Signals/SignalHandlerFactory.h
 src/utils/StringManipulationHelper.h
+src/back-end/BfsDataContainer.h
+src/back-end/BfsDataContainer.cpp
+src/back-end/Formulas/NumericStringCompare.h
 )
 
 set_target_properties(yagi-asrael PROPERTIES COMPILE_FLAGS -DASRAEL)

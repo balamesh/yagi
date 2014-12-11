@@ -26,7 +26,6 @@
 
 #include <chrono>
 
-
 using namespace yagi::formula;
 using namespace yagi::execution;
 
@@ -64,6 +63,7 @@ void executeProgram(int sig)
 
 int main(int argc, char * argv[])
 {
+
   try
   {
     parseCommandLineArgs(argc, argv);

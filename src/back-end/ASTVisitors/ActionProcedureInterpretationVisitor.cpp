@@ -7,6 +7,7 @@
 
 #include "ActionProcedureInterpretationVisitor.h"
 
+#include <algorithm>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -42,6 +43,8 @@ namespace execution {
 
 const std::string ActionProcedureInterpretationVisitor::DOMAIN_STRING_ID = "\"";
 std::mutex coutMutex;
+
+std::shared_ptr<std::vector<std::shared_ptr<BfsDataContainer>>>ActionProcedureInterpretationVisitor::bfsStatesQueue = std::make_shared<std::vector<std::shared_ptr<BfsDataContainer>>>();
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
@@ -79,7 +82,6 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
   }
 
-  choices_.push_back(std::stack<int> { });
 }
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(VariableTable& varTable) :
@@ -362,20 +364,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
     }
     this->choices_ = v.choices_;
 
-    std::vector<int> temp;
-    for (auto& stack : choices_)
-    {
-      while (stack.size())
-      {
-        temp.push_back(stack.top());
-        stack.pop();
-      }
-    }
+//    std::vector<int> temp;
+//    for (auto& stack : choices_)
+//    {
+//      while (stack.size())
+//      {
+//        temp.push_back(stack.top());
+//        stack.pop();
+//      }
+//    }
 
-    while (temp.size())
+    while (choices_.size())
     {
-      choicesForOnlineExecution.push(temp[temp.size() - 1]);
-      temp.pop_back();
+      choicesForOnlineExecution.push_back(choices_.at(0));
+      choices_.erase(std::begin(choices_));
     }
 
     //since SignalHandlerFactory might still think we are in 'search mode'
@@ -895,22 +897,112 @@ Any ActionProcedureInterpretationVisitor::visit(NodeVariableAssignment & varAss)
 Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 {
   auto statements = whileLoop.getBlock()->getStatements();
+  bool solutionFound = false;
+  int solutionIdx = -1;
 
-  while (whileLoop.getFormula()->accept(*this).get<bool>())
+  auto initialState = std::make_shared<BfsDataContainer>();
+  initialState->setState(this->db_);
+  bfsStatesQueue->push_back(initialState);
+
+  bool first = true;
+
+  if (this->isSearch_)
   {
-    for (const auto& stmt : statements)
+    while (!solutionFound)
     {
-      stmt->accept(*this);
-
-      if (isSearch_ && cancelled_ && name_ != "<searchMain>")
+      while (bfsStatesQueue->size())
       {
-        return Any { };
+        if (!first)
+        {
+          std::string reproduceStateVarTableName = "reproduceStateVarTable" + std::to_string(getNowTicks());
+          auto reproduceStateDB = DatabaseManager::getInstance().getCloneWithNewName(
+              DatabaseManager::getInstance().MAIN_DB_NAME,
+              "reproduceStateDB_" + std::to_string(getNowTicks()));
+
+          auto& reproduceStateVarTable = VariableTableManager::getInstance().getCloneWithNewName(
+              VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, reproduceStateVarTableName);
+
+          auto reproduceStateFormulaEvaluator = std::make_shared<FormulaEvaluator>(&reproduceStateVarTable,
+              reproduceStateDB.get());
+
+          ActionProcedureInterpretationVisitor reproduceStateVisitor(reproduceStateFormulaEvaluator, reproduceStateDB,
+              SignalHandlerFactory::getInstance().getSignalHandler(), reproduceStateVarTable, false,
+              "reproduceStateVisitor");
+
+          reproduceStateVisitor.choicesForOnlineExecution = bfsStatesQueue->at(0)->getChoices();
+
+          bool doBreak = false;
+          while (whileLoop.getFormula()->accept(reproduceStateVisitor).get<bool>() && !doBreak)
+          {
+            for (const auto& stmt : statements)
+            {
+              auto ret = stmt->accept(reproduceStateVisitor);
+              if (!ret.get<bool>())
+              {
+                doBreak = true;
+                break;
+              }
+            }
+          }
+
+          bfsStatesQueue->at(0)->setState(reproduceStateVisitor.db_);
+        }
+
+        std::cout << "[Search] Number of states to search: " << bfsStatesQueue->size() << std::endl;
+
+        std::string tempVarTableName = "tempVarTable_" + std::to_string(getNowTicks());
+        auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
+            VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, tempVarTableName);
+
+        auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable,
+            bfsStatesQueue->at(0)->getState().get());
+
+        ActionProcedureInterpretationVisitor v(formulaEvaluator, bfsStatesQueue->at(0)->getState(),
+            SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, "test");
+
+        v.choices_ = bfsStatesQueue->at(0)->getChoices();
+
+        if (!whileLoop.getFormula()->accept(v).get<bool>())
+        {
+          solutionFound = true;
+          solutionIdx = 0;
+          this->choices_ = v.choices_;
+          break;
+        }
+
+        for (const auto& stmt : statements)
+        {
+          stmt->accept(v);
+        }
+
+        bfsStatesQueue->erase(std::begin(*bfsStatesQueue));
+
+        first = false;
+      }
+
+      if (solutionFound)
+      {
+        std::cout << "FOUND SOLUTION!" << std::endl;
       }
     }
-
-    choices_.push_back(std::stack<int> { });
+    return Any { };
   }
-  return Any { };
+  else
+  {
+    while (whileLoop.getFormula()->accept(*this).get<bool>())
+    {
+      for (const auto& stmt : statements)
+      {
+        stmt->accept(*this);
+
+        if (isSearch_ && cancelled_ && name_ != "<searchMain>")
+        {
+          return Any { };
+        }
+      }
+    }
+    return Any { };
+  }
 }
 
 Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
@@ -1039,6 +1131,13 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
   }
 
   bool success = true;
+
+  //if the if-condition doesn't hold and there is no else-block we're done
+  if (!statements.size())
+  {
+    return Any { false };
+  }
+
   for (const auto& stmt : statements)
   {
     auto ret = stmt->accept(*this);
@@ -1066,13 +1165,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     int idx = -1;
     if (choicesForOnlineExecution.empty())
     {
+      //XXX: HACKHACK if we reproduce state in BFS we execute all choices known
+      //and stop if we ran out of choices, i.e. choicesForOnlineExecution is empty!
+      if (this->name_ == "reproduceStateVisitor")
+      {
+        return Any { false };
+      }
+
       RandomNumberGenerator rng;
       idx = rng.getRandomNumber(0, blocks.size() - 1);
     }
     else
     {
-      idx = choicesForOnlineExecution.top();
-      choicesForOnlineExecution.pop();
+      idx = choicesForOnlineExecution.at(0);
+      choicesForOnlineExecution.erase(std::begin(choicesForOnlineExecution));
     }
 
     if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
@@ -1111,7 +1217,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     for (size_t idx = 0; idx < blocks.size(); idx++)
     {
       //Fire up a temporary db, temporary varTable and search for sequence of actions
-      std::string name = "<search " + std::to_string(idx + 1) + ">";
+      std::string name = "<search " + std::to_string(idx + 1) + ", choosing block "
+          + std::to_string(idx + 1) + ">";
 
       auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(db_->getDbName(),
           name + "DB_" + std::to_string(getNowTicks()));
@@ -1128,6 +1235,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
             SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
       }
 
+      v->choices_ = this->choices_;
+      v->choices_.push_back(idx);
+      this->children_.push_back(v);
+
       {
         std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
         results.push_back(-1);
@@ -1135,6 +1246,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
       std::thread t([&blocks,idx,v,&results,&chooseVisitorMutex,&chooseSearchResultMutex]()
       {
+        while (!v->run)
+        {
+          std::chrono::milliseconds dura(20);
+          std::this_thread::sleep_for(dura);
+        }
+
         ActionProcedureInterpretationVisitor* ctx = nullptr;
 
         {
@@ -1158,6 +1275,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
           std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
           results[idx] = rc ? 1 : 0;
         }
+
+        v->stepDone_ = true;
       });
       threads.push_back(std::make_tuple(v, std::move(t)));
     }
@@ -1171,39 +1290,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 
       for (auto& thread : threads)
       {
+        std::get<0>(thread)->run = true;
         std::get<0>(thread)->doStep_ = true;
-      }
 
-      bool allDoneOneStep = true;
-      allDoneNoResult = true;
-
-      do
-      {
-        allDoneOneStep = true;
-        std::chrono::milliseconds dura(50);
-        std::this_thread::sleep_for(dura);
-
-        //for (auto& thread : threads)
-        for (size_t i = 0; i < threads.size(); i++)
+        while (!std::get<0>(thread)->stepDone_)
         {
-          auto& thread = threads[i];
-
-          int res;
-          {
-            std::lock_guard<std::mutex> lk(chooseSearchResultMutex);
-            res = results[i];
-          }
-
-          if (res == -1)
-            allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+          std::chrono::milliseconds dura(20);
+          std::this_thread::sleep_for(dura);
         }
       }
-      while (!allDoneOneStep);
 
-      for (auto& thread : threads)
-      {
-        std::get<0>(thread)->stepDone_ = false;
-      }
+      allDoneNoResult = true;
 
       //check if we found a result or all threads are done and we found no result
       for (successIndex = 0; successIndex < results.size(); successIndex++)
@@ -1234,6 +1331,28 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
+      for (int i = 0; i < results.size(); i++)
+      {
+        if (results[i] == 1)
+        {
+          if (std::get<0>(threads[i])->children_.size() == 0)
+          {
+            auto container = std::make_shared<BfsDataContainer>();
+            container->setState(
+                DatabaseManager::getInstance().getCloneWithNewName(
+                    std::get<0>(threads[i])->getDb()->getDbName(),
+                    "DB_" + std::to_string(getNowTicks())));
+
+            for (const auto& choice : std::get<0>(threads[i])->choices_)
+            {
+              container->addChoice(choice);
+            }
+
+            bfsStatesQueue->push_back(container);
+          }
+        }
+      }
+
       if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
       {
         std::lock_guard<std::mutex> lk(coutMutex);
@@ -1241,35 +1360,22 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
             << successIndex + 1 << std::endl;
       }
 
-      auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
-      while (threadChoices.size())
-      {
-        choices_[choices_.size() - 1].push(threadChoices.top());
-        threadChoices.pop();
-      }
-
-      choices_[choices_.size() - 1].push(successIndex);
-
       rc = Any { true };
     }
     else
+    {
       rc = Any { false };
+    }
 
     for (auto& thread : threads)
     {
       std::get<0>(thread)->cancelled_ = true;
+      std::get<0>(thread)->stepDone_ = true;
     }
 
     for (auto& thread : threads)
     {
       std::get<1>(thread).join();
-    }
-
-    if (found && name_ == "<searchMain>")
-    {
-      db_ = std::get<0>(threads[successIndex])->getDb();
-      formulaEvaluator_ = std::make_shared<FormulaEvaluator>(varTable_, db_.get());
-      formulaEvaluator_->setContext(this);
     }
 
     return rc;
@@ -1286,13 +1392,20 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     int idx = -1;
     if (choicesForOnlineExecution.empty())
     {
+      //XXX: HACKHACK if we reproduce state in BFS we execute all choices known
+      //and stop if we ran out of choices, i.e. choicesForOnlineExecution is empty!
+      if (this->name_ == "reproduceStateVisitor")
+      {
+        return Any { false };
+      }
+
       RandomNumberGenerator rng;
       idx = rng.getRandomNumber(0, set.size() - 1);
     }
     else
     {
-      idx = choicesForOnlineExecution.top();
-      choicesForOnlineExecution.pop();
+      idx = choicesForOnlineExecution.at(0);
+      choicesForOnlineExecution.erase(std::begin(choicesForOnlineExecution));
     }
 
     if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
@@ -1310,10 +1423,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     std::mutex pickSearchResultMutex;
 
     std::shared_ptr<ActionProcedureInterpretationVisitor> v = nullptr;
+
     for (size_t idx = 0; idx < set.size(); idx++)
     {
       //Fire up a temporary db, temporary varTable and search for sequence of actions
-      std::string name = "<search " + std::to_string(idx + 1) + ">";
+      std::string name = "<search " + std::to_string(idx + 1) + ", picking "
+          + tupleToString(set[idx]) + ">";
       auto tempDB = DatabaseManager::getInstance().getCloneWithNewName(db_->getDbName(),
           name + "DB_" + std::to_string(getNowTicks()));
 
@@ -1326,18 +1441,31 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
           SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
 
+      v->choices_ = this->choices_;
+      v->choices_.push_back(idx);
+      this->children_.push_back(v);
+
       {
         std::lock_guard<std::mutex> lk(pickSearchResultMutex);
         results.push_back(-1);
       }
+
       std::thread t([&pick,&set,idx,v,&results, &pickSearchResultMutex]()
       {
+        while(!v->run)
+        {
+          std::chrono::milliseconds dura(20);
+          std::this_thread::sleep_for(dura);
+        }
+
         auto ret = v->runBlockForPickedTuple(pick, set, idx,*v.get());
 
         {
           std::lock_guard<std::mutex> lk(pickSearchResultMutex);
           results[idx] = ret.get<bool>() ? 1 : 0;
         }
+
+        v->stepDone_ = true;
 
       });
       threads.push_back(std::make_tuple(v, std::move(t)));
@@ -1351,39 +1479,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     {
       for (auto& thread : threads)
       {
+        std::get<0>(thread)->run = true;
         std::get<0>(thread)->doStep_ = true;
-      }
 
-      bool allDoneOneStep = true;
-      allDoneNoResult = true;
-
-      do
-      {
-        allDoneOneStep = true;
-        std::chrono::milliseconds dura(50);
-        std::this_thread::sleep_for(dura);
-
-        //for (auto& thread : threads)
-        for (size_t i = 0; i < threads.size(); i++)
+        while (!std::get<0>(thread)->stepDone_)
         {
-          auto& thread = threads[i];
-
-          int res;
-          {
-            std::lock_guard<std::mutex> lk(pickSearchResultMutex);
-            res = results[i];
-          }
-
-          if (res == -1)
-            allDoneOneStep = allDoneOneStep && std::get<0>(thread)->stepDone_;
+          std::chrono::milliseconds dura(20);
+          std::this_thread::sleep_for(dura);
         }
       }
-      while (!allDoneOneStep);
 
-      for (auto& thread : threads)
-      {
-        std::get<0>(thread)->stepDone_ = false;
-      }
+      allDoneNoResult = true;
 
       //check if we found a result or all threads are done and we found no result
       for (successIndex = 0; successIndex < results.size(); successIndex++)
@@ -1414,20 +1520,33 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     Any rc;
     if (found)
     {
+      for (int i = 0; i < results.size(); i++)
+      {
+        if (results[i] == 1)
+        {
+          if (std::get<0>(threads[i])->children_.size() == 0)
+          {
+            auto container = std::make_shared<BfsDataContainer>();
+            container->setState(
+                DatabaseManager::getInstance().getCloneWithNewName(
+                    std::get<0>(threads[i])->getDb()->getDbName(),
+                    "DB_" + std::to_string(getNowTicks())));
+
+            for (const auto& choice : std::get<0>(threads[i])->choices_)
+            {
+              container->addChoice(choice);
+            }
+
+            bfsStatesQueue->push_back(container);
+          }
+        }
+      }
+
       if (!CommandLineArgsContainer::getInstance().getShowNoMessages())
       {
         std::cout << ">>>> " << msgPrefix_ << "Found valid 'pick' value! Picked "
             << tupleToString(set[successIndex]) << std::endl;
       }
-
-      auto threadChoices = std::get<0>(threads[successIndex])->getLastChoicesStack();
-      while (threadChoices.size())
-      {
-        choices_[choices_.size() - 1].push(threadChoices.top());
-        threadChoices.pop();
-      }
-
-      choices_[choices_.size() - 1].push(successIndex);
 
       rc = Any { true };
     }
@@ -1439,18 +1558,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     for (auto& thread : threads)
     {
       std::get<0>(thread)->cancelled_ = true;
+      std::get<0>(thread)->stepDone_ = true;
     }
 
     for (auto& thread : threads)
     {
       std::get<1>(thread).join();
-    }
-
-    if (found && name_ == "<searchMain>")
-    {
-      db_ = std::get<0>(threads[successIndex])->getDb();
-      formulaEvaluator_ = std::make_shared<FormulaEvaluator>(varTable_, db_.get());
-      formulaEvaluator_->setContext(this);
     }
 
     return rc;

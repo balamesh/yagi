@@ -59,6 +59,7 @@
 #include "../../common/ASTNodeTypes/Domains/NodeDomainStringElements.h"
 #include "../ExogenousEvents/IExogenousEventConsumer.h"
 #include "../ExogenousEvents/IExogenousEventProducer.h"
+#include "../BfsDataContainer.h"
 
 namespace yagi {
 namespace execution {
@@ -138,8 +139,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     void applyExoEventData();
 
     bool isSearch_ = false;
-    std::vector<std::stack<int>> choices_;
-    std::stack<int> choicesForOnlineExecution;
 
     std::string msgPrefix_ = "";
     std::string name_ = "<main>";
@@ -153,6 +152,16 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     std::mutex exoEventDataBufferMutex_;
 
     public:
+
+    //
+    static std::shared_ptr<std::vector<std::shared_ptr<BfsDataContainer>>> bfsStatesQueue;
+    //
+    std::vector<int> choices_;
+    std::vector<int> choicesForOnlineExecution;
+
+    std::atomic<bool> run {false};
+
+    std::vector<std::shared_ptr<ActionProcedureInterpretationVisitor>> children_;
 
     ActionProcedureInterpretationVisitor();
     ActionProcedureInterpretationVisitor(
@@ -168,6 +177,8 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
         const std::unordered_map<std::string, std::string>& variablesAndValues) override;
 
     static const std::string DOMAIN_STRING_ID;
+
+    void getBfsStatesAtLevel(int lvl, std::vector<std::shared_ptr<ActionProcedureInterpretationVisitor>> validBfsStates, std::vector<ActionProcedureInterpretationVisitor*>* res, int curLvl = 1);
 
     Any visit(NodeActionDecl& actionDecl);
     Any visit(NodeConstant& formulaConstant);
@@ -210,10 +221,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     Any visit(NodeDomainStringElements& nodeDomainStringElements);
     Any visit(NodeExogenousEventDecl& nodeExoEventDecl);
 
-    const std::stack<int>& getLastChoicesStack() const
-    {
-      return choices_[choices_.size()-1];
-    }
 
     std::shared_ptr<yagi::database::DatabaseConnectorBase>& getDb()
     {
@@ -228,11 +235,6 @@ class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     const std::string& getName() const
     {
       return name_;
-    }
-
-    std::vector<std::stack<int> >& getChoices()
-    {
-      return choices_;
     }
   };
 

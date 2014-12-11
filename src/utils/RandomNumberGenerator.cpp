@@ -5,6 +5,7 @@
  *      Author: cmaier
  */
 #include "RandomNumberGenerator.h"
+#include <chrono>
 
 namespace yagi {
 
@@ -14,7 +15,8 @@ RandomNumberGenerator::RandomNumberGenerator()
 }
 void RandomNumberGenerator::initialize()
 {
-  rng.seed(yagi::getNowTicks()); //Not cryptographcially secure, but good enough for us...
+  auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+  rng.seed(seed);
 }
 
 int RandomNumberGenerator::getRandomNumber(int lowerBound, int upperBound)

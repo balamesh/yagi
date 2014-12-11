@@ -14,6 +14,7 @@
 #include "../TreeHelper.h"
 #include "../Variables/VariableTable.h"
 #include "../../utils/CommandLineArgsContainer.h"
+#include "NumericStringCompare.h"
 
 namespace yagi {
 namespace formula {
@@ -313,16 +314,16 @@ bool FormulaEvaluator::performValueValueComparison(const std::string& lhs, const
       return lhs == rhs;
 
     case AtomConnective::Ge:
-      return lhs >= rhs;
+      return !numeric_string_compare(lhs,rhs) || lhs == rhs;
 
     case AtomConnective::Gt:
-      return lhs > rhs;
+      return !numeric_string_compare(lhs,rhs) && lhs != rhs;
 
     case AtomConnective::Le:
-      return lhs <= rhs;
+      return numeric_string_compare(lhs,rhs) || lhs == rhs;
 
     case AtomConnective::Lt:
-      return lhs < rhs;
+      return numeric_string_compare(lhs,rhs);
 
     case AtomConnective::Neq:
       return lhs != rhs;
