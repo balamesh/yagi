@@ -988,7 +988,12 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
     {
       for (const auto& stmt : statements)
       {
-        stmt->accept(*this);
+        auto ret = stmt->accept(*this);
+
+        if (ret.hasType<bool>() && ret.get<bool>() == false) //YagiTrans does not hold
+        {
+          return Any { false };
+        }
 
         if (isSearch_ && cancelled_ && name_ != "<searchMain>")
         {
@@ -996,7 +1001,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
         }
       }
     }
-    return Any { };
+    return Any { true };
   }
 }
 
