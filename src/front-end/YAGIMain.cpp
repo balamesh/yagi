@@ -25,6 +25,9 @@
 #include "../utils/StringManipulationHelper.h"
 
 #include <chrono>
+#include <iosfwd>
+
+using std::ofstream;
 
 using namespace yagi::formula;
 using namespace yagi::execution;
@@ -78,6 +81,12 @@ int main(int argc, char * argv[])
   signal(SIGINT, executeProgram);
   displayWelcome();
 
+  //if a filename was passed run its content directly
+  if (!yagi::container::CommandLineArgsContainer::getInstance().getFileName().empty())
+  {
+    execute(yagi::container::CommandLineArgsContainer::getInstance().getFileName(), true);
+  }
+
   std::string line;
 
   do
@@ -121,17 +130,23 @@ void parseCommandLineArgs(int argc, char* argv[])
   false);
   cmd.add(debugMsg);
 
-  TCLAP::SwitchArg noMsg("n", "showNoMsg", "Shows no messages at all. Primarily for runtime measurements.",
-    false);
-  cmd.add(noMsg);
+  TCLAP::SwitchArg doPerfMeas("p", "perf", "Measure and save performance stats.", false);
+  cmd.add(doPerfMeas);
+
+  TCLAP::ValueArg<std::string> useThisFileAsInput("f", "file", "Use this YAGI file as input.",
+  false, "", "");
+  cmd.add(useThisFileAsInput);
 
   cmd.parse(argc, argv);
 
   yagi::container::CommandLineArgsContainer::getInstance().setShowDebugMessages(
       debugMsg.getValue());
 
-  yagi::container::CommandLineArgsContainer::getInstance().setShowNoMessages(
-       noMsg.getValue());
+  yagi::container::CommandLineArgsContainer::getInstance().setMeasurePerformance(
+      doPerfMeas.getValue());
+
+  yagi::container::CommandLineArgsContainer::getInstance().setFileName(
+      useThisFileAsInput.getValue());
 }
 
 bool isExit(const std::string& line)
@@ -149,18 +164,18 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 
 bool isSuffixOf(const std::string& potentialSuffix, const std::string& text)
 {
-  auto res = std::mismatch(potentialSuffix.rbegin(), potentialSuffix.rend(),
-      text.rbegin());
+  auto res = std::mismatch(potentialSuffix.rbegin(), potentialSuffix.rend(), text.rbegin());
 
   return (res.first == potentialSuffix.rend());
 }
 
 bool isFromFile(const std::string& line)
 {
-  std::string tmp{line};
+  std::string tmp { line };
 
   //c++11 regex is still not available in this compiler version, so this must suffice for the moment.
-  return isPrefixOf(std::string { "import(" }, trim(tmp)) && isSuffixOf(std::string{");"}, trim(tmp));
+  return isPrefixOf(std::string { "import(" }, trim(tmp))
+      && isSuffixOf(std::string { ");" }, trim(tmp));
 }
 
 bool execute(const std::string& line, bool isFileName)
@@ -210,7 +225,7 @@ bool execute(const std::string& line, bool isFileName)
   //AST from the file
   auto stmts = prog->getProgram();
 
-  int idx=0;
+  int idx = 0;
   for (const auto& stmt : stmts)
   {
     if (auto include = std::dynamic_pointer_cast<NodeInclude>(stmt))
@@ -224,7 +239,7 @@ bool execute(const std::string& line, bool isFileName)
         if (!includedProg)
           throw std::runtime_error("Included AST root is no program!");
 
-        prog->insertStatements(includedProg->getProgram(),idx);
+        prog->insertStatements(includedProg->getProgram(), idx);
       }
       catch (std::runtime_error& error)
       {
@@ -240,6 +255,14 @@ bool execute(const std::string& line, bool isFileName)
 
   typedef std::chrono::high_resolution_clock Clock;
   auto t1 = Clock::now();
+
+  if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
+  {
+    ofstream perfStatsFile;
+    perfStatsFile.open(std::string { "perfStats.txt" }, std::ofstream::app);
+    perfStatsFile << "Starting testcase..." << std::endl;
+    perfStatsFile.close();
+  }
 
   for (const auto& stmt : stmts)
   {
@@ -314,10 +337,16 @@ bool execute(const std::string& line, bool isFileName)
     }
   }
 
-  auto t2 = Clock::now();
-  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-  std::cout << "Execution Time [ms]: " << ms.count() << std::endl;
+  if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
+  {
+    auto t2 = Clock::now();
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 
+    ofstream perfStatsFile;
+    perfStatsFile.open(std::string { "perfStats.txt" }, std::ofstream::app);
+    perfStatsFile << "Execution Time [ms]: " << ms.count() << std::endl;
+    perfStatsFile.close();
+  }
 
   return true;
 }

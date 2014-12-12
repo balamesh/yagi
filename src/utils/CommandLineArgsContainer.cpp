@@ -11,7 +11,7 @@ namespace yagi {
 namespace container {
 
 CommandLineArgsContainer::CommandLineArgsContainer() :
-    showDebugMessages_(false), showNoMessages_(false)
+    showDebugMessages_(false), measurePerformance_(false), fileName_("")
 {
 
 }

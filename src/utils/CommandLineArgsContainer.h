@@ -8,6 +8,8 @@
 #ifndef COMMANDLINEARGSCONTAINER_H_
 #define COMMANDLINEARGSCONTAINER_H_
 
+#include <string>
+
 namespace yagi {
 namespace container {
 
@@ -16,12 +18,16 @@ class CommandLineArgsContainer
   {
     private:
       CommandLineArgsContainer();
-      ~CommandLineArgsContainer() {};
+      ~CommandLineArgsContainer()
+      {
+      }
+      ;
       CommandLineArgsContainer(CommandLineArgsContainer const&);
       void operator=(CommandLineArgsContainer const&);
 
       bool showDebugMessages_;
-      bool showNoMessages_;
+      bool measurePerformance_;
+      std::string fileName_;
 
     public:
       static CommandLineArgsContainer& getInstance()
@@ -40,14 +46,24 @@ class CommandLineArgsContainer
         showDebugMessages_ = showDebugMessages;
       }
 
-      bool getShowNoMessages() const
+      bool measurePerformance() const
       {
-        return showNoMessages_;
+        return measurePerformance_;
       }
 
-      void setShowNoMessages(bool showNoMessages)
+      void setMeasurePerformance(bool measurePerformance)
       {
-        showNoMessages_ = showNoMessages;
+        measurePerformance_ = measurePerformance;
+      }
+
+      const std::string& getFileName() const
+      {
+        return fileName_;
+      }
+
+      void setFileName(const std::string& fileName)
+      {
+        fileName_ = fileName;
       }
   };
 
