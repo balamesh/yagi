@@ -26,6 +26,15 @@ class NodeProgram: public ASTNodeBase<>
       program[idx] = statement;
     }
 
+    void insertStatements(std::vector<std::shared_ptr<ASTNodeBase<>>> statements, int idx)
+    {
+      for (const auto& stmt : statements)
+      {
+        program.insert(std::begin(program)+idx, stmt);
+        idx++;
+      }
+    }
+
     const std::vector<std::shared_ptr<ASTNodeBase<> > >& getProgram() const
     {
       return program;

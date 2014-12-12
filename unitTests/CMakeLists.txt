@@ -215,6 +215,8 @@ add_executable(yagi-unitTests
 ../src/back-end/BfsDataContainer.h
 ../src/back-end/BfsDataContainer.cpp
 ../src/back-end/Formulas/NumericStringCompare.h
+../src/common/ASTNodeTypes/ProgramStructure/NodeInclude.h
+../src/common/ASTNodeTypes/ProgramStructure/NodeInclude.cpp
 
 ../src/unitTests/UnitTestHelper.h
 ../src/unitTests/UnitTestHelper.cpp

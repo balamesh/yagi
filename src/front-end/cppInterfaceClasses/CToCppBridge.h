@@ -20,6 +20,7 @@ extern "C"
       void (*addProgramCallback)();
       void (*addBlockCallback)();
       void (*consumeBlockCallback)();
+      void (*addIncludeCallback)();
 
       //Declarations
       void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
@@ -106,6 +107,8 @@ extern "C"
 #define ADD_PROGRAM() yagiCallbackCollection.addProgramCallback()
 #define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
 #define CONSUME_BLOCK() yagiCallbackCollection.consumeBlockCallback()
+#define ADD_INCLUDE() yagiCallbackCollection.addIncludeCallback()
+
 
 //Declarations
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)

@@ -20,7 +20,7 @@ options
 //Basic program structure
 //******************************************************************************
 program	
-	:  (declaration | statement)+
+	:  (declaration | statement | include)+
 	{
 	    ADD_PROGRAM();
         }
@@ -29,6 +29,9 @@ program
 	
 block	
 	: ^(IT_BLOCK ({ADD_BLOCK();}) (statement {CONSUME_STATEMENT();})+)
+	;
+	
+include : ^(IT_INCLUDE STRING ({ADD_STRING($STRING->toString($STRING)); ADD_INCLUDE();}))
 	;
 	
 //******************************************************************************

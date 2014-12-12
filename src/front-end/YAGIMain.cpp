@@ -206,7 +206,37 @@ bool execute(const std::string& line, bool isFileName)
   if (!prog)
     throw std::runtime_error("AST root is no program!");
 
+  //check for imports: if any import nodes present replace the node with the important
+  //AST from the file
   auto stmts = prog->getProgram();
+
+  int idx=0;
+  for (const auto& stmt : stmts)
+  {
+    if (auto include = std::dynamic_pointer_cast<NodeInclude>(stmt))
+    {
+      try
+      {
+        auto includeAst = ANTLRParser::parseYAGICodeFromFile(include->getIncludeFileName(),
+            yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages());
+
+        auto includedProg = std::dynamic_pointer_cast<NodeProgram>(includeAst);
+        if (!includedProg)
+          throw std::runtime_error("Included AST root is no program!");
+
+        prog->insertStatements(includedProg->getProgram(),idx);
+      }
+      catch (std::runtime_error& error)
+      {
+        std::cout << "[INTERNAL ERROR]: " << error.what() << std::endl;
+        return true;
+      }
+    }
+
+    idx++;
+  }
+
+  stmts = prog->getProgram();
 
   typedef std::chrono::high_resolution_clock Clock;
   auto t1 = Clock::now();

@@ -60,6 +60,7 @@
 #include "../../common/ASTNodeTypes/Statements/NodeSearch.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodePatternMatching.h"
 #include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
+#include "../../common/ASTNodeTypes/ProgramStructure/NodeInclude.h"
 
 class ASTBuilder final
 {
@@ -87,6 +88,7 @@ class ASTBuilder final
     void addDomainStringNode();
     void addDomainIntegerNode();
     void consumeDomain();
+    void addInclude();
 
     void addFluentDeclNode(const std::string& fluentName);
     void addProgram();

@@ -295,6 +295,11 @@ namespace YAGICallbackConnector
     ASTBuilder::getInstance().addSearch();
   }
 
+  void addInclude()
+  {
+    ASTBuilder::getInstance().addInclude();
+  }
+
   void connectCallbacks()
   {
     yagiCallbackCollection.addFluentDeclCallback = addFluent;
@@ -372,6 +377,8 @@ namespace YAGICallbackConnector
     yagiCallbackCollection.addWhileLoopCallback = addWhileLoop;
     yagiCallbackCollection.addSearchCallback = addSearch;
 
+
+    yagiCallbackCollection.addIncludeCallback = addInclude;
   }
 
 }

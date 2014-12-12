@@ -151,6 +151,8 @@ TOKEN_FOR_EACH
 	=	'foreach'
 	;
 
+TOKEN_INCLUDE = '@include';
+	
   IT_FLUENT_DECL; 
   IT_STRING_SET;
   IT_TUPLE_SET;
@@ -198,13 +200,14 @@ TOKEN_FOR_EACH
   IT_LE;
   IT_ATOM_SETEXPR;
   IT_ATOM_VALEXPR;
+  IT_INCLUDE;
 } 
 
 //******************************************************************************
 //Basic program structure
 //******************************************************************************
 program	
-	:	(declaration | statement)+
+	:	(declaration | statement | include)+
 	;
 	
 block	
@@ -212,7 +215,12 @@ block
 
 		-> ^(IT_BLOCK statement+)
 	;
-	
+
+include :	TOKEN_INCLUDE STRING TOKEN_EOL
+
+	        -> ^(IT_INCLUDE STRING)
+	; 
+	      
 //******************************************************************************
 //Declarations
 //******************************************************************************

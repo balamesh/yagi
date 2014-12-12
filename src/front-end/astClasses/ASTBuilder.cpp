@@ -173,6 +173,19 @@ void ASTBuilder::addStringNode(const std::string& stringVal)
   ast.push(stringNode);
 }
 
+void ASTBuilder::addInclude()
+{
+  auto includeNode = std::make_shared<NodeInclude>();
+
+  auto filenameNode = getFrontElement<NodeString>();
+  if (filenameNode == nullptr)
+    throw std::runtime_error("No NodeString for @include node!");
+  ast.pop();
+
+  includeNode->setIncludeFileName(filenameNode->getString());
+  ast.push(includeNode);
+}
+
 void ASTBuilder::addValueExpressionNode()
 {
   auto valExpr = std::make_shared<NodeValueExpression>();

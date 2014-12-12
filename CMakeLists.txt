@@ -203,6 +203,8 @@ src/utils/StringManipulationHelper.h
 src/back-end/BfsDataContainer.h
 src/back-end/BfsDataContainer.cpp
 src/back-end/Formulas/NumericStringCompare.h
+src/common/ASTNodeTypes/ProgramStructure/NodeInclude.h
+src/common/ASTNodeTypes/ProgramStructure/NodeInclude.cpp
 )
 
 target_link_libraries(yagi antlr3c readline ${SQLITE_LIBRARIES})
@@ -385,6 +387,8 @@ src/utils/StringManipulationHelper.h
 src/back-end/BfsDataContainer.h
 src/back-end/BfsDataContainer.cpp
 src/back-end/Formulas/NumericStringCompare.h
+src/common/ASTNodeTypes/ProgramStructure/NodeInclude.h
+src/common/ASTNodeTypes/ProgramStructure/NodeInclude.cpp
 )
 
 set_target_properties(yagi-asrael PROPERTIES COMPILE_FLAGS -DASRAEL)

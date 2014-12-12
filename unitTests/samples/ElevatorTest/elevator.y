@@ -29,7 +29,7 @@ end action
 action up($n)
 precondition:
   exists <$x> in floors
-  such (currFloor == {<$x>} and ($x < $n and $n != "0"));
+  such (currFloor == {<$x>} and $x < $n);
 effect:
   currFloor = {<$n>};
 signal:
@@ -39,27 +39,26 @@ end action
 action down($n)
 precondition:
   exists <$x> in floors
-  such (currFloor == {<$x>} and ($x > $n and $n != "0"));
+  such (currFloor == {<$x>} and $x > $n);
 effect:
   currFloor = {<$n>};  
 signal:
   "Move down to floor " + $n;
 end action
 
-action park()
-  effect:
-    currFloor = {<"0">};
-  signal:
-    "Parking the elevator!";
-end action
+proc park()
+  if (currFloor != {<"0">}) then
+    down("0");
+  end if
+  
+  open();
+end proc
 
 proc goto($n)
-  if (currFloor != {<$n>}) then
-    choose
-      up($n);
-    or
-     down($n);
-    end choose
+  if (exists <$x> in currFloor such $x < $n) then
+    up($n);
+  else
+    down($n);
   end if
 end proc
 
@@ -77,11 +76,11 @@ proc serveafloor()
 end proc
 
 proc control()
-  while exists <$n> in fon do
-    serveafloor();
-  end while
+    while exists <$n> in fon do
+      serveafloor();
+    end while
   
-  park();
+    park();
 end proc
 
 control();
