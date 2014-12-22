@@ -82,9 +82,14 @@ int main(int argc, char * argv[])
   displayWelcome();
 
   //if a filename was passed run its content directly
-  if (!yagi::container::CommandLineArgsContainer::getInstance().getFileName().empty())
+  if (!yagi::container::CommandLineArgsContainer::getInstance().getInputFileName().empty())
   {
-    execute(yagi::container::CommandLineArgsContainer::getInstance().getFileName(), true);
+    execute(yagi::container::CommandLineArgsContainer::getInstance().getInputFileName(), true);
+
+    if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
+    {
+      return EXIT_SUCCESS;
+    }
   }
 
   std::string line;
@@ -133,9 +138,14 @@ void parseCommandLineArgs(int argc, char* argv[])
   TCLAP::SwitchArg doPerfMeas("p", "perf", "Measure and save performance stats.", false);
   cmd.add(doPerfMeas);
 
-  TCLAP::ValueArg<std::string> useThisFileAsInput("f", "file", "Use this YAGI file as input.",
+  TCLAP::ValueArg<std::string> useThisFileAsInput("f", "ifile", "Use this YAGI file as input.",
   false, "", "");
   cmd.add(useThisFileAsInput);
+
+  TCLAP::ValueArg<std::string> useThisFileAsOutput("o", "ofile",
+      "Use this YAGI file to store perf outputs.",
+      false, "", "");
+  cmd.add(useThisFileAsOutput);
 
   cmd.parse(argc, argv);
 
@@ -145,8 +155,11 @@ void parseCommandLineArgs(int argc, char* argv[])
   yagi::container::CommandLineArgsContainer::getInstance().setMeasurePerformance(
       doPerfMeas.getValue());
 
-  yagi::container::CommandLineArgsContainer::getInstance().setFileName(
+  yagi::container::CommandLineArgsContainer::getInstance().setInputFileName(
       useThisFileAsInput.getValue());
+
+  yagi::container::CommandLineArgsContainer::getInstance().setOutputFileName(
+      useThisFileAsOutput.getValue());
 }
 
 bool isExit(const std::string& line)
@@ -258,12 +271,20 @@ bool execute(const std::string& line, bool isFileName)
 
   if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
   {
+    auto fileName = yagi::container::CommandLineArgsContainer::getInstance().getOutputFileName();
+    if (fileName.empty())
+    {
+      fileName = "perfStats.txt";
+    }
+
+
     ofstream perfStatsFile;
-    perfStatsFile.open(std::string { "perfStats.txt" }, std::ofstream::app);
+    perfStatsFile.open(fileName, std::ofstream::app);
     perfStatsFile << "Starting testcase..." << std::endl;
     perfStatsFile.close();
   }
 
+  bool success = true;
   for (const auto& stmt : stmts)
   {
     if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
@@ -317,7 +338,13 @@ bool execute(const std::string& line, bool isFileName)
 
       try
       {
-        rewrittenStmt->accept(interpreter);
+        auto ret = rewrittenStmt->accept(interpreter);
+
+        if (ret.hasType<bool>() && !ret.get<bool>())
+        {
+          success = false;
+        }
+
       }
       catch (const std::exception& ex)
       {
@@ -328,7 +355,12 @@ bool execute(const std::string& line, bool isFileName)
     {
       try
       {
-        stmt->accept(interpreter);
+        auto ret = stmt->accept(interpreter);
+
+        if (ret.hasType<bool>() && !ret.get<bool>())
+        {
+          success = false;
+        }
       }
       catch (const std::exception& ex)
       {
@@ -342,9 +374,15 @@ bool execute(const std::string& line, bool isFileName)
     auto t2 = Clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
 
+    auto fileName = yagi::container::CommandLineArgsContainer::getInstance().getOutputFileName();
+    if (fileName.empty())
+    {
+      fileName = "perfStats.txt";
+    }
+
     ofstream perfStatsFile;
-    perfStatsFile.open(std::string { "perfStats.txt" }, std::ofstream::app);
-    perfStatsFile << "Execution Time [ms]: " << ms.count() << std::endl;
+    perfStatsFile.open(fileName, std::ofstream::app);
+    perfStatsFile << (success ? 1 : 0) << ";" << ms.count() << "ms" << std::endl;
     perfStatsFile.close();
   }
 

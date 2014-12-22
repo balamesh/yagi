@@ -1135,7 +1135,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
   //if the if-condition doesn't hold and there is no else-block we're done
   if (!statements.size())
   {
-    return Any { false };
+    return Any { true };
   }
 
   for (const auto& stmt : statements)

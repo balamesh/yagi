@@ -27,7 +27,8 @@ class CommandLineArgsContainer
 
       bool showDebugMessages_;
       bool measurePerformance_;
-      std::string fileName_;
+      std::string inputFileName_;
+      std::string outputFileName_;
 
     public:
       static CommandLineArgsContainer& getInstance()
@@ -56,14 +57,24 @@ class CommandLineArgsContainer
         measurePerformance_ = measurePerformance;
       }
 
-      const std::string& getFileName() const
+      const std::string& getInputFileName() const
       {
-        return fileName_;
+        return inputFileName_;
       }
 
-      void setFileName(const std::string& fileName)
+      void setInputFileName(const std::string& fileName)
       {
-        fileName_ = fileName;
+        inputFileName_ = fileName;
+      }
+
+      const std::string& getOutputFileName() const
+      {
+        return outputFileName_;
+      }
+
+      void setOutputFileName(const std::string& outputFileName)
+      {
+        outputFileName_ = outputFileName;
       }
   };
 
