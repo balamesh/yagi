@@ -31,7 +31,7 @@ TEST(ExprTest, exprTest)
         yagi::fluentDBDataToString(
             db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("f"))));
 
-    std::string expectedF2 { "{<\"a\">}" };
+    std::string expectedF2 { "{<\"2\">}" };
     EXPECT_EQ(expectedF2,
         yagi::fluentDBDataToString(
             db->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll("f2"))));

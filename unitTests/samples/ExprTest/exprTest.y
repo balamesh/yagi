@@ -21,7 +21,7 @@ end action
 
 valExprTest("42");
 
-f2 = f + f;
+f2 = f3 + f3;
 f3 = f1 - f1;
 g = {<"b","x">} + {<"a","y">};
 f = f + {<"b">};

@@ -1100,6 +1100,31 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
     throw std::runtime_error("Unknown sit calc action!");
   }
 
+  //Enforce action precondition of add/remove, i.e. the elements
+  //must be part of the sort of the corresponding domain
+  for (int argIdx = 0; argIdx < argList.size(); argIdx++)
+  {
+    if (!db_->executeQuery(
+        SQLGenerator::getInstance().getSqlStringExistsDomainTable(fluentName, argIdx + 1)).size())
+    {
+      std::cout
+          << "SitCalc action precondition does not hold! Arity mismatch! Unable to continue, possibly invalid situation!"
+          << std::endl;
+      std::terminate();
+    }
+
+    auto sortVals = db_->executeQuery(
+        SQLGenerator::getInstance().getSqlStringGetDomainElements(fluentName, argIdx + 1));
+    if (std::find(std::begin(sortVals[0]), std::end(sortVals[0]), argList[argIdx])
+        == std::end(sortVals[0]))
+    {
+      std::cout
+          << "SitCalc action precondition does not hold! Unable to continue, possibly invalid situation!"
+          << std::endl;
+      std::terminate();
+    }
+  }
+
 //YAGI uses *only* addF and removeF as sitcalc actions per fluent F.
 //These actions are specified to make a fluent true (or false) for a specific
 //parameter vector, i.e. a YAGI tuple.
@@ -1132,7 +1157,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeConditional& conditional)
 
   bool success = true;
 
-  //if the if-condition doesn't hold and there is no else-block we're done
+//if the if-condition doesn't hold and there is no else-block we're done
   if (!statements.size())
   {
     return Any { true };

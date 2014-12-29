@@ -165,6 +165,13 @@ std::string SQLGenerator::getSqlStringGetDomainElements(const std::string& fluen
   return getSqlStringSelectAll(tableName);
 }
 
+std::string SQLGenerator::getSqlStringExistsDomainTable(const std::string& fluentName,
+    int dimension)
+{
+  std::string tableName = fluentName + "_domain_dim" + std::to_string(dimension);
+  return getSqlStringExistsTable(tableName);
+}
+
 std::string SQLGenerator::getSqlStringExistsTable(const std::string& tableName)
 {
   return "SELECT * FROM sqlite_master WHERE name = '" + tableName + "' AND type='table'";

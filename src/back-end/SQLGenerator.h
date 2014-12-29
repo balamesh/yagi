@@ -69,6 +69,7 @@ class SQLGenerator
     std::string getSqlStringNumberOfColumnsInTable(const std::string& tableName);
     std::string getSqlStringGetAllTableNames();
     std::string getSqlStringGetDomainElements(const std::string& fluentName, int dimension);
+    std::string getSqlStringExistsDomainTable(const std::string& fluentName, int dimension);
 };
 
 #endif /* SQLGENERATOR_H_ */
