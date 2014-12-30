@@ -1,46 +1,42 @@
-#include <iostream>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <assert.h>
-#include <algorithm>
-#include <memory>
-#include <fstream>
-#include <streambuf>
-#include <signal.h>
-#include <exception>
-#include <readline/readline.h>
+#include <antlr3convertutf.h>
 #include <readline/history.h>
-#include <tclap/CmdLine.h>
+#include <readline/readline.h>
+#include <readline/rltypedefs.h>
+#include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "astClasses/YAGICallbackConnector.h"
-#include "../common/ASTNodeTypes/ASTNodeBase.h"
-#include "astVisitors/ToStringVisitor.h"
-#include "astVisitors/TypeCheckVisitor.h"
+#include "../../tclap-1.2.1/include/tclap/CmdLine.h"
+#include "../../tclap-1.2.1/include/tclap/SwitchArg.h"
+#include "../../tclap-1.2.1/include/tclap/ValueArg.h"
 #include "../back-end/ASTVisitors/MainInterpretationVisitor.h"
-#include "ANTLRParser.h"
-#include "../back-end/Formulas/FormulaEvaluator.h"
 #include "../back-end/ASTVisitors/RewritingVisitor.h"
+#include "../common/ASTNodeTypes/ASTNodeBase.h"
+#include "../common/ASTNodeTypes/ProgramStructure/NodeInclude.h"
+#include "../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
+#include "../common/ASTNodeTypes/Statements/NodeForLoop.h"
+#include "../utils/Any.h"
 #include "../utils/CommandLineArgsContainer.h"
 #include "../utils/StringManipulationHelper.h"
-
-#include <chrono>
-#include <iosfwd>
+#include "astClasses/ASTBuilder.h"
+#include "astClasses/YAGICallbackConnector.h"
+#include "astVisitors/ToStringVisitor.h"
+#include "astVisitors/TypeCheckVisitor.h"
+#include "ANTLRParser.h"
 
 using std::ofstream;
 
 using namespace yagi::formula;
 using namespace yagi::execution;
-
-//#pragma GCC diagnostic error "-Wuninitialized"
-//    foo(a);         /* error is given for this one */
-//#pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wuninitialized"
-//    foo(b);         /* no diagnostic for this one */
-//#pragma GCC diagnostic pop
-//   foo(c);         /* error is given for this one */
-//#pragma GCC diagnostic pop
-//    foo(d);         /* depends on command line options *
 
 void parseCommandLineArgs(int argc, char* argv[]);
 bool execute(const std::string&, bool);
@@ -49,19 +45,11 @@ bool isFromFile(const std::string&);
 bool isExit(const std::string&);
 void displayWelcome();
 
-std::vector<std::string> lines;
-bool sigTriggered = true;
-void executeProgram(int sig)
+int addMultilineCommand(int, int)
 {
-  sigTriggered = true;
-
-  std::string program = "";
-  std::for_each(std::begin(lines), std::end(lines), [&program](const std::string& line)
-  { program += " " + line;});
-
-  add_history(program.c_str());
-  execute(program, false);
-  lines.clear();
+  printf("\n.......");
+  rl_done = 0;
+  return 0;
 }
 
 int main(int argc, char * argv[])
@@ -77,8 +65,11 @@ int main(int argc, char * argv[])
     exit(EXIT_FAILURE);
   }
 
+  rl_command_func_t addMultilineCommand;
+  rl_bind_keyseq("\\C-n", addMultilineCommand);
+
   YAGICallbackConnector::connectCallbacks();
-  signal(SIGINT, executeProgram);
+
   displayWelcome();
 
   //if a filename was passed run its content directly
@@ -97,30 +88,29 @@ int main(int argc, char * argv[])
   do
   {
     char* buffer = nullptr;
-    if (sigTriggered)
-    {
-      buffer = readline("YAGI>> ");
-      sigTriggered = false;
-    }
-    else
-      buffer = readline(".......");
+
+    buffer = readline("YAGI>> ");
 
     if (buffer == nullptr)
       break;
     else
-      line = buffer;
-
-    lines.push_back(line);
-
-    if (isExit(line))
-      break;
-
-    if (isFromFile(line))
     {
-      std::string fname = parseFileName(line);
-      execute(fname, true);
-      sigTriggered = true;
-      lines.clear();
+      line = std::string(buffer);
+
+      if (isExit(line))
+        break;
+
+      add_history(line.c_str());
+
+      if (isFromFile(line))
+      {
+        std::string fname = parseFileName(line);
+
+        execute(fname, true);
+        continue;
+      }
+
+      execute(line, false);
     }
   }
   while (true);
@@ -277,7 +267,6 @@ bool execute(const std::string& line, bool isFileName)
       fileName = "perfStats.txt";
     }
 
-
     ofstream perfStatsFile;
     perfStatsFile.open(fileName, std::ofstream::app);
     perfStatsFile << "Starting testcase..." << std::endl;
@@ -399,11 +388,11 @@ std::string parseFileName(const std::string& importCmd)
 
 void displayWelcome()
 {
-  std::cout << "*************************************************************" << std::endl;
-  std::cout << "*Welcome to the YAGI Shell!                                 *" << std::endl;
-  std::cout << "*You can enter multiline statements by pressing [ENTER].    *" << std::endl;
-  std::cout << "*Press [CTRL+C] to execute the entered command              *" << std::endl;
-  std::cout << "*Press [CTRL+D] (or enter 'exit') to quit the application   *" << std::endl;
-  std::cout << "*Write 'import(\"myFile.txt\");' to load a YAGI src file      *" << std::endl;
-  std::cout << "*************************************************************" << std::endl;
+  std::cout << "***********************************************************" << std::endl;
+  std::cout << "*Welcome to the YAGI Shell!                               *" << std::endl;
+  std::cout << "*You can enter multiline statements by pressing [ctrl-n]. *" << std::endl;
+  std::cout << "*Press [ENTER] to execute the entered command             *" << std::endl;
+  std::cout << "*Enter 'exit' to quit the application                     *" << std::endl;
+  std::cout << "*Write 'import(\"myFile.txt\");' to load a YAGI src file    *" << std::endl;
+  std::cout << "***********************************************************" << std::endl;
 }
