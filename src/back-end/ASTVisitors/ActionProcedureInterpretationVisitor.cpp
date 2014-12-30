@@ -1107,8 +1107,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
     if (!db_->executeQuery(
         SQLGenerator::getInstance().getSqlStringExistsDomainTable(fluentName, argIdx + 1)).size())
     {
+      std::string errorMsg { "SitCalc action: '" };
+
+      errorMsg += (
+          actionType == SitCalcActionType::AddAssign ? std::string("add") : std::string("remove"))
+          + "' ";
+      errorMsg += "Fluent Name: '" + fluentName + "' ";
+      errorMsg += "Parameters: " + tupleToString(argList);
+
       std::cout
-          << "SitCalc action precondition does not hold! Arity mismatch! Unable to continue, possibly invalid situation!"
+          << "SitCalc action precondition does not hold! Arity mismatch! Unable to continue, possibly invalid situation!\n"
+          << errorMsg
           << std::endl;
       std::terminate();
     }
@@ -1118,8 +1127,17 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
     if (std::find(std::begin(sortVals[0]), std::end(sortVals[0]), argList[argIdx])
         == std::end(sortVals[0]))
     {
+      std::string errorMsg { "SitCalc action: '" };
+
+      errorMsg += (
+          actionType == SitCalcActionType::AddAssign ? std::string("add") : std::string("remove"))
+          + "' ";
+      errorMsg += "Fluent Name: '" + fluentName + "' ";
+      errorMsg += "Parameters: " + tupleToString(argList);
+
       std::cout
-          << "SitCalc action precondition does not hold! Unable to continue, possibly invalid situation!"
+          << "SitCalc action precondition does not hold! Unable to continue, possibly invalid situation!\n"
+          << errorMsg
           << std::endl;
       std::terminate();
     }
