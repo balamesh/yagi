@@ -1134,7 +1134,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
       errorMsg += "Parameters: " + tupleToString(argList);
 
       std::cout
-          << "SitCalc action precondition does not hold! Unable to continue, possibly invalid situation!\n"
+          << "SitCalc action precondition does not hold! Argument: '"<< argList[argIdx] << "' at position " << argIdx << " is not specified within the domain! Unable to continue, possibly invalid situation!\n"
           << errorMsg
           << std::endl;
       std::terminate();
