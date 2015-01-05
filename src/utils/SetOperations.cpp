@@ -1,9 +1,11 @@
-/*
- * SetOperations.cpp
+/**
+ * @file   SetOperations.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 23, 2014
- *      Author: cmaier
+ * Mathematical set operations for YAGI sets.
  */
+
 #include "SetOperations.h"
 
 namespace yagi {

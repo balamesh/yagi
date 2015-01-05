@@ -1,8 +1,9 @@
-/*
- * ToStringVisitor.cpp
+/**
+ * @file   ToStringVisitor.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: May 22, 2014
- *      Author: cmaier
+ * Prints a string representation of the C++ AST structure. Primarily used for debugging.
  */
 
 #include "ToStringVisitor.h"

@@ -1,8 +1,10 @@
-/*
- * CommandLineArgsContainer.cpp
+/**
+ * @file   CommandLineArgsContainer.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Aug 9, 2014
- *      Author: cmaier
+ * Container the stores the parameters passed via the commandline
+ * to the application.
  */
 
 #include "CommandLineArgsContainer.h"

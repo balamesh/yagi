@@ -1,9 +1,11 @@
-/*
- * CustomComparers.cpp
+/**
+ * @file   CustomComparers.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 22, 2014
- *      Author: cmaier
+ * Custom comparing functions for YAGI tuples.
  */
+
 #include "CustomComparers.h"
 
 namespace yagi {

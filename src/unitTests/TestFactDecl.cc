@@ -1,9 +1,11 @@
-/*
- * TestFactDecl.h
+/**
+ * @file   TestFactDecl.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 8, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for fact declarations.
  */
+
 #ifndef TESTFACTDECL_H_
 #define TESTFACTDECL_H_
 
@@ -14,6 +16,9 @@
 #include "../back-end/SQLGenerator.h"
 #include "../back-end/ASTVisitors/ActionProcedureInterpretationVisitor.h"
 
+/**
+ * Runs YAGI program 'factUserDomain.y'
+ */
 TEST(FactDeclTest, factUserDomain)
 {
   try
@@ -63,6 +68,9 @@ TEST(FactDeclTest, factUserDomain)
 
 }
 
+/**
+ * Runs YAGI program 'factStringDomain.y'
+ */
 TEST(FactDeclTest, factStringDomain)
 {
   try
@@ -96,6 +104,10 @@ TEST(FactDeclTest, factStringDomain)
   cleanupDatabase();
 }
 
+/**
+ * Runs YAGI program 'factZeroArity.y'
+ * !!This throws because the feature is not implemented yet!!
+ */
 TEST(FactDeclTest, factZeroArity)
 {
   auto ast = yagi::unitTestHelper::tryParse("samples/FactDeclTest/factZeroArity.y");

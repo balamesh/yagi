@@ -1,8 +1,7 @@
-/*
- * ActionProcedureInterpretationVisitor.h
- *
- *  Created on: Jul 19, 2014
- *      Author: cmaier
+/**
+ * @file   ActionProcedureInterpretationVisitor.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  */
 
 #ifndef ACTIONPROCEDUREINTERPRETATIONVISITOR_H_
@@ -82,6 +81,10 @@ class IFormulaEvaluator;
 namespace yagi {
 namespace execution {
 
+/**
+ * Responsible for executing a YAGI program, i.e. traversing the AST via the implemented
+ * visitor methods and executing the appropriate actions.
+ */
 class ActionProcedureInterpretationVisitor: public IExogenousEventConsumer,
     public ASTNodeVisitorBase,
     public Visitor<NodeActionDecl>,

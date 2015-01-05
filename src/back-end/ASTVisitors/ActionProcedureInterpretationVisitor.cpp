@@ -409,7 +409,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
     throw std::runtime_error("No Database passed to InterpretationVisitor!");
 
   auto actionOrProcName = procExec.getProcToExecName()->accept(*this).get<std::string>();
-  bool procExecRetVal;
+  bool procExecRetVal = true;
 
   std::vector<std::string> argList { };
   if (auto paramNode = procExec.getParameters())
@@ -892,7 +892,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 {
   auto statements = whileLoop.getBlock()->getStatements();
   bool solutionFound = false;
-  int solutionIdx = -1;
 
   auto initialState = std::make_shared<BfsDataContainer>();
   initialState->setState(this->db_);
@@ -960,7 +959,6 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
         if (!whileLoop.getFormula()->accept(v).get<bool>())
         {
           solutionFound = true;
-          solutionIdx = 0;
           this->choices_ = v.choices_;
           break;
         }
@@ -1102,7 +1100,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
 
   //Enforce action precondition of add/remove, i.e. the elements
   //must be part of the sort of the corresponding domain
-  for (int argIdx = 0; argIdx < argList.size(); argIdx++)
+  for (size_t argIdx = 0; argIdx < argList.size(); argIdx++)
   {
     if (!db_->executeQuery(
         SQLGenerator::getInstance().getSqlStringExistsDomainTable(fluentName, argIdx + 1)).size())
@@ -1375,7 +1373,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
-      for (int i = 0; i < results.size(); i++)
+      for (size_t i = 0; i < results.size(); i++)
       {
         if (results[i] == 1)
         {
@@ -1566,7 +1564,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     Any rc;
     if (found)
     {
-      for (int i = 0; i < results.size(); i++)
+      for (size_t i = 0; i < results.size(); i++)
       {
         if (results[i] == 1)
         {

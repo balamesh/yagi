@@ -1,8 +1,9 @@
-/*
- * DateTimeHelper.h
+/**
+ * @file   DateTimeHelper.h
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 28, 2014
- *      Author: cmaier
+ * Helper functions for handling date and time values.
  */
 
 #ifndef DATETIMEHELPER_H_
@@ -14,8 +15,16 @@
 
 namespace yagi {
 
-// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+/**
+ * Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+ * @return Current date/time string
+ */
 const std::string currentDateTime();
+
+/**
+ * Get the ticks of the current date/time
+ * @return A huge value! ;-)
+ */
 std::uint64_t getNowTicks();
 
 }

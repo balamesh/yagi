@@ -1,8 +1,9 @@
-/*
- * TestExpr.cc
+/**
+ * @file   TestExpr.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Aug 25, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for expressions.
  */
 
 #include "../../gtest_src/include/gtest/gtest.h"
@@ -13,6 +14,9 @@
 #include "../back-end/Database/DBHelper.h"
 #include "../utils/ToStringHelper.h"
 
+/**
+ * Runs YAGI program 'exprTest.y'
+ */
 TEST(ExprTest, exprTest)
 {
   try

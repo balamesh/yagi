@@ -1,114 +1,117 @@
-/*
- * CToCppBridge.h
+/**
+ * @file   CToCppBridge.h
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Apr 23, 2014
- *      Author: cmaier
+ *  Collection of the YAGI callbacks triggered from the YAGI tree grammar.
  */
+
 #ifndef CTOCPPBRIDGE_H_
 #define CTOCPPBRIDGE_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include    <antlr3.h>
 
-  struct YAGICallbackCollection
-  {
-      //Basic program structure
-      void (*addProgramCallback)();
-      void (*addBlockCallback)();
-      void (*consumeBlockCallback)();
-      void (*addIncludeCallback)();
+/**
+ * Collection of the YAGI callbacks triggered from the YAGI tree grammar.
+ */
+struct YAGICallbackCollection
+{
+    //Basic program structure
+    void (*addProgramCallback)();
+    void (*addBlockCallback)();
+    void (*consumeBlockCallback)();
+    void (*addIncludeCallback)();
 
-      //Declarations
-      void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
-      void (*addFactDeclCallback)(pANTLR3_STRING factName);
-      void (*addActionDeclCallback)(pANTLR3_STRING actionName);
-      void (*addProcDeclCallback)(pANTLR3_STRING procName);
-      void (*addExoEventDeclCallback)(pANTLR3_STRING exoEventName);
-      void (*addSensingDeclCallback)(pANTLR3_STRING sensingName);
+    //Declarations
+    void (*addFluentDeclCallback)(pANTLR3_STRING fluentName);
+    void (*addFactDeclCallback)(pANTLR3_STRING factName);
+    void (*addActionDeclCallback)(pANTLR3_STRING actionName);
+    void (*addProcDeclCallback)(pANTLR3_STRING procName);
+    void (*addExoEventDeclCallback)(pANTLR3_STRING exoEventName);
+    void (*addSensingDeclCallback)(pANTLR3_STRING sensingName);
 
-      //Domains
-      void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
-      void (*addDomainStringCallback)();
-      void (*addDomainStringElementsCallback)();
-      void (*consumeDomainCallback)();
+    //Domains
+    void (*addDomainElementCallback)(pANTLR3_STRING domainElement);
+    void (*addDomainStringCallback)();
+    void (*addDomainStringElementsCallback)();
+    void (*consumeDomainCallback)();
 
-      //Effect
-      void (*addEffectCallback)();
+    //Effect
+    void (*addEffectCallback)();
 
-      //Varlist
-      void (*addVarListCallback)();
+    //Varlist
+    void (*addVarListCallback)();
 
-      //Assignment
-      void (*addVarAssignCallback)();
-      void (*addPatternMatchCallback)();
-      void (*addIDAssignCallback)(pANTLR3_STRING id);
-      void (*addAssignOpCallback)(char* op);
-      //void (*consumeAssignmentCallback)();
-      void (*addForLoopAssignCallback)();
-      void (*addConditionalAssignCallback)();
-      void (*addConditionalAssignElseCallback)();
-      void (*addIncompleteKnowledgeCallback)();
+    //Assignment
+    void (*addVarAssignCallback)();
+    void (*addPatternMatchCallback)();
+    void (*addIDAssignCallback)(pANTLR3_STRING id);
+    void (*addAssignOpCallback)(char* op);
+    //void (*consumeAssignmentCallback)();
+    void (*addForLoopAssignCallback)();
+    void (*addConditionalAssignCallback)();
+    void (*addConditionalAssignElseCallback)();
+    void (*addIncompleteKnowledgeCallback)();
 
-      //Statements
-      void (*addProcExecCallback)(pANTLR3_STRING procName);
-      void (*addFluentQueryCallback)(pANTLR3_STRING fluentName);
-      void (*addTestCallback)();
-      void (*addChooseCallback)();
-      void (*addPickCallback)();
-      void (*addForLoopCallback)();
-      void (*addConditionalCallback)();
-      void (*addWhileLoopCallback)();
-      void (*addSearchCallback)();
-      void (*consumeStatementCallback)();
+    //Statements
+    void (*addProcExecCallback)(pANTLR3_STRING procName);
+    void (*addFluentQueryCallback)(pANTLR3_STRING fluentName);
+    void (*addTestCallback)();
+    void (*addChooseCallback)();
+    void (*addPickCallback)();
+    void (*addForLoopCallback)();
+    void (*addConditionalCallback)();
+    void (*addWhileLoopCallback)();
+    void (*addSearchCallback)();
+    void (*consumeStatementCallback)();
 
-      //ValueList
-      void (*addValueListCallback)();
+    //ValueList
+    void (*addValueListCallback)();
 
-      //Formulas
-      void (*addFormulaConnectiveCallback)(char* conn);
-      void (*addAtomConnectiveCallback)(char* conn);
-      void (*addConstantCallback)(char* constant);
-      void (*addAtomCallback)();
-      void (*addNegationCallback)();
-      void (*addConnectedFormulaCallback)();
-      void (*addExistsCallback)();
-      void (*addAllCallback)();
-      void (*addInCallback)();
+    //Formulas
+    void (*addFormulaConnectiveCallback)(char* conn);
+    void (*addAtomConnectiveCallback)(char* conn);
+    void (*addConstantCallback)(char* constant);
+    void (*addAtomCallback)();
+    void (*addNegationCallback)();
+    void (*addConnectedFormulaCallback)();
+    void (*addExistsCallback)();
+    void (*addAllCallback)();
+    void (*addInCallback)();
 
-      //Sets
-      void (*addTupleSetCallback)();
-      void (*addSetExprCallback)();
+    //Sets
+    void (*addTupleSetCallback)();
+    void (*addSetExprCallback)();
 
-      //Tuples
-      void (*addTupleCallback)();
-      void (*consumeTupleValCallback)();
-      void (*consumeTupleCallback)();
+    //Tuples
+    void (*addTupleCallback)();
+    void (*consumeTupleValCallback)();
+    void (*consumeTupleCallback)();
 
-      //Variables, Types, ID, Values
-      void (*addVarCallback)(pANTLR3_STRING varName);
-      void (*consumeVariableCallback)();
-      void (*addStringCallback)(pANTLR3_STRING stringVal);
-      void (*addIDCallback)(pANTLR3_STRING id);
+    //Variables, Types, ID, Values
+    void (*addVarCallback)(pANTLR3_STRING varName);
+    void (*consumeVariableCallback)();
+    void (*addStringCallback)(pANTLR3_STRING stringVal);
+    void (*addIDCallback)(pANTLR3_STRING id);
 
-      //Values, ValExpr
-      void (*addValueExpressionCallback)();
-      void (*consumeValueCallback)();
-      void (*addExprOperatorCallback)(char* op);
+    //Values, ValExpr
+    void (*addValueExpressionCallback)();
+    void (*consumeValueCallback)();
+    void (*addExprOperatorCallback)(char* op);
 
-  };
+};
 
-  extern struct YAGICallbackCollection yagiCallbackCollection;
+extern struct YAGICallbackCollection yagiCallbackCollection;
 
 //Basic program structure
 #define ADD_PROGRAM() yagiCallbackCollection.addProgramCallback()
 #define ADD_BLOCK() yagiCallbackCollection.addBlockCallback()
 #define CONSUME_BLOCK() yagiCallbackCollection.consumeBlockCallback()
 #define ADD_INCLUDE() yagiCallbackCollection.addIncludeCallback()
-
 
 //Declarations
 #define ADD_FLUENT_DECL(x) yagiCallbackCollection.addFluentDeclCallback(x)

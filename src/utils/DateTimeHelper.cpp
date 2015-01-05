@@ -1,8 +1,9 @@
-/*
- * DateTimeHelper.cpp
+/**
+ * @file   DateTimeHelper.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 28, 2014
- *      Author: cmaier
+ * Helper functions for handling date and time values.
  */
 
 #include "DateTimeHelper.h"

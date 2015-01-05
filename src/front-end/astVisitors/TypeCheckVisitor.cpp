@@ -1,8 +1,10 @@
-/*
- * TypeCheckVisitor.cpp
+/**
+ * @file   TypeCheckVisitor.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jun 7, 2014
- *      Author: cmaier
+ * Performs typechecking on the AST of the YAGI program.
+ * !!Typechecking is still very rudimentary, i.e. very little type checking is performed!!
  */
 
 #include "TypeCheckVisitor.h"

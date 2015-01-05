@@ -1,9 +1,11 @@
-/*
- * ToStringHelper.cpp
+/**
+ * @file   ToStringHelper.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 24, 2014
- *      Author: cmaier
+ * Pretty printing helper functions that convert YAGI constructs to printable strings.
  */
+
 #include "ToStringHelper.h"
 
 namespace yagi {
@@ -39,7 +41,7 @@ std::string tupleToString(const std::vector<std::string>& tuple)
     ret += "\"" + val + "\", ";
   });
 
-  return ret.substr(0,ret.size() - 2) + ">";
+  return ret.substr(0, ret.size() - 2) + ">";
 }
 
 }

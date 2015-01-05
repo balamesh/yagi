@@ -1,8 +1,13 @@
-/*
- * ASTBuilder.h
+/**
+ * @file   ASTBuilder.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Apr 24, 2014
- *      Author: cmaier
+ * Responsible for building the C++ AST with the data provided from the C callbacks.
+ * Therefore, it either adds new C++ AST nodes to the stack of nodes or consumes (i.e. pops) nodes
+ * from the node stack to build new nodes. Ultimately, the stack has only 1 single node left, which
+ * is the root node of the AST. All other nodes are children of the root node, implemented
+ * via the composite design pattern.
  */
 
 #ifndef ASTBUILDER_H_
@@ -62,107 +67,372 @@
 #include "../../common/ASTNodeTypes/DataTypes/NodeIncompleteKnowledge.h"
 #include "../../common/ASTNodeTypes/ProgramStructure/NodeInclude.h"
 
-class ASTBuilder final
-{
-  private:
-    ASTBuilder(){}
-    void addQuantifiedFormula(Quantifier quant);
-    template<typename T> std::shared_ptr<T> getFrontElement();
-  public:
-    static ASTBuilder& getInstance()
-    {
-      static ASTBuilder instance;
-      return instance;
-    }
-
-    void reset()
-    {
-      while (!ast.empty())
+/**
+ * Responsible for building the C++ AST with the data provided from the C callbacks
+ */
+class ASTBuilder
+  final
+  {
+    private:
+      /**
+       * Default ctor
+       */
+      ASTBuilder()
       {
-        ast.pop();
       }
-    }
 
-    void addDomainElement(const std::string& domainElement);
-    void addDomainStringElementsNode();
-    void addDomainStringNode();
-    void addDomainIntegerNode();
-    void consumeDomain();
-    void addInclude();
+      /**
+       * Adds quantified formula with a given quantor
+       * @param quant The quantor
+       */
+      void addQuantifiedFormula(Quantifier quant);
 
-    void addFluentDeclNode(const std::string& fluentName);
-    void addProgram();
-    void addFactDeclNode(const std::string& factName);
-    void addExoEventDeclNode(const std::string& exoEventName);
-    void addVarNode(const std::string& varName);
-    void addVarListNode();
-    void addID(const std::string& id);
-    void addProcDecl(const std::string& procName);
-    void addSensingDeclNode(const std::string& sensingName);
+      /**
+       * Returns the first element of the AST node stack casted into type T
+       * @return First element of the AST node collection if it is of type T, nullptr otherwise
+       */
+      template<typename T> std::shared_ptr<T> getFrontElement();
+    public:
+      /**
+       * Singleton instance getter
+       * @return The singleton instance
+       */
+      static ASTBuilder& getInstance()
+      {
+        static ASTBuilder instance;
+        return instance;
+      }
 
-    //Action Decl
-    void addActionDeclNode(const std::string& actionName);
-    void addEffect();
+      /**
+       * Clears the AST node collection
+       */
+      void reset()
+      {
+        while (!ast.empty())
+        {
+          ast.pop();
+        }
+      }
 
-    //Variables
-    void addIntNode(const std::string& intVal);
-    void addStringNode(const std::string& stringVal);
-    void consumeVarNode();
+      /**
+       * Adds a domain element node to the AST node collection
+       * @param domainElement The domain element
+       */
+      void addDomainElement(const std::string& domainElement);
 
-    //Expressions
-    void addValueExpressionNode();
-    void addExprOperator(const std::string& op);
+      /**
+       * Adds a domain of string elements node to the collection
+       */
+      void addDomainStringElementsNode();
 
-    //Assignment
-    void addVarAssign();;
+      /**
+       * Adds the domain node 'string' to the collection
+       */
+      void addDomainStringNode();
 
-    void addPatternMatch();
-    void addIncompleteKnowledge();
-    void addTuple();
-    void consumeTuple();
-    void consumeTupleVal();
-    void addSet();
-    void addSetExpr();
-    void addIDAssign(const std::string& identifier);
-    void addAssignmentOp(const std::string& op);
+      /**
+       * Adds an integer domain node to the collection
+       * not used atm since we don't support integer domains
+       */
+      void addDomainIntegerNode();
 
-    //Formulas
-    void addAtomConnective(const std::string& connective);
-    void addFormulaConnective(const std::string& connective);
-    void addConstant(const std::string& constant);
-    void addAtom();
-    void addNegation();
-    void addConnectedFormula();
-    void addExists();
-    void addAll();
-    void addIn();
+      /**
+       * Consumes domain node from AST node collection
+       */
+      void consumeDomain();
 
-    //Statements
-    void addBlock();
-    void consumeStatement();
-    void consumeValue();
-    void addValueList();
-    void addProcExec(const std::string& procName);
-    void addFluentQuery(const std::string& fluentName);
-    void addTest();
-    void addChoose();
-    void consumeBlock();
-    void addPick();
-    void addForLoop();
-    void addConditional();
-    void addWhileLoop();
-    void addSearch();
+      /**
+       * Adds include node to collection
+       */
+      void addInclude();
 
-    std::shared_ptr<ASTNodeBase<>> getAST()
-    {
-      return (ast.size() > 0 ? ast.top() : nullptr);
-    }
+      /**
+       * Adds fluent decl node to the collection
+       * @param fluentName The name of the fluent
+       */
+      void addFluentDeclNode(const std::string& fluentName);
 
-  private:
-    ASTBuilder(ASTBuilder const&);
-    void operator=(ASTBuilder const&);
+      /**
+       * Adds program root note to the collection
+       */
+      void addProgram();
 
-    std::stack<std::shared_ptr<ASTNodeBase<>>>ast;
-  };
+      /**
+       * Adds fact declaration node to the collection
+       * @param factName The name of the fact
+       */
+      void addFactDeclNode(const std::string& factName);
+
+      /**
+       * Adds exogenous event declaration node to the collection
+       * @param exoEventName The name of the exo event
+       */
+      void addExoEventDeclNode(const std::string& exoEventName);
+
+      /**
+       * Adds variable node to the collection
+       * @param varName Name of the variable
+       */
+      void addVarNode(const std::string& varName);
+
+      /**
+       * Adds variable list node to the collection
+       */
+      void addVarListNode();
+
+      /**
+       * Adds identifier node to the collection
+       * @param id Name of the identifier
+       */
+      void addID(const std::string& id);
+
+      /**
+       * Adds procedure declaration node to the collection
+       * @param procName The name of the procedure
+       */
+      void addProcDecl(const std::string& procName);
+
+      /**
+       * Adds sensing declaration node to the collection
+       * @param sensingName Name of the sensing action
+       */
+      void addSensingDeclNode(const std::string& sensingName);
+
+      /**
+       * Adds action declaration node to the collection
+       * @param actionName Name of the action
+       */
+      void addActionDeclNode(const std::string& actionName);
+
+      /**
+       * Adds effect node to the collection
+       */
+      void addEffect();
+
+      /**
+       * Adds integer value node to the collection (currently not used)
+       * @param intVal The integer value as string
+       */
+      void addIntNode(const std::string& intVal);
+
+      /**
+       * Adds string value node to the collection
+       * @param stringVal The string value
+       */
+      void addStringNode(const std::string& stringVal);
+
+      /**
+       * Consumes variable node from the collection
+       */
+      void consumeVarNode();
+
+      /**
+       * Adds value expression node
+       */
+      void addValueExpressionNode();
+
+      /**
+       * Adds expression operator node
+       * @param op The operator string
+       */
+      void addExprOperator(const std::string& op);
+
+      /**
+       * Adds assignment to variable node to the collection
+       */
+      void addVarAssign();
+
+      /**
+       * Adds pattern matching node to the collection
+       */
+      void addPatternMatch();
+
+      /**
+       * Adds incomplete knowledge node to the collection
+       */
+      void addIncompleteKnowledge();
+
+      /**
+       * Adds tuple node to the collection
+       */
+      void addTuple();
+
+      /**
+       * Consumes tuple from the collection
+       */
+      void consumeTuple();
+
+      /**
+       * Consumes tuple value from the collection
+       */
+      void consumeTupleVal();
+
+      /**
+       * Adds set node to the collection
+       */
+      void addSet();
+
+      /**
+       * Adds set expression node to the collection
+       */
+      void addSetExpr();
+
+      /**
+       * Adds ID assignment node to the collection
+       * @param identifier the name of the ID
+       */
+      void addIDAssign(const std::string& identifier);
+
+      /**
+       * Adds assignment operator node to the collection
+       * @param op The assignment operator string
+       */
+      void addAssignmentOp(const std::string& op);
+
+      /**
+       * Adds atom connective node to the collection
+       * @param connective The connective string
+       */
+      void addAtomConnective(const std::string& connective);
+
+      /**
+       * Adds formula connective node to the collection
+       * @param connective The connective string
+       */
+      void addFormulaConnective(const std::string& connective);
+
+      /**
+       * Adds constant (true,false) node to the collection
+       * @param constant The string version of the constant
+       */
+      void addConstant(const std::string& constant);
+
+      /**
+       * Adds atom node to the collection
+       */
+      void addAtom();
+
+      /**
+       * Adds negation node to the collection
+       */
+      void addNegation();
+
+      /**
+       * Adds connected formula node to the collection.
+       */
+      void addConnectedFormula();
+
+      /**
+       * Adds exists quantifier node to the collection
+       */
+      void addExists();
+
+      /**
+       * Adds all quantifier node to the collection
+       */
+      void addAll();
+
+      /**
+       * Adds 'in' operator node to the collection
+       */
+      void addIn();
+
+      /**
+       * Adds block node to the collection
+       */
+      void addBlock();
+
+      /**
+       * Consumes statement node from the collection
+       */
+      void consumeStatement();
+
+      /**
+       * Consumes value node from the collection
+       */
+      void consumeValue();
+
+      /**
+       * Adds value list node to the collection
+       */
+      void addValueList();
+
+      /**
+       * Adds procedure execution node to the collection
+       * @param procName Name of the procedure to execute
+       */
+      void addProcExec(const std::string& procName);
+
+      /**
+       * Adds fluent query node to collection
+       * @param fluentName Name of the fluent to query
+       */
+      void addFluentQuery(const std::string& fluentName);
+
+      /**
+       * Adds test statement node to collection
+       */
+      void addTest();
+
+      /**
+       * Adds choose statement node to collection
+       */
+      void addChoose();
+
+      /**
+       * Consumes block from the collection
+       */
+      void consumeBlock();
+
+      /**
+       * Adds pick statement to the collection
+       */
+      void addPick();
+
+      /**
+       * Adds a for loop node to the collection
+       */
+      void addForLoop();
+
+      /**
+       * Adds a conditional node to the collection
+       */
+      void addConditional();
+
+      /**
+       * Adds a while loop node to the collection
+       */
+      void addWhileLoop();
+
+      /**
+       * Adds a search node to the collection
+       */
+      void addSearch();
+
+      /**
+       * Getter for the root node of the AST
+       * @return the root of the AST, or nullptr if there are no nodes
+       */
+      std::shared_ptr<ASTNodeBase<>> getAST()
+      {
+        return (ast.size() > 0 ? ast.top() : nullptr);
+      }
+
+    private:
+      /**
+       * Copy ctor
+       */
+      ASTBuilder(ASTBuilder const&);
+
+      /**
+       * Assignment operator
+       */
+      void operator=(ASTBuilder const&);
+
+      /**
+       * Stack of AST Nodes which are used to build the ast
+       */
+      std::stack<std::shared_ptr<ASTNodeBase<>>>ast;
+    };
 
 #endif /* ASTBUILDER_H_ */

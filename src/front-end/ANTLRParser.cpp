@@ -1,8 +1,10 @@
-/*
- * ANTLRParser.cpp
+/**
+ * @file   ANTLRParser.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 2, 2014
- *      Author: cmaier
+ * Handles antlr parsing of YAGI code, i.e. encapsulates native C parsing code
+ * into a C++ class.
  */
 
 #include "ANTLRParser.h"

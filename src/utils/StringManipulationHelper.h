@@ -1,8 +1,9 @@
-/*
- * StringManipulationHelper.h
+/**
+ * @file   StringManipulationHelper.h
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Oct 11, 2014
- *      Author: cmaier
+ * Basic string trimming functions and other string manipulation helpers.
  */
 
 #ifndef STRINGMANIPULATIONHELPER_H_
@@ -13,23 +14,39 @@
 #include <cctype>
 #include <locale>
 
-// trim from start
-static inline std::string &ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
+/**
+ * Trims the beginning of a string
+ * @param s The string to trim
+ * @return The trimmed string
+ */
+static inline std::string &ltrim(std::string &s)
+{
+  s.erase(s.begin(),
+      std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+  return s;
 }
 
-// trim from end
-static inline std::string &rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
+/**
+ * Trims the end of a string.
+ * @param s The string to trim.
+ * @return The trimmed string.
+ */
+static inline std::string &rtrim(std::string &s)
+{
+  s.erase(
+      std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(),
+      s.end());
+  return s;
 }
 
-// trim from both ends
-static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
+/**
+ * Trims both ends of a string
+ * @param s The string to trim.
+ * @return The trimmed string.
+ */
+static inline std::string &trim(std::string &s)
+{
+  return ltrim(rtrim(s));
 }
-
-
 
 #endif /* STRINGMANIPULATIONHELPER_H_ */

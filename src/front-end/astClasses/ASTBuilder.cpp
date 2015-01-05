@@ -1,8 +1,13 @@
-/*
- * ASTBuilder.cpp
+/**
+ * @file   ASTBuilder.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Apr 24, 2014
- *      Author: cmaier
+ * Responsible for building the C++ AST with the data provided from the C callbacks.
+ * Therefore, it either adds new C++ AST nodes to the stack of nodes or consumes (i.e. pops) nodes
+ * from the node stack to build new nodes. Ultimately, the stack has only 1 single node left, which
+ * is the root node of the AST. All other nodes are children of the root node, implemented
+ * via the composite design pattern.
  */
 
 #include "ASTBuilder.h"

@@ -1,8 +1,10 @@
-/*
- * ToStringVisitor.h
+/**
+ * @file   ToStringVisitor.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: May 22, 2014
- *      Author: cmaier
+ * Prints a string representation of the C++ AST structure. Primarily used for debugging.
+ *
  */
 
 #ifndef TOSTRINGVISITOR_H_
@@ -62,6 +64,9 @@
 
 using namespace yagi::container;
 
+/**
+ * Pretty printer class for the C++ AST.
+ */
 class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeFluentDecl>,
     public Visitor<NodeDomainString>,
@@ -111,51 +116,326 @@ class ToStringVisitor: public ASTNodeVisitorBase,
     public Visitor<NodeSitCalcActionExecution>
 {
   public:
+    /**
+     * Visitor method for program node
+     * @param program AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeProgram& program);
+
+    /**
+     * Visitor method for fluent decl node
+     * @param fluentDecl AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeFluentDecl& fluentDecl);
+
+    /**
+     * Visitor method for fact decl node
+     * @param factDecl AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeFactDecl& factDecl);
+
+    /**
+     * Visitor method for string domain node
+     * @param domainString AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeDomainString& domainString);
+
+    /**
+     * Visitor method for ID node
+     * @param id AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeID& id);
+
+    /**
+     * Visitor method for String node
+     * @param str AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeString& str);
+
+    /**
+     * Visitor method for string domain
+     * @param domainStringElems AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeDomainStringElements& domainStringElems);
+
+    /**
+     * Visitor method for fluent query
+     * @param fluentQuery AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeFluentQuery& fluentQuery);
+
+    /**
+     * Visitor method for fluent assignment
+     * @param fluentAss AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeIDAssignment& fluentAss);
+
+    /**
+     * Visitor method for set expression operator
+     * @param setExprOp AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeAssignmentOperator& setExprOp);
+
+    /**
+     * Visitor method for set expression
+     * @param setExpr AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSetExpression& setExpr);
+
+    /**
+     * Visitor method for Set
+     * @param set AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSet& set);
+
+    /**
+     * Visitor method for tuple
+     * @param tuple AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeTuple& tuple);
+
+    /**
+     * Visitor method for constant
+     * @param constant AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeConstant& constant);
+
+    /**
+     * Visitor method for action declaration
+     * @param actionDecl AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeActionDecl& actionDecl);
+
+    /**
+     * Visitor method for action precondition
+     * @param precondition AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeActionPrecondition& precondition);
+
+    /**
+     * Visitor method for action effect
+     * @param effect AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeActionEffect& effect);
+
+    /**
+     * Visitor method for incomplete knowledge
+     * @param incompleteKnowledge AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeIncompleteKnowledge& incompleteKnowledge);
+
+    /**
+     * Visitor method for pattern matching
+     * @param patternMatching AST Node
+     * @return String version of the AST
+     */
     Any visit(NodePatternMatching& patternMatching);
+
+    /**
+     * Visitor method for value list
+     * @param valueList AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeValueList& valueList);
+
+    /**
+     * Visitor method for signal
+     * @param signal AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSignal& signal);
+
+    /**
+     * Visitor method for exogenous event
+     * @param exoEvent AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeExogenousEventDecl& exoEvent);
+
+    /**
+     * Visitor method for procedure declaration
+     * @param procDecl AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeProcDecl& procDecl);
+
+    /**
+     * Visitor method for sensing declaration
+     * @param sensingDecl AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSensingDecl& sensingDecl);
+
+    /**
+     * Visitor method for value expression operator
+     * @param valExprOp AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeExpressionOperator& valExprOp);
+
+    /**
+     * Visitor method for value expression
+     * @param valExpr AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeValueExpression& valExpr);
+
+    /**
+     * Visitor method for atom
+     * @param atom AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeAtom& atom);
+
+    /**
+     * Visitor method for atom connective
+     * @param connective AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeAtomConnective& connective);
+
+    /**
+     * Visitor method for compound formula
+     * @param compoundFormula AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeCompoundFormula& compoundFormula);
+
+    /**
+     * Visitor method of formula connective
+     * @param connective AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeFormulaConnective& connective);
+
+    /**
+     * Visitor method of negation
+     * @param negation AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeNegation& negation);
+
+    /**
+     * Visitor method of operator 'in' formula
+     * @param inFormula AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeOperatorIn& inFormula);
+
+    /**
+     * Visitor method for quantified formula
+     * @param quantifiedFormula AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeQuantifiedFormula& quantifiedFormula);
+
+    /**
+     * Visitor method for variable
+     * @param variable AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeVariable& variable);
+
+    /**
+     * Visitor method for variable list
+     * @param varList AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeVarList& varList);
+
+    /**
+     * Visitor method for block
+     * @param block AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeBlock& block);
+
+    /**
+     * Visitor method for choose
+     * @param choose AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeChoose& choose);
+
+    /**
+     * Visitor method for conditional
+     * @param conditional AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeConditional& conditional);
+
+    /**
+     * Visitor method for for-loop
+     * @param forLoop AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeForLoop& forLoop);
+
+    /**
+     * Visitor method for pick statement
+     * @param pick AST Node
+     * @return String version of the AST
+     */
     Any visit(NodePick& pick);
+
+    /**
+     * Visitor method for procedure execution
+     * @param procExec AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeProcExecution& procExec);
+
+    /**
+     * Visitor method for search
+     * @param search AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSearch& search);
+
+    /**
+     * Visitor method for test statement
+     * @param test AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeTest& test);
+
+    /**
+     * Visitor method for a variable assignment
+     * @param varAssignment AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeVariableAssignment& varAssignment);
+
+    /**
+     * Visitor method for a while loop
+     * @param whileLoop AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeWhileLoop& whileLoop);
+
+    /**
+     * Visitor method for a sit calc action (add/remove)
+     * @param sitCalcActionExec AST Node
+     * @return String version of the AST
+     */
     Any visit(NodeSitCalcActionExecution& sitCalcActionExec);
 };
 

@@ -1,9 +1,11 @@
-/*
- * TestElevator.cc
+/**
+ * @file   TestElevator.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Aug 20, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for the elevator example.
  */
+
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 #include "../back-end/Database/DatabaseManager.h"
@@ -12,6 +14,9 @@
 #include "../utils/ToStringHelper.h"
 #include "../back-end/Database/DBHelper.h"
 
+/**
+ * Runs test for the elevator example.
+ */
 TEST(ElevatorTest, elevator)
 {
   try
@@ -48,6 +53,9 @@ TEST(ElevatorTest, elevator)
   cleanupDatabase();
 }
 
+/**
+ * Runs test for the elevator example (search1).
+ */
 TEST(ElevatorTest, elevatorSearch1)
 {
   try
@@ -84,6 +92,9 @@ TEST(ElevatorTest, elevatorSearch1)
   cleanupDatabase();
 }
 
+/**
+ * Runs test for the elevator example (search2).
+ */
 TEST(ElevatorTest, elevatorSearch2)
 {
   try
@@ -120,6 +131,9 @@ TEST(ElevatorTest, elevatorSearch2)
   cleanupDatabase();
 }
 
+/**
+ * Runs test for the elevator example (search3).
+ */
 TEST(ElevatorTest, elevatorSearch3)
 {
   try

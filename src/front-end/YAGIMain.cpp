@@ -1,9 +1,20 @@
-#include <antlr3convertutf.h>
+/**
+ * @file   YAGIMain.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
+ *
+ * The main entry point of the YAGI interpreter commandline.
+ */
+
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <readline/rltypedefs.h>
+#include <tclap/CmdLine.h>
+#include <tclap/SwitchArg.h>
+#include <tclap/ValueArg.h>
 #include <algorithm>
 #include <chrono>
+#include <cstdbool>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -15,9 +26,6 @@
 #include <utility>
 #include <vector>
 
-#include "../../tclap-1.2.1/include/tclap/CmdLine.h"
-#include "../../tclap-1.2.1/include/tclap/SwitchArg.h"
-#include "../../tclap-1.2.1/include/tclap/ValueArg.h"
 #include "../back-end/ASTVisitors/MainInterpretationVisitor.h"
 #include "../back-end/ASTVisitors/RewritingVisitor.h"
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
@@ -34,7 +42,6 @@
 #include "ANTLRParser.h"
 
 using std::ofstream;
-
 using namespace yagi::formula;
 using namespace yagi::execution;
 
@@ -45,6 +52,10 @@ bool isFromFile(const std::string&);
 bool isExit(const std::string&);
 void displayWelcome();
 
+/**
+ * Callback method for readline that handles multine YAGI code.
+ * @return success
+ */
 int addMultilineCommand(int, int)
 {
   printf("\n.......");
@@ -52,6 +63,12 @@ int addMultilineCommand(int, int)
   return 0;
 }
 
+/**
+ * Main method of the YAGI interpreter shell
+ * @param argc Number of parameters
+ * @param argv Parameters
+ * @return Success or error
+ */
 int main(int argc, char * argv[])
 {
 
@@ -118,6 +135,11 @@ int main(int argc, char * argv[])
   return EXIT_SUCCESS;
 }
 
+/**
+ * Parses command line args using TCLAP.
+ * @param argc Number of args
+ * @param argv Arguments
+ */
 void parseCommandLineArgs(int argc, char* argv[])
 {
   TCLAP::CmdLine cmd("YAGI Interpreter Shell", ' ', "1.0");
@@ -152,11 +174,22 @@ void parseCommandLineArgs(int argc, char* argv[])
       useThisFileAsOutput.getValue());
 }
 
+/**
+ * Checks if an exit command has been entered
+ * @param line The line that should be checked
+ * @return true If exit, else otherwise
+ */
 bool isExit(const std::string& line)
 {
   return (line == "exit"); //todo: trim etc. to make it more robust
 }
 
+/**
+ * Checks if a string is prefix of another string
+ * @param potentialPrefix The potential prefix
+ * @param text The text to check
+ * @return True If prefix, false otherwise
+ */
 bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 {
   auto res = std::mismatch(std::begin(potentialPrefix), std::end(potentialPrefix),
@@ -165,6 +198,12 @@ bool isPrefixOf(const std::string& potentialPrefix, const std::string& text)
   return (res.first == std::end(potentialPrefix));
 }
 
+/**
+ * Checks if a string is a suffix of another string
+ * @param potentialSuffix Potential suffix string
+ * @param text Text to be checked
+ * @return true If suffix, false otherwise
+ */
 bool isSuffixOf(const std::string& potentialSuffix, const std::string& text)
 {
   auto res = std::mismatch(potentialSuffix.rbegin(), potentialSuffix.rend(), text.rbegin());
@@ -172,6 +211,11 @@ bool isSuffixOf(const std::string& potentialSuffix, const std::string& text)
   return (res.first == potentialSuffix.rend());
 }
 
+/**
+ * Checks if the input command is a 'load from file' command
+ * @param line Input command to check
+ * @return true If it is 'import' command, false otherwise
+ */
 bool isFromFile(const std::string& line)
 {
   std::string tmp { line };
@@ -181,6 +225,12 @@ bool isFromFile(const std::string& line)
       && isSuffixOf(std::string { ");" }, trim(tmp));
 }
 
+/**
+ * Executes a YAGI program.
+ * @param line The program to execute
+ * @param isFileName Flag that indicates whether or not it line is a filename
+ * @return True if execution successful, false otherwise
+ */
 bool execute(const std::string& line, bool isFileName)
 {
   std::cout << "(working...)" << std::endl << std::flush;
@@ -378,6 +428,11 @@ bool execute(const std::string& line, bool isFileName)
   return true;
 }
 
+/**
+ * Parses the filename from an import command
+ * @param importCmd The import command string
+ * @return The filename
+ */
 std::string parseFileName(const std::string& importCmd)
 {
   int first = importCmd.find_first_of('\"');
@@ -386,6 +441,9 @@ std::string parseFileName(const std::string& importCmd)
   return importCmd.substr(first + 1, last - first - 1);
 }
 
+/**
+ * Displays the YAGI welcome message.
+ */
 void displayWelcome()
 {
   std::cout << "***********************************************************" << std::endl;

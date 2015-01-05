@@ -1,9 +1,11 @@
-/*
- * RandomNumberGenerator.cpp
+/**
+ * @file   RandomNumberGenerator.cpp
+ * @author Christopher Maier
+ * @date   January 2015
  *
- *  Created on: Jul 30, 2014
- *      Author: cmaier
+ * Encapsulates generation of uniformly distributed random numbers.
  */
+
 #include "RandomNumberGenerator.h"
 #include <chrono>
 

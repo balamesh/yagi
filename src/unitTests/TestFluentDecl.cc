@@ -1,8 +1,9 @@
-/*
- * TestFluentDecl.cc
+/**
+ * @file   TestFluentDecl.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 1, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for fluent declarations.
  */
 
 #include "../../gtest_src/include/gtest/gtest.h"
@@ -12,6 +13,9 @@
 #include "../back-end/ASTVisitors/ActionProcedureInterpretationVisitor.h"
 #include "../back-end/Database/DBHelper.h"
 
+/**
+ * Runs YAGI program 'fluentUserDomain.y'
+ */
 TEST(FluentDeclTest, fluentUserDomain)
 {
   try
@@ -56,6 +60,9 @@ TEST(FluentDeclTest, fluentUserDomain)
   cleanupDatabase();
 }
 
+/**
+ * Runs YAGI program 'fluentStringDomain.y'
+ */
 TEST(FluentDeclTest, fluentStringDomain)
 {
   try
@@ -90,6 +97,10 @@ TEST(FluentDeclTest, fluentStringDomain)
 
 }
 
+/**
+ * Runs YAGI program 'fluentZeroArity.y'
+ * !!This throws because the feature is not implemented yet!!
+ */
 TEST(FluentDeclTest, fluentZeroArity)
 {
   auto ast = yagi::unitTestHelper::tryParse("samples/FluentDeclTest/fluentZeroArity.y");

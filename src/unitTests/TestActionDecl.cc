@@ -1,14 +1,18 @@
-/*
- * TestActionDecl.cc
+/**
+ * @file   TestActionDecl.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 8, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for action declarations.
  */
 
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 #include "../back-end/ExecutableElementsContainer.h"
 
+/**
+ * Runs test program 'actionDeclTest.y'
+ */
 TEST(ActionDeclTest, actionDeclTest)
 {
   try

@@ -1,9 +1,11 @@
-/*
- * UnitTestHelper.cpp
+/**
+ * @file   UnitTestHelper.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 8, 2014
- *      Author: cmaier
+ * This file provides helper function for the unit test implementation.
  */
+
 #include "UnitTestHelper.h"
 
 #include "../../gtest_src/include/gtest/gtest.h"
@@ -22,7 +24,7 @@ ASTReturnType tryParse(const std::string& file)
   try
   {
     auto ast = ANTLRParser::parseYAGICodeFromFile(file);
-    EXPECT_NE(ast,nullptr);
+    EXPECT_NE(ast, nullptr);
 
     return ast;
   }
@@ -40,7 +42,7 @@ ASTReturnType tryParse(const std::string& file)
 bool execute(ASTReturnType ast)
 {
   //Invalid YAGI code...
-  EXPECT_NE(ast,nullptr);
+  EXPECT_NE(ast, nullptr);
 
   auto prog = std::dynamic_pointer_cast<NodeProgram>(ast);
   if (!prog)

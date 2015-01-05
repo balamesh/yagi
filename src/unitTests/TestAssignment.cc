@@ -1,9 +1,11 @@
-/*
- * TestAssignment.cc
+/**
+ * @file   TestAssignment.cc
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 8, 2014
- *      Author: cmaier
+ * This file is responsible for running unit tests for assignments.
  */
+
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "UnitTestHelper.h"
 #include "../utils/ToStringHelper.h"
@@ -11,6 +13,9 @@
 #include "../back-end/SQLGenerator.h"
 #include "../back-end/Database/DBHelper.h"
 
+/**
+ * Runs the assignment test 'assignmentSimple1.y'
+ */
 TEST(AssignmentTest, assignmentSimple1)
 {
   try
@@ -59,6 +64,9 @@ TEST(AssignmentTest, assignmentSimple1)
 
 }
 
+/**
+ * Runs the assignment test 'assignmentForLoop1.y'
+ */
 TEST(AssignmentTest, assignmentForLoop1)
 {
   try
@@ -95,12 +103,14 @@ TEST(AssignmentTest, assignmentForLoop1)
   cleanupDatabase();
 }
 
+/**
+ * Runs the assignment test 'assignmentConditional1.y'
+ */
 TEST(AssignmentTest, assignmentConditional1)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse(
-        "samples/AssignmentTest/assignmentConditional1.y");
+    auto ast = yagi::unitTestHelper::tryParse("samples/AssignmentTest/assignmentConditional1.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
