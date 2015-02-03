@@ -163,6 +163,10 @@ src/back-end/Formulas/FormulaEvaluator.cpp
 src/back-end/Formulas/FormulaEvaluator.h
 src/back-end/Formulas/IFormulaEvaluator.cpp
 src/back-end/Formulas/IFormulaEvaluator.h
+src/back-end/BackendFactory.cpp
+src/back-end/BackendFactory.h
+src/back-end/Backend.cpp
+src/back-end/Backend.h
 src/utils/fileExists.h
 src/back-end/Variables/VariableTable.cpp
 src/back-end/Variables/VariableTable.h

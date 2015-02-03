@@ -159,6 +159,11 @@ void parseCommandLineArgs(int argc, char* argv[])
       false, "", "");
   cmd.add(useThisFileAsOutput);
 
+  TCLAP::ValueArg<std::string> useThisBackEnd("b", "backend",
+      "Use this plugin as backend for YAGI.",
+      false, "", "");
+  cmd.add(useThisBackEnd);
+
   cmd.parse(argc, argv);
 
   yagi::container::CommandLineArgsContainer::getInstance().setShowDebugMessages(
@@ -172,6 +177,9 @@ void parseCommandLineArgs(int argc, char* argv[])
 
   yagi::container::CommandLineArgsContainer::getInstance().setOutputFileName(
       useThisFileAsOutput.getValue());
+
+  yagi::container::CommandLineArgsContainer::getInstance().setBackendPlugin(
+      useThisBackEnd.getValue());
 }
 
 /**

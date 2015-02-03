@@ -65,6 +65,11 @@ class CommandLineArgsContainer
        */
       std::string outputFileName_;
 
+      /**
+       * Output filename for runtime data
+       */
+      std::string backendPlugin_;
+
     public:
       /**
        * Getter for singleton
@@ -147,6 +152,25 @@ class CommandLineArgsContainer
       {
         outputFileName_ = outputFileName;
       }
+
+      /**
+       * Getter for the backend plugin file name
+       * @return The name of the backend plugin file.
+       */
+      const std::string& getBackendPlugin() const
+      {
+        return backendPlugin_;
+      }
+
+      /**
+       * Setter for the backend plugin file name
+       * @param outputFileName The name of the backend plugin file.
+       */
+      void setBackendPlugin(const std::string& backendPlugin)
+      {
+        backendPlugin_ = backendPlugin;
+      }
+
   };
 
   }

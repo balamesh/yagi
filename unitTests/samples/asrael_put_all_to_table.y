@@ -1,6 +1,6 @@
 fluent see[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
-fluent isat[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}][{"Microwave","Table","Stove"}];
-fluent at[{"Microwave","Table","Stove"}];
+fluent isat[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}][{"Microwave","Table","Stove","Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
+fluent at[{"Fork1","BC9_Drawer4","BC5_Door1","Fridge","Microwave","Table","Stove","UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
 fluent hold[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
 
 fluent objects[{"Fork1","Bread4","Ham1","Cheese2","Ham3","Spoon1","Tomatoes3","Ham2","BeigePlate3","WoodenBowl","Knife1"}];
@@ -9,7 +9,7 @@ objects={<"Fork1">,<"Bread4">,<"Ham1">,<"Cheese2">,<"Ham3">,<"Spoon1">,<"Tomatoe
 fluent containers[{"UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
 containers={<"UpperCabinet1">,<"UpperCabinet2">,<"UpperCabinet3">,<"UpperCabinet4">,<"UpperCabinet5">,<"BaseCabinet1">,<"BaseCabinet2">,<"BaseCabinet3">,<"BaseCabinet4">,<"BC6_Drawer1">};
 
-fluent open[{"UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
+fluent open[{"BC9_Drawer4","Fridge_Door","UpperCabinet1","UpperCabinet2","UpperCabinet3","UpperCabinet4","UpperCabinet5","BaseCabinet1","BaseCabinet2","BaseCabinet3","BaseCabinet4","BC6_Drawer1"}];
 
 action look_for($o) external ($x)
 effect:
