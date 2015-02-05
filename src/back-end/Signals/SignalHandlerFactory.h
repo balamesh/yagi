@@ -55,7 +55,6 @@ class SignalHandlerFactory final
      return signalHandler_;
    }
 
-
 };
 
 } /* namespace execution */

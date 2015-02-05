@@ -28,6 +28,7 @@
 
 #include "../back-end/ASTVisitors/MainInterpretationVisitor.h"
 #include "../back-end/ASTVisitors/RewritingVisitor.h"
+#include "../back-end/BackendFactory.h"
 #include "../common/ASTNodeTypes/ASTNodeBase.h"
 #include "../common/ASTNodeTypes/ProgramStructure/NodeInclude.h"
 #include "../common/ASTNodeTypes/ProgramStructure/NodeProgram.h"
@@ -81,6 +82,8 @@ int main(int argc, char * argv[])
     std::cerr << "Can't parse command line args! Error: " + std::string { ex.what() } << std::endl;
     exit(EXIT_FAILURE);
   }
+
+  yagi::execution::BackendFactory::getInstance().initBackend(yagi::container::CommandLineArgsContainer::getInstance().getBackendPlugin());
 
   rl_command_func_t addMultilineCommand;
   rl_bind_keyseq("\\C-n", addMultilineCommand);
@@ -161,7 +164,7 @@ void parseCommandLineArgs(int argc, char* argv[])
 
   TCLAP::ValueArg<std::string> useThisBackEnd("b", "backend",
       "Use this plugin as backend for YAGI.",
-      false, "", "");
+      false, "CinCoutBackend", "");
   cmd.add(useThisBackEnd);
 
   cmd.parse(argc, argv);
