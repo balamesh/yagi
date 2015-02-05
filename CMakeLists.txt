@@ -2,8 +2,12 @@
 project(yagi)
 cmake_minimum_required(VERSION 2.6)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+find_package(ANTLR REQUIRED)
+
 include_directories("src")
-include_directories("/usr/include/antlr3")
+include_directories(${ANTLR_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/tclap-1.2.1/include)
 include_directories($ENV{ASRAEL_INCLUDE})
 
@@ -212,7 +216,7 @@ src/common/ASTNodeTypes/ProgramStructure/NodeInclude.h
 src/common/ASTNodeTypes/ProgramStructure/NodeInclude.cpp
 )
 
-target_link_libraries(yagi antlr3c readline ncurses ${SQLITE_LIBRARIES})
+target_link_libraries(yagi ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES})
 
 if(ASRAEL_C++)
 add_executable(yagi-asrael
@@ -398,7 +402,7 @@ src/common/ASTNodeTypes/ProgramStructure/NodeInclude.cpp
 
 set_target_properties(yagi-asrael PROPERTIES COMPILE_FLAGS -DASRAEL)
 
-target_link_libraries(yagi-asrael antlr3c readline ncurses ${SQLITE_LIBRARIES} ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
+target_link_libraries(yagi-asrael ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES} ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
 endif()
 
 
