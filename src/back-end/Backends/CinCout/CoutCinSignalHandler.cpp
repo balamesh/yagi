@@ -6,13 +6,10 @@
  */
 
 #include "CoutCinSignalHandler.h"
-#include "../../utils/CommandLineArgsContainer.h"
-
 #include <mutex>
+
 namespace yagi {
 namespace execution {
-
-using namespace container;
 
 std::mutex signalMutex;
 

@@ -8,7 +8,7 @@
 #ifndef COUTCINSIGNALHANDLER_H_
 #define COUTCINSIGNALHANDLER_H_
 
-#include "IYAGISignalHandler.h"
+#include "../../Signals/IYAGISignalHandler.h"
 #include <iostream>
 #include <readline/readline.h>
 

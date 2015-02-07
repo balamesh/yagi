@@ -28,7 +28,7 @@
 #include "../Database/DatabaseManager.h"
 #include "../Database/DBHelper.h"
 #include "../Formulas/FormulaEvaluator.h"
-#include "../Signals/SignalHandlerFactory.h"
+#include "../BackendFactory.h"
 #include "../Variables/VariableTable.h"
 #include "../Variables/VariableTableManager.h"
 #include "../ExogenousEvents/ExoEventNotifier.h"
@@ -342,7 +342,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-      SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, "<searchMain>");
+      BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, "<searchMain>");
 
   bool searchResult = false;
 
@@ -920,7 +920,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
               &reproduceStateVarTable, reproduceStateDB.get());
 
           ActionProcedureInterpretationVisitor reproduceStateVisitor(reproduceStateFormulaEvaluator,
-              reproduceStateDB, SignalHandlerFactory::getInstance().getSignalHandler(),
+              reproduceStateDB, BackendFactory::getInstance().getBackend()->getSignalHandler(),
               reproduceStateVarTable, false, "reproduceStateVisitor");
 
           reproduceStateVisitor.choicesForOnlineExecution = bfsStatesQueue->at(0)->getChoices();
@@ -952,7 +952,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
             bfsStatesQueue->at(0)->getState().get());
 
         ActionProcedureInterpretationVisitor v(formulaEvaluator, bfsStatesQueue->at(0)->getState(),
-            SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, "test");
+            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, "test");
 
         v.choices_ = bfsStatesQueue->at(0)->getChoices();
 
@@ -1274,7 +1274,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       {
         std::lock_guard<std::mutex> lk(chooseVisitorMutex);
         v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-            SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
+            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, name);
       }
 
       v->choices_ = this->choices_;
@@ -1483,7 +1483,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
       v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-          SignalHandlerFactory::getInstance().getSignalHandler(), tempVarTable, true, name);
+          BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, name);
 
       v->choices_ = this->choices_;
       v->choices_.push_back(idx);

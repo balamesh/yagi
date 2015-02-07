@@ -14,7 +14,7 @@
 #include "ActionProcedureInterpretationVisitor.h"
 #include "../Formulas/FormulaEvaluator.h"
 #include "../Variables/VariableTableManager.h"
-#include "../Signals/SignalHandlerFactory.h"
+#include "../BackendFactory.h"
 
 using yagi::database::DatabaseManager;
 
@@ -126,7 +126,7 @@ Any MainInterpretationVisitor::visit(NodeIDAssignment& idAssign)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return v.visit(idAssign);
@@ -139,7 +139,7 @@ Any MainInterpretationVisitor::visit(NodeSearch& nodeSearch)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return v.visit(nodeSearch);
@@ -170,7 +170,7 @@ Any MainInterpretationVisitor::visit(NodeProcExecution& procExec)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return Any { v.visit(procExec) };
@@ -220,7 +220,7 @@ Any MainInterpretationVisitor::visit(NodeForLoop& forLoop)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return v.visit(forLoop);
@@ -233,7 +233,7 @@ Any MainInterpretationVisitor::visit(NodeConditional& conditional)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return v.visit(conditional);
@@ -246,7 +246,7 @@ Any MainInterpretationVisitor::visit(NodeTest& nodeTest)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return nodeTest.accept(v);
@@ -259,7 +259,7 @@ Any MainInterpretationVisitor::visit(NodeChoose& nodeChoose)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return nodeChoose.accept(v);
@@ -272,7 +272,7 @@ Any MainInterpretationVisitor::visit(NodePick& nodePick)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return nodePick.accept(v);
@@ -285,7 +285,7 @@ Any MainInterpretationVisitor::visit(NodeWhileLoop& nodeWhileLoop)
       DatabaseManager::getInstance().getMainDB().get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator,
-      DatabaseManager::getInstance().getMainDB(), SignalHandlerFactory::getInstance().getSignalHandler(),
+      DatabaseManager::getInstance().getMainDB(), BackendFactory::getInstance().getBackend()->getSignalHandler(),
       VariableTableManager::getInstance().getMainVariableTable());
 
   return nodeWhileLoop.accept(v);
