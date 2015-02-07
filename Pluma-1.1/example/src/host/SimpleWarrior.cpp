@@ -1,0 +1,1 @@
+#include "SimpleWarrior.hpp"
