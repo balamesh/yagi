@@ -15,4 +15,9 @@ yagi
 /YAGI-UnitTests/
 doc/
 build/
+build-*
 gtest*
+*.user
+*build/
+*.tar.gz
+*.zip
