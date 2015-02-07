@@ -8,11 +8,9 @@
 #ifndef ASRAELSIGNALHANDLER_H_
 #define ASRAELSIGNALHANDLER_H_
 
-#include "IYAGISignalHandler.h"
+#include "../../Signals/IYAGISignalHandler.h"
 #include <iostream>
 #include <readline/readline.h>
-
-#ifdef ASRAEL
 
 #include <asrael/asrael_remote_control_client.h>
 
@@ -36,7 +34,5 @@ private:
 
 } /* namespace execution */
 } /* namespace yagi */
-
-#endif
 
 #endif /* ASRAELSIGNALHANDLER_H_ */
