@@ -10,13 +10,23 @@
 namespace yagi {
 namespace execution {
 
-IExogenousEventProducer::IExogenousEventProducer(IExogenousEventConsumer* consumer) :
-    consumer_(consumer)
+IExogenousEventProducer::IExogenousEventProducer()
 {
 }
 
 IExogenousEventProducer::~IExogenousEventProducer()
 {
+}
+
+void IExogenousEventProducer::initialize()
+{ }
+
+void IExogenousEventProducer::finalize()
+{ }
+
+bool IExogenousEventProducer::eventAvailable()
+{
+    return true;
 }
 
 } /* namespace execution */

@@ -10,7 +10,8 @@ class CinCoutBackend: public Backend
 {
 
 protected:
-    virtual void creatSignalHandler();
+    void creatSignalHandler() override;
+    void createExogenousEventProducer() override;
 
 public:
     CinCoutBackend();

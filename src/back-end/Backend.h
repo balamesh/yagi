@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "Signals/IYAGISignalHandler.h"
-// #include "ExogenousEvents/IExogenousEventConsumer.h"
+#include "ExogenousEvents/IExogenousEventProducer.h"
 #include <Pluma/Pluma.hpp>
 
 namespace yagi {
@@ -13,8 +13,10 @@ class Backend
 {
 protected:
     std::shared_ptr<IYAGISignalHandler> signal_handler_ = nullptr;
+    std::shared_ptr<IExogenousEventProducer> exogenious_event_producer_ = nullptr;
 
     virtual void creatSignalHandler() = 0;
+    virtual void createExogenousEventProducer();
 
 public:
 
@@ -26,6 +28,14 @@ public:
             creatSignalHandler();
 
         return signal_handler_;
+    }
+
+    std::shared_ptr<IExogenousEventProducer> getExogenousEventProducer()
+    {
+        if(!exogenious_event_producer_)
+            createExogenousEventProducer();
+
+        return exogenious_event_producer_;
     }
 
 

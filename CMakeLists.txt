@@ -40,7 +40,8 @@ add_library(signal_interface src/back-end/Signals/IYAGISignalHandler.cpp)
 add_library(CinCoutBackend SHARED
  src/back-end/Backends/CinCout/Connector.cpp
  src/back-end/Backends/CinCout/CinCoutBackend.cpp
- src/back-end/Backends/CinCout/CoutCinSignalHandler.cpp)
+ src/back-end/Backends/CinCout/CoutCinSignalHandler.cpp
+ src/back-end/Backends/CinCout/FileExogenousEventProducer.cpp)
 target_link_libraries(CinCoutBackend pluma signal_interface)
 
 # Asrael plugin
@@ -90,6 +91,7 @@ src/back-end/ASTVisitors/RewritingVisitor.cpp
 src/back-end/Database/DBHelper.cpp
 src/back-end/ExogenousEvents/IExogenousEventConsumer.cpp
 src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
+src/back-end/ExogenousEvents/DefaultExogenousEventProducer.cpp
 src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 src/back-end/BfsDataContainer.cpp
 src/back-end/Formulas/NumericStringCompare.h

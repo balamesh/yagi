@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include "../BackendFactory.h"
+#include "IExogenousEventProducer.h"
 
 #include "../../utils/fileExists.h"
 using std::ifstream;
@@ -18,7 +20,7 @@ using std::ofstream;
 namespace yagi {
 namespace execution {
 
-ExoEventNotifier::ExoEventNotifier()
+ExoEventNotifier::ExoEventNotifier() : sleep_duration_(100)
 {
 
 }
@@ -81,103 +83,40 @@ void ExoEventNotifier::waitForExoEventData()
 {
   t = std::thread([&]()
   {
+      BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->initialize();
+
     while (true)
     {
-      while (!fileExists(fileName))
-      {
-        std::chrono::milliseconds dura(50);
-        std::this_thread::sleep_for(dura);
+        if (stopListen_)
+        {
+          break;
+        }
+
+        std::this_thread::sleep_for(sleep_duration_);
 
         if (stopListen_)
         {
           break;
         }
-      }
 
-      //let the file "settle"
-      std::chrono::milliseconds dura(250);
-      std::this_thread::sleep_for(dura);
+        if(BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->eventAvailable())
+        {
+            std::vector<std::pair<std::string, std::unordered_map<std::string, std::string> > > events = BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->getEvent();
 
-      if (stopListen_)
-      {
-        break;
-      }
-
-      auto lines = readLinesFromFile();
-      auto values = splitFileLines(lines);
-
-      std::unordered_map<std::string, std::string> variablesAndValues;
-
-      //TODO: we assume we have just data for 1 exo event in the file
-      //and all the var names are unique!
-      std::string eventName = "<unknown>";
-      for (const auto& tuple : values)
-      {
-        variablesAndValues[std::get<1>(tuple)] = std::get<2>(tuple);
-        eventName = std::get<0>(tuple);
-      }
-
-      for (const auto& kv : exoEventConsumers_)
-      {
-        kv.second->consumeExoEventData(eventName, variablesAndValues);
-      }
+            for(const auto& e : events)
+            {
+                for (const auto& kv : exoEventConsumers_)
+                {
+                  kv.second->consumeExoEventData(e.first, e.second);
+                }
+            }
+        }
     }
+
+    BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->finalize();
   });
 }
 
-std::vector<std::string> ExoEventNotifier::readLinesFromFile()
-{
-  std::vector<std::string> lines;
-  std::string line;
-  ifstream myfile(fileName);
-  if (myfile.is_open())
-  {
-    while (getline(myfile, line))
-    {
-      lines.push_back(line);
-    }
-    myfile.close();
-
-    remove(fileName.c_str());
-  }
-  else
-    std::cout << "Unable to open exo event data file";
-
-  return lines;
-}
-
-std::vector<std::tuple<std::string, std::string, std::string>> ExoEventNotifier::splitFileLines(
-    std::vector<std::string> lines)
-{
-  std::string delimiter = ";";
-  std::vector<std::tuple<std::string, std::string, std::string>> values;
-
-  for (auto line : lines)
-  {
-    size_t pos = 0;
-    std::string token;
-
-    std::vector<std::string> lineValues;
-    while ((pos = line.find(delimiter)) != std::string::npos)
-    {
-      lineValues.push_back(line.substr(0, pos));
-      line.erase(0, pos + delimiter.length());
-    }
-
-    if (lineValues.size() == 3)
-    {
-      values.push_back(std::make_tuple(lineValues[0], lineValues[1], lineValues[2]));
-    }
-    else
-    {
-      std::cout
-          << "[WARNING] Invalid line in exogenous event file! Must have exactly 3 values, ';' separated!"
-          << std::endl;
-    }
-  }
-
-  return values;
-}
 
 } /* namespace execution */
 } /* namespace yagi */

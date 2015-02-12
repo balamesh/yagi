@@ -32,13 +32,11 @@ class ExoEventNotifier
     bool stopListen_ = false;
     bool threadRunning_ = false;
     std::unordered_map<std::string, IExogenousEventConsumer*> exoEventConsumers_;
-    std::vector<std::tuple<std::string, std::string, std::string>> splitFileLines(
-        std::vector<std::string> lines);
 
     void waitForExoEventData();
-    std::vector<std::string> readLinesFromFile();
     std::thread t;
-    const std::string fileName = "exoEventData.txt";
+
+    std::chrono::milliseconds sleep_duration_;
 
   public:
     static ExoEventNotifier& getInstance()
