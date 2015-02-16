@@ -6,6 +6,7 @@
  * The main entry point of the YAGI interpreter commandline.
  */
 
+#include <iostream>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <readline/rltypedefs.h>
@@ -18,7 +19,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <iostream>
 #include <iterator>
 #include <memory>
 #include <stdexcept>

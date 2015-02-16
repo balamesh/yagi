@@ -14,3 +14,5 @@ yagi
 /YAGI Unit Tests/
 /YAGI-UnitTests/
 doc/
+build/
+gtest*
