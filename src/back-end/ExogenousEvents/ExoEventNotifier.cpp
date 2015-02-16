@@ -79,50 +79,52 @@ void ExoEventNotifier::unRegisterEventConsumer(IExogenousEventConsumer* consumer
 
 void ExoEventNotifier::waitForExoEventData()
 {
-  t = std::thread([&]()
-  {
-    while (true)
-    {
-      while (!fileExists(fileName))
+  t =
+      std::thread([&]()
       {
-        std::chrono::milliseconds dura(50);
-        std::this_thread::sleep_for(dura);
-
-        if (stopListen_)
+        while (true)
         {
-          break;
+          while (!fileExists(fileName))
+          {
+            std::chrono::milliseconds dura(50);
+            std::this_thread::sleep_for(dura);
+
+            if (stopListen_)
+            {
+              break;
+            }
+          }
+
+          //let the file "settle"
+          std::chrono::milliseconds dura(250);
+          std::this_thread::sleep_for(dura);
+
+          if (stopListen_)
+          {
+            break;
+          }
+
+          auto lines = readLinesFromFile();
+          auto values = splitFileLines(lines);
+
+          std::unordered_map<std::string, std::string> variablesAndValues;
+
+          //TODO: we assume we have just data for 1 exo event in the file
+          //and all the var names are unique!
+          std::string eventName = "<unknown>";
+          for (const auto& tuple : values)
+          {
+            variablesAndValues[std::get<1>(tuple)] = std::get<2>(tuple);
+            eventName = std::get<0>(tuple);
+          }
+
+          std::cout << "Passing exo. event data to " << exoEventConsumers_.size() << " consumers..." << std::endl;
+          for (const auto& kv : exoEventConsumers_)
+          {
+            kv.second->consumeExoEventData(eventName, variablesAndValues);
+          }
         }
-      }
-
-      //let the file "settle"
-      std::chrono::milliseconds dura(250);
-      std::this_thread::sleep_for(dura);
-
-      if (stopListen_)
-      {
-        break;
-      }
-
-      auto lines = readLinesFromFile();
-      auto values = splitFileLines(lines);
-
-      std::unordered_map<std::string, std::string> variablesAndValues;
-
-      //TODO: we assume we have just data for 1 exo event in the file
-      //and all the var names are unique!
-      std::string eventName = "<unknown>";
-      for (const auto& tuple : values)
-      {
-        variablesAndValues[std::get<1>(tuple)] = std::get<2>(tuple);
-        eventName = std::get<0>(tuple);
-      }
-
-      for (const auto& kv : exoEventConsumers_)
-      {
-        kv.second->consumeExoEventData(eventName, variablesAndValues);
-      }
-    }
-  });
+      });
 }
 
 std::vector<std::string> ExoEventNotifier::readLinesFromFile()
