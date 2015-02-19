@@ -57,6 +57,27 @@ add_library(AsraelBackend SHARED
  src/back-end/Backends/Asrael/AsraelSignalHandler.cpp)
 target_link_libraries(AsraelBackend pluma signal_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
 endif()
+
+find_package(Fawkes COMPONENTS core blackboard interface navgraph SkillerInterface)
+if (Fawkes_FOUND)
+  add_library(FawkesBackend SHARED
+    src/back-end/Backends/Fawkes/Connector.cpp
+    src/back-end/Backends/Fawkes/FawkesBackend.cpp
+    src/back-end/Backends/Fawkes/FawkesSignalHandler.cpp)
+  set_target_properties(FawkesBackend PROPERTIES
+    INCLUDE_DIRECTORIES "${PLUMA_INCLUDE_DIR};${Fawkes_INCLUDE_DIRS}"
+    COMPILE_FLAGS "${Fawkes_CFLAGS}"
+    LINK_FLAGS "${Fawkes_LFLAGS}"
+    LINK_LIBRARIES "${Fawkes_LIBRARIES}"
+    INSTALL_RPATH "${Fawkes_LIBRARY_DIRS}"
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE)
+  message(STATUS "Building Fawkes backend plugin")
+else()
+  message(STATUS "Fawkes not found, cannot build Fawkes plugin")
+endif()
+
+
 # ======================================================================
 # end Plugin section
 # ======================================================================
