@@ -31,7 +31,7 @@ find_package(Sqlite REQUIRED)
 include_directories( ${SQLITE_INCLUDE_DIR} )
 
 
-add_library(signal_interface src/back-end/Signals/IYAGISignalHandler.cpp)
+add_library(signal_interface SHARED src/back-end/Signals/IYAGISignalHandler.cpp)
 
 # ======================================================================
 # begin Plugin section
