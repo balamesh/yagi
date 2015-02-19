@@ -21,3 +21,4 @@ gtest*
 *build/
 *.tar.gz
 *.zip
+*~
