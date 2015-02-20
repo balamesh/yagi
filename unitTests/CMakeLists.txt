@@ -228,6 +228,7 @@ add_executable(yagi-unitTests
 ../src/unitTests/TestFormula.cc
 ../src/unitTests/TestElevator.cc
 ../src/unitTests/TestExpr.cc
+../src/unitTests/TestExoEvents.cc
 )
 
 target_link_libraries(yagi-unitTests antlr3c readline gtest ${SQLITE_LIBRARIES})

@@ -1,8 +1,9 @@
-/*
- * NodePatternMatching.h
+/**
+ * @file   NodePatternMatching.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for pattern matching.
  */
 
 #ifndef NODEPATTERNMATCHING_H_
@@ -10,11 +11,22 @@
 
 #include "../ASTNodeBase.h"
 
+/**
+ * AST node class for pattern matching.
+ */
 class NodePatternMatching: public ASTNodeBase<>
 {
   public:
     DEFINE_VISITABLE()
+
+    /**
+     * Default ctor
+     */
     NodePatternMatching();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodePatternMatching();
 };
 

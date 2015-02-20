@@ -1,8 +1,9 @@
-/*
- * NodeIncompleteKnowledge.h
+/**
+ * @file   NodeIncompleteKnowledge.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 7, 2014
- *      Author: cmaier
+ * AST node for incomplete knowledge.
  */
 
 #ifndef NODEINCOMPLETEKNOWLEDGE_H_
@@ -10,11 +11,21 @@
 
 #include "../ASTNodeBase.h"
 
+/**
+ * AST node class for incomplete knowledge.
+ */
 class NodeIncompleteKnowledge: public ASTNodeBase<>
 {
   public:
     DEFINE_VISITABLE()
+    /**
+     * Default ctor
+     */
     NodeIncompleteKnowledge();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodeIncompleteKnowledge();
 };
 

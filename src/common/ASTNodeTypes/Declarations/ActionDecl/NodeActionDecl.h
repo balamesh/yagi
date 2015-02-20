@@ -1,8 +1,9 @@
-/*
- * NodeActionDecl.h
+/**
+ * @file   NodeActionDecl.h
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: May 23, 2014
- *      Author: cmaier
+ * AST node for action declarations.
  */
 
 #ifndef NODEACTIONDECL_H_
@@ -19,75 +20,157 @@
 #include "NodeSignal.h"
 #include "../../Identifier/NodeID.h"
 
+/**
+ * AST node class for action declarations.
+ */
 class NodeActionDecl: public ASTNodeBase<>
 {
   private:
+    /**
+     * Name of the action
+     */
     std::shared_ptr<NodeID> actionName_;
+
+    /**
+     * List of variables passed to action
+     */
     std::shared_ptr<NodeVarList> varList_;
+
+    /**
+     * List of setting variables
+     */
     std::shared_ptr<NodeVarList> settingVarList_;
+
+    /**
+     * Action precondition
+     */
     std::shared_ptr<NodeActionPrecondition> actionPrecondition_;
+
+    /**
+     * Action effect
+     */
     std::shared_ptr<NodeActionEffect> actionEffect_;
+
+    /**
+     * Signal
+     */
     std::shared_ptr<NodeSignal> signal_;
   public:
     DEFINE_VISITABLE()
+
+    /**
+     * Default ctor
+     */
     NodeActionDecl();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodeActionDecl();
 
+    /**
+     * Getter for the action effect
+     * @return The action effect node
+     */
     const std::shared_ptr<NodeActionEffect>& getActionEffect() const
     {
       return actionEffect_;
     }
 
+    /**
+     * Setter for the action effect
+     * @param actionEffect The action effect node
+     */
     void setActionEffect(const std::shared_ptr<NodeActionEffect>& actionEffect)
     {
       actionEffect_ = actionEffect;
     }
 
+    /**
+     * Getter for the action name
+     * @return The node of the action name
+     */
     const std::shared_ptr<NodeID>& getActionName() const
     {
       return actionName_;
     }
 
+    /**
+     * Setter for the action name
+     * @param actionName The node of the action name
+     */
     void setActionName(const std::shared_ptr<NodeID>& actionName)
     {
       actionName_ = actionName;
     }
 
+    /**
+     * Getter for the action precondition
+     * @return The action precondition node
+     */
     const std::shared_ptr<NodeActionPrecondition>& getActionPrecondition() const
     {
       return actionPrecondition_;
     }
 
+    /**
+     * Setter for the action precondition
+     * @param actionPrecondition The action precondition node
+     */
     void setActionPrecondition(const std::shared_ptr<NodeActionPrecondition>& actionPrecondition)
     {
       actionPrecondition_ = actionPrecondition;
     }
 
+    /**
+     * Getter for the signal
+     * @return The signal node
+     */
     const std::shared_ptr<NodeSignal>& getSignal() const
     {
       return signal_;
     }
 
+    /**
+     * Setter for the signal
+     * @param signal The signal node
+     */
     void setSignal(const std::shared_ptr<NodeSignal>& signal)
     {
       signal_ = signal;
     }
 
+    /**
+     * Getter for the variable list
+     * @return The variable list node
+     */
     const std::shared_ptr<NodeVarList>& getVarList() const
     {
       return varList_;
     }
 
+    /**
+     * Setter for the variable list
+     * @param varList The variable list node
+     */
     void setVarList(const std::shared_ptr<NodeVarList>& varList)
     {
       varList_ = varList;
     }
 
+    /**
+     * Getter for the setting variable list
+     * @return The setting variable list node
+     */
     const std::shared_ptr<NodeVarList>& getSettingVarList() const
     {
       return settingVarList_;
     }
 
+    /**
+     * Setter for the setting variable list
+     * @param settingVarList The setting variable list node
+     */
     void setSettingVarList(const std::shared_ptr<NodeVarList>& settingVarList)
     {
       settingVarList_ = settingVarList;
