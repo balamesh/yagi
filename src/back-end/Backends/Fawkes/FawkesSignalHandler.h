@@ -34,7 +34,16 @@
 #define FAWKESSIGNALHANDLER_H_
 
 #include "../../Signals/IYAGISignalHandler.h"
+
 #include <mutex>
+#include <memory>
+#include <map>
+
+namespace fawkes {
+  class BlackBoard;
+  class Logger;
+  class Interface;
+}
 
 namespace yagi {
 namespace execution {
@@ -53,8 +62,10 @@ class FawkesSignalHandler: public IYAGISignalHandler
 	   const std::vector<std::string>& variables) override;
 
  private:
-  std::mutex signal_mutex_;
-
+  std::mutex                                 signal_mutex_;
+  std::shared_ptr<fawkes::BlackBoard>        blackboard_;
+  std::shared_ptr<fawkes::Logger>            logger_;
+  std::map<std::string, fawkes::Interface *> interfaces_;
 };
 
 } /* namespace execution */
