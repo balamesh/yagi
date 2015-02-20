@@ -8,6 +8,7 @@
 
 #include "../../gtest_src/include/gtest/gtest.h"
 #include "../front-end/astClasses/YAGICallbackConnector.h"
+#include "../back-end/BackendFactory.h"
 
 /**
  * Initializes gtest stuff and runs unit tests
@@ -21,6 +22,8 @@ int main(int argc, char **argv)
 
   //Init YAGI parsing stuff
   YAGICallbackConnector::connectCallbacks();
+
+  yagi::execution::BackendFactory::getInstance().initBackend("CinCoutBackend");
 
   return RUN_ALL_TESTS();
 }

@@ -83,6 +83,7 @@ void ExoEventNotifier::waitForExoEventData()
 {
   t = std::thread([&]()
   {
+
       BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->initialize();
 
     while (true)
@@ -114,6 +115,7 @@ void ExoEventNotifier::waitForExoEventData()
     }
 
     BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->finalize();
+
   });
 }
 

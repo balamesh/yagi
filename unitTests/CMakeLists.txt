@@ -109,7 +109,6 @@ set(yagi-back-end
 ../src/back-end/ASTVisitors/RewritingVisitor.cpp
 ../src/back-end/Database/DBHelper.cpp
 ../src/back-end/ExogenousEvents/IExogenousEventConsumer.cpp
-../src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
 ../src/back-end/ExogenousEvents/DefaultExogenousEventProducer.cpp
 ../src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 ../src/back-end/BfsDataContainer.cpp
