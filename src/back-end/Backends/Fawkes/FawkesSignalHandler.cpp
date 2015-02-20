@@ -43,6 +43,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cstdio>
+#include <thread>
 
 using namespace fawkes;
 
@@ -75,6 +76,79 @@ FawkesSignalHandler::~FawkesSignalHandler()
       blackboard_->close(iface.second);
     }
   }
+}
+
+
+
+std::string
+FawkesSignalHandler::skill_exec(const std::string &skill_string, bool wait)
+{
+  std::string name_s = isSearch_ ? "[Search|Fawkes|skill_exec]" : "[Fawkes|skill_exec]";
+  const char *name = name_s.c_str();
+
+  std::string rv = "S_FAILED";
+
+  if (skill_string == "") {
+    logger_->log_error(name, "Skill string is empty");
+    return rv;
+  }
+
+  if (interfaces_.find("SkillerInterface::Skiller") == interfaces_.end()) {
+    // Interface not opened, do so now
+    try {
+      SkillerInterface *sif = blackboard_->open_for_reading<SkillerInterface>("Skiller");
+      interfaces_[sif->uid()] = sif;
+    } catch (Exception &e) {
+      logger_->log_error(name, "Failed to open skiller interface: %s",
+			 e.what_no_backtrace());
+      return rv;
+    }
+  }
+  SkillerInterface *skiller_if =
+    dynamic_cast<SkillerInterface *>(interfaces_["SkillerInterface::Skiller"]);
+  if (! skiller_if) {
+    logger_->log_error(name, "Failed to cast skiller interface");
+    return rv;
+  }
+  if (! skiller_if->has_writer()) {
+    logger_->log_error(name, "Skiller interface has no writer, skiller plugin not loaded?");
+    return rv;
+  }
+
+  logger_->log_info(name, "Executing skill string '%s' (%s)", skill_string.c_str(),
+		    wait ? "blocking" : "concurrent");
+
+  skiller_if->read();
+  if ((skiller_if->exclusive_controller() != skiller_if->serial()) && skiller_if->has_writer()) {
+    logger_->log_info(name, "Acquiring exclusive skiller control");
+    SkillerInterface::AcquireControlMessage *msg =
+      new SkillerInterface::AcquireControlMessage(/* steal control */ true);
+    skiller_if->msgq_enqueue(msg);
+  }
+
+  SkillerInterface::ExecSkillMessage *exec_msg =
+    new SkillerInterface::ExecSkillMessage(skill_string.c_str());
+  exec_msg->ref();
+  skiller_if->msgq_enqueue(exec_msg);
+  rv = "S_RUNNING";
+
+  if (wait) {
+    // wait until skill execution is finished
+    do {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      skiller_if->read();
+    } while (skiller_if->msgid() != exec_msg->id() ||
+	     (skiller_if->status() != SkillerInterface::S_FINAL &&
+	      skiller_if->status() != SkillerInterface::S_FAILED));
+
+    rv = skiller_if->tostring_SkillStatusEnum(skiller_if->status());
+    logger_->log_info(name, "Execution of '%s' finished: %s",
+		      skill_string.c_str(), rv.c_str());
+  }
+
+  exec_msg->unref();
+
+  return rv;
 }
 
 std::unordered_map<std::string, std::string>
@@ -230,50 +304,44 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
       std::string msg = content.substr(content.find(' ', 5));
       logger_->log(level, name, "%s", msg.c_str());
 
-    } else if (cmd.find('{') != std::string::npos) {
+    } else if (cmd == "skill-exec") {
       // it's a skill call
-      if (interfaces_.find("SkillerInterface::Skiller") == interfaces_.end()) {
-	// Interface not opened, do so now
-	try {
-	  SkillerInterface *sif = blackboard_->open_for_reading<SkillerInterface>("Skiller");
-	  interfaces_[sif->uid()] = sif;
-	} catch (Exception &e) {
-	  logger_->log_error(name, "Failed to open skiller interface: %s",
-			     e.what_no_backtrace());
- 	  return {};
-	}
-      }
-      SkillerInterface *skiller_if =
-	dynamic_cast<SkillerInterface *>(interfaces_["SkillerInterface::Skiller"]);
-      if (! skiller_if) {
-	logger_->log_error(name, "Failed to cast skiller interface");
-	return {};
-      }
-      if (! skiller_if->has_writer()) {
-	logger_->log_error(name, "Skiller interface has no writer, skiller plugin not loaded?");
-	return {};
-      }
 
-      if ((skiller_if->exclusive_controller() != skiller_if->serial()) && skiller_if->has_writer()) {
-	logger_->log_info(name, "Acquiring exclusive skiller control");
-	SkillerInterface::AcquireControlMessage *msg =
-	  new SkillerInterface::AcquireControlMessage(/* steal control */ true);
-	skiller_if->msgq_enqueue(msg);
-      }
+      // 11: after the first space between "skill-exec" and the skill string
+      std::string skill_string = content.substr(11);
+      skill_exec(skill_string, /* wait */ false);
 
-      SkillerInterface::ExecSkillMessage *exec_msg =
-	new SkillerInterface::ExecSkillMessage(content.c_str());
-      skiller_if->msgq_enqueue(exec_msg);
+    } else if (cmd == "skill-exec-wait") {
+      logger_->log_warn(name, "skill-exec-wait requires a $status variable");
+
+    } else if (cmd == "sleep") {
+      logger_->log_info(name, "Sleeping for %u ms", std::stoul(params[1]));
+      std::this_thread::sleep_for(std::chrono::milliseconds(std::stoul(params[1])));
 
     } else {
       logger_->log_warn(name, "Unknown command '%s' received, ignoring", content.c_str());
     }
+      
 
     return {};
-  }
-  else //print and wait for input
-  {
-    if (cmd == "bb-get") {
+  } else { // ! variables.empty()
+    std::unordered_map<std::string, std::string> rv;
+
+    if (cmd == "skill-exec-wait") {
+      // it's a skill call
+
+      // 16: after the first space between "skill-exec-wait" and the skill string
+      std::string skill_string = content.substr(16);
+      std::string status = skill_exec(skill_string, /* wait */ true);
+
+      for (const std::string &var : variables) {
+	if (var == "$status") {
+	  rv[var] = status;
+	  break;
+	}
+      }
+
+    } else if (cmd == "bb-get") {
       if (! blackboard_) {
 	logger_->log_error(name, "Blackboard is not connected, cannot read interface");
 	return {};
@@ -290,14 +358,12 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
 	return {};
       }
 
-      std::unordered_map<std::string, std::string> rv;
-
-      logger_->log_debug(name, "Getting values");
-
       Interface *iface = interfaces_[uid];
+
+      logger_->log_debug(name, "Reading values out of %s", iface->uid());
+
       InterfaceFieldIterator f_end = iface->fields_end();
       for (const std::string &var : variables) {
-	logger_->log_debug(name, "  Looking for %s", var.c_str());
 	if (var == "$timestamp") {
 	  const Time *t = iface->timestamp();
 	  // YAGI does not (yet) have a native time type, therefore
@@ -327,27 +393,27 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
 	  for (f = iface->fields(); f != f_end; ++f) {
 	    if (field_name == f.get_name()) {
 	      rv[var] = f.get_value_string();
-	      logger_->log_debug(name, "  Found, setting %s=%s",
+	      logger_->log_debug(name, "  %s=%s",
 				 var.c_str(), f.get_value_string());
 	    }
 	  }
 	}
 
 	if (rv.find(var) == rv.end()) {
-	  logger_->log_warn(name, "Field '%s' not found in interface %s",
+	  logger_->log_warn(name, "  %s not found in interface %s",
 			    var.c_str(), iface->uid());
 	  rv[var] = "";
 	}
       }
 
-      logger_->log_info(name, "DONE");
       return rv;
     } else {
       logger_->log_warn(name, "Unknown setting action '%s' received, ignoring", content.c_str());
       return {};
     }
-  }
 
+    return rv;
+  }
 }
 
 } /* namespace execution */

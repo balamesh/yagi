@@ -62,6 +62,9 @@ class FawkesSignalHandler: public IYAGISignalHandler
 	   const std::vector<std::string>& variables) override;
 
  private:
+  std::string skill_exec(const std::string &skill_string, bool wait);
+
+ private:
   std::mutex                                 signal_mutex_;
   std::shared_ptr<fawkes::BlackBoard>        blackboard_;
   std::shared_ptr<fawkes::Logger>            logger_;
