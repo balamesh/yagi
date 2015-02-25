@@ -32,17 +32,17 @@ fluent blackboard_connected[{"true", "false"}];
 blackboard_connected = {<"false">};
 
 
-fluent expl_machines[{"M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12"}];
-expl_machines = {<"M1">,<"M2">,<"M3">,<"M4">,<"M5">,<"M6">,<"M7">,<"M8">,<"M9">,<"M10">,<"M11">,<"M12">};
+fluent expl_machines[{"M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","M11","M12", "M13",
+                      "M14", "M15", "M16", "M17", "M18", "M19", "M20", "M21", "M22", "M23", "M24"}];
+fluent expl_types[{"T1", "T2", "T3", "T4", "T5"}][{"ON", "OFF"}][{"ON", "OFF"}][{"ON", "OFF"}];
+//expl_machines = {<"M1">};
 
 fluent skill_status[{"S_INACTIVE", "S_RUNNING", "S_FINAL", "S_FAILED"}];
 
-fluent red_light[{"ON", "OFF", "BLINKING", "UNKNOWN"}];
-fluent yellow_light[{"ON", "OFF", "BLINKING", "UNKNOWN"}];
-fluent green_light[{"ON", "OFF", "BLINKING", "UNKNOWN"}];
-red_light = {<"UNKNOWN">};
-yellow_light = {<"UNKNOWN">};
-green_light = {<"UNKNOWN">};
+fluent light_state[{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+		  [{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+		  [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
+light_state = {<"UNKNOWN","UNKNOWN","UNKNOWN">};
 
 action blackboard_connect($host, $port)
 precondition:
@@ -94,9 +94,7 @@ action read_light() external ($red, $yellow, $green)
 precondition:
   true;
 effect:
-  red_light = {<$red>};
-  yellow_light = {<$yellow>};
-  green_light = {<$green>};
+  light_state = {<$red, $yellow, $green>};
 signal:
   "bb-get RobotinoLightInterface::/machine-signal/best";
 end action
@@ -124,6 +122,33 @@ effect:
 //  "";
 end action
 
+action report_machine($M, $T)
+signal:
+  "pb-send-report " + $M + " " + $T;
+end action
+
+//exogenous-event protobuf_msg ($endpoint_host, $endpoint_port, $component_id, $msg_type, $ptr, $client_type, $client_id)
+//end exigenous-event
+
+exogenous-event exploration_machine ($machine)
+  expl_machines += {<$machine>};
+end exogenous-event
+
+exogenous-event exploration_type ($type, $red, $yellow, $green)
+  expl_types += {<$type, $red, $yellow, $green>};
+end exogenous-event
+
+
+proc exploration_report($M)
+  pick <$red,$yellow,$green> from light_state such
+    foreach <$type,$tred,$tyellow,$tgreen> in expl_types do
+      if ({<$red,$yellow,$green>} == {<$tred,$tyellow,$tgreen>}) then
+        report_machine($M, $type);
+      end if
+    end for
+  end pick
+end proc
+
 proc explore($M)
   goto($M);
   // give vision some time to read signal, in real life we would
@@ -132,9 +157,13 @@ proc explore($M)
   mark_explored($M);
   blackboard_read("RobotinoLightInterface::/machine-signal/best");
   read_light();
+  exploration_report($M);
 end proc
 
 proc exploration()
+  while not (exists <$M> in expl_machines) do
+    sleep("1000");
+  end while
   while exists <$M> in expl_machines do
     pick <$M> from expl_machines such
       explore($M);
