@@ -156,6 +156,7 @@ TOKEN_INCLUDE = '@include';
   IT_FLUENT_DECL; 
   IT_STRING_SET;
   IT_TUPLE_SET;
+  IT_TUPLE_SET_EMPTY;
   IT_FACT_DECL;
   IT_PROGRAM;
   IT_ASSIGN;
@@ -423,7 +424,7 @@ atom_connector
 set	:	TOKEN_SET_START 
 		(
 		  tuple (TOKEN_COMMA tuple)* -> ^(IT_TUPLE_SET tuple+) 
-		| /*eps*/		     -> ^(IT_TUPLE_SET)
+		| /*eps*/		     -> IT_TUPLE_SET_EMPTY
 		) TOKEN_SET_END 
 	|	ID
 	;

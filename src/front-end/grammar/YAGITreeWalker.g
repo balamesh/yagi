@@ -240,7 +240,8 @@ atom_connector
 //Sets
 //******************************************************************************
 setexpr	:	^(expr_op setexpr setexpr) {ADD_SETEXPR();}
-	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})*)
+	|	^(IT_TUPLE_SET ({ADD_TUPLE_SET();}) (tuple {CONSUME_TUPLE();})+)
+	|	IT_TUPLE_SET_EMPTY ({ADD_TUPLE_SET();})
 	|	ID {ADD_ID($ID->toString($ID));}
 	;
 	
