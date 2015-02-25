@@ -337,6 +337,8 @@ bool execute(const std::string& line, bool isFileName)
   bool success = true;
   for (const auto& stmt : stmts)
   {
+    if (!success) return true;
+
     if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
     {
       ToStringVisitor toStringVisitor;

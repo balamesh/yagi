@@ -1,8 +1,9 @@
-/*
- * NodePatternMatching.cpp
+/**
+ * @file   NodePatternMatching.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for pattern matching.
  */
 
 #include "NodePatternMatching.h"

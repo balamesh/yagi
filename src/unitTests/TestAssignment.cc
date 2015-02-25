@@ -142,3 +142,24 @@ TEST(AssignmentTest, assignmentConditional1)
   cleanupDatabase();
 }
 
+/**
+ * Runs the assignment test 'assignmentZeroArity.y'
+ */
+TEST(AssignmentTest, assignmentZeroArity)
+{
+  try
+  {
+    auto ast = yagi::unitTestHelper::tryParse("samples/AssignmentTest/assignmentZeroArity.y");
+    EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
+
+    ASTBuilder::getInstance().reset();
+  }
+  catch (const std::exception& ex)
+  {
+    std::cout << ex.what() << std::endl;
+    EXPECT_TRUE(false);
+  }
+
+  cleanupDatabase();
+}
+

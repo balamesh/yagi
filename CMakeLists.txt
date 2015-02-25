@@ -32,6 +32,7 @@ include_directories( ${SQLITE_INCLUDE_DIR} )
 
 
 add_library(signal_interface src/back-end/Signals/IYAGISignalHandler.cpp)
+add_library(exogenous_event_interface src/back-end/ExogenousEvents/IExogenousEventProducer.cpp)
 
 # ======================================================================
 # begin Plugin section
@@ -42,7 +43,7 @@ add_library(CinCoutBackend SHARED
  src/back-end/Backends/CinCout/CinCoutBackend.cpp
  src/back-end/Backends/CinCout/CoutCinSignalHandler.cpp
  src/back-end/Backends/CinCout/FileExogenousEventProducer.cpp)
-target_link_libraries(CinCoutBackend pluma signal_interface)
+target_link_libraries(CinCoutBackend pluma signal_interface exogenous_event_interface)
 
 # Asrael plugin
 find_library(ASRAEL_C++ asrael-c++ /usr/local/lib)
@@ -54,7 +55,7 @@ add_library(AsraelBackend SHARED
  src/back-end/Backends/Asrael/Connector.cpp
  src/back-end/Backends/Asrael/AsraelBackend.cpp
  src/back-end/Backends/Asrael/AsraelSignalHandler.cpp)
-target_link_libraries(AsraelBackend pluma signal_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
+target_link_libraries(AsraelBackend pluma signal_interface exogenous_event_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
 endif()
 # ======================================================================
 # end Plugin section
@@ -90,7 +91,6 @@ src/back-end/TreeHelper.cpp
 src/back-end/ASTVisitors/RewritingVisitor.cpp
 src/back-end/Database/DBHelper.cpp
 src/back-end/ExogenousEvents/IExogenousEventConsumer.cpp
-src/back-end/ExogenousEvents/IExogenousEventProducer.cpp
 src/back-end/ExogenousEvents/DefaultExogenousEventProducer.cpp
 src/back-end/ExogenousEvents/ExoEventNotifier.cpp
 src/back-end/BfsDataContainer.cpp
@@ -173,4 +173,4 @@ ${yagi-common}
 ${yagi-utils}
 )
 
-target_link_libraries(yagi ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES} pluma signal_interface)
+target_link_libraries(yagi ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES} pluma signal_interface exogenous_event_interface)

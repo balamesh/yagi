@@ -1,8 +1,9 @@
-/*
- * NodeIncompleteKnowledge.cpp
+/**
+ * @file   NodeIncompleteKnowledge.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jul 7, 2014
- *      Author: cmaier
+ * AST node for incomplete knowledge.
  */
 
 #include "NodeIncompleteKnowledge.h"

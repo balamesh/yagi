@@ -1,8 +1,9 @@
-/*
- * NodeActionDecl.cpp
+/**
+ * @file   NodeActionDecl.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: May 23, 2014
- *      Author: cmaier
+ * AST node for action declarations.
  */
 
 #include "NodeActionDecl.h"

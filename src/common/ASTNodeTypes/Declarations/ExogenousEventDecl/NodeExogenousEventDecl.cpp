@@ -1,8 +1,9 @@
-/*
- * NodePassiveSensingDecl.cpp
+/**
+ * @file   NodeExogenousEventDecl.cpp
+ * @author Christopher Maier (cmaier@student.tugraz.at)
+ * @date   January 2015
  *
- *  Created on: Jun 4, 2014
- *      Author: cmaier
+ * AST node for exogenous event declaration.
  */
 
 #include "NodeExogenousEventDecl.h"
