@@ -31,12 +31,15 @@
  */
 
 #include "FawkesSignalHandler.h"
+#include "yagi_protobuf.h"
 
 // Fawkes includes
 #include <blackboard/remote.h>
-#include <logging/console.h>
+#include <logging/logger.h>
 #include <interfaces/SkillerInterface.h>
 #include <utils/time/time.h>
+#include <llsf_msgs/MachineReport.pb.h>
+#include <llsf_msgs/BeaconSignal.pb.h>
 
 #include <string>
 #include <sstream>
@@ -53,13 +56,39 @@ namespace execution {
 }}
 #endif
 
-FawkesSignalHandler::FawkesSignalHandler()
+FawkesSignalHandler::FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger,
+					 std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb)
+  : logger_(logger), pb_(pb)
 {
-  logger_ = std::make_shared<ConsoleLogger>();
+  pb_llsf_beacon_thread_quit_ = false;
+  pb_llsf_beacon_thread_ =
+    std::thread([this](){
+	logger_->log_info("BeaconThread", "*** UP ***");
+	while (! pb_llsf_beacon_thread_quit_) {
+	  static unsigned long int seq = 0;
+	  fawkes::Time now;
+	  std::shared_ptr<llsf_msgs::BeaconSignal> beacon = std::make_shared<llsf_msgs::BeaconSignal>();
+	  beacon->mutable_time()->set_sec(now.get_sec());
+	  beacon->mutable_time()->set_nsec(now.get_nsec());
+	  beacon->set_seq(++seq);
+	  beacon->set_number(1);
+	  beacon->set_team_name("YAGI");
+	  beacon->set_peer_name("R-1");
+	  beacon->set_team_color(llsf_msgs::CYAN);
+	  logger_->log_info("BeaconThread", "Sending beacon signal");
+	  pb_->yagi_pb_broadcast(pb_->get_peer_name("private"), &beacon);
+	  logger_->log_info("BeaconThread", "Sleeping");
+	  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	logger_->log_info("BeaconThread", "*** DOWN ***");
+      });
 }
 
 FawkesSignalHandler::~FawkesSignalHandler()
 {
+  pb_llsf_beacon_thread_quit_ = true;
+  pb_llsf_beacon_thread_.join();
+
   if (interfaces_.find("SkillerInterface::Skiller") == interfaces_.end()) {
     SkillerInterface *skiller_if =
       dynamic_cast<SkillerInterface *>(interfaces_["SkillerInterface::Skiller"]);
@@ -151,6 +180,155 @@ FawkesSignalHandler::skill_exec(const std::string &skill_string, bool wait)
   return rv;
 }
 
+
+
+std::unordered_map<std::string, std::string>
+FawkesSignalHandler::process_bb_cmd(const char *name,
+				    const std::string &cmd, const std::vector<std::string> &params,
+				    const std::string &content)
+{
+  if (cmd == "bb-connect") {
+    if (blackboard_) {
+      logger_->log_warn(name, "Already connected to blackboard");
+      return {};
+    }
+
+    std::string  host = "localhost";
+    unsigned int port = 1910;
+    if (params.size() > 1)  host = params[1];
+    if (params.size() > 2)  port = std::stoul(params[2]);
+    if (port > 65535) {
+      logger_->log_error(name, "Invalid port %u (> 65535)", port);
+      return {};
+    }
+    logger_->log_info(name, "Connecting to remote blackboard %s:%u", host.c_str(), port);
+    try {
+      blackboard_ = std::make_shared<RemoteBlackBoard>(host.c_str(), port);
+    } catch (Exception &e) {
+      logger_->log_error(name, "Failed to connect to blackboard: %s", e.what_no_backtrace());
+    }
+
+  } else if (cmd == "bb-disconnect") {
+    if (blackboard_) {
+      for (auto iface : interfaces_) {
+	blackboard_->close(iface.second);
+      }
+      interfaces_.clear();
+    }
+    blackboard_.reset();
+  } else if (cmd == "bb-open") {
+    if (! blackboard_) {
+      logger_->log_error(name, "Blackboard is not connected, cannot open interfaces");
+      return {};
+    }
+    if (params.size() != 4) {
+      logger_->log_error(name, "bb-open usage: bb-open <READ|WRITE> <type> <ID>,"
+			 "invalid call '%s'", content.c_str());
+      return {};
+    }
+    try {
+      Interface *iface;
+      if (params[1] == "READ") {
+	iface = blackboard_->open_for_reading(params[2].c_str(), params[3].c_str());
+      } else {
+	iface = blackboard_->open_for_writing(params[2].c_str(), params[3].c_str());
+      }
+      interfaces_[iface->uid()] = iface;
+    } catch (Exception &e) {
+      logger_->log_error(name, "Failed to open interface %s::%s (%s): %s",
+			 params[2].c_str(), params[3].c_str(), params[1].c_str(),
+			 e.what_no_backtrace());
+    }
+  } else if (cmd == "bb-close") {
+    if (! blackboard_) {
+      logger_->log_error(name, "Blackboard is not connected, cannot open interfaces");
+      return {};
+    }
+    if (params.size() != 2) {
+      logger_->log_error(name, "bb-close usage: bb-close <UID>,"
+			 "invalid call '%s'", content.c_str());
+      return {};
+    }
+
+    const std::string &uid = params[1];
+    if (interfaces_.find(uid) == interfaces_.end()) {
+      logger_->log_error(name, "bb-close: interface %s has not been opened", uid.c_str());
+      return {};
+    }
+
+    blackboard_->close(interfaces_[uid]);
+    interfaces_.erase(uid);
+
+  } else if (cmd == "bb-read") {
+    if (! blackboard_) {
+      logger_->log_error(name, "Blackboard is not connected, cannot read interface");
+      return {};
+    }
+    if (params.size() != 2) {
+      logger_->log_error(name, "bb-read usage: bb-read <UID>,"
+			 "invalid call '%s'", content.c_str());
+      return {};
+    }
+
+    const std::string &uid = params[1];
+    if (interfaces_.find(uid) == interfaces_.end()) {
+      logger_->log_error(name, "bb-read: interface %s has not been opened", uid.c_str());
+      return {};
+    }
+
+    if (interfaces_[uid]->is_writer()) {
+      logger_->log_warn(name, "bb-read: interface %s is opened for writing,"
+			" reading makes no sense", uid.c_str());
+      return {};
+    }
+
+    interfaces_[uid]->read();
+
+  } else if (cmd == "bb-read-all") {
+    if (! blackboard_) {
+      logger_->log_error(name, "Blackboard is not connected, cannot read interface");
+      return {};
+    }
+    for (auto &i : interfaces_) {
+      if (! i.second->is_writer())  i.second->read();
+    }
+  }
+
+  return {};
+}
+
+std::unordered_map<std::string, std::string>
+FawkesSignalHandler::process_pb_cmd(const char *name,
+				    const std::string &cmd, const std::vector<std::string> &params,
+				    const std::string &content)
+{
+  // this is a hack until YAGI can handle user pointers or at least
+  // free string domains for fluents or assignable variables in procs
+  if (cmd == "pb-send-report") {
+    if (params.size() != 3) {
+      logger_->log_warn("[Fawkes|pb_cmd]", "Wrong number of arguments, usage: pb-send-report <M> <T>");
+    }
+    if (! pb_llsf_mr_) {
+      pb_llsf_mr_ = std::make_shared<llsf_msgs::MachineReport>();
+      pb_llsf_mr_->set_team_color(llsf_msgs::CYAN);
+    }
+    logger_->log_info("[Fawkes|pb_cmd]", "Reporting %s as %s", params[1].c_str(), params[2].c_str());
+    llsf_msgs::MachineReportEntry *entry = pb_llsf_mr_->add_machines();
+    entry->set_name(params[1]);
+    entry->set_type(params[2]);
+
+    long int private_peer = pb_->get_peer_name("private");
+    // send a view time to make sure it arrives even with simulated
+    // packet drop
+    for (unsigned int i = 0; i < 10; ++i) {
+      pb_->yagi_pb_broadcast(private_peer, &pb_llsf_mr_);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  }
+
+  return {};
+}
+
 std::unordered_map<std::string, std::string>
 FawkesSignalHandler::signal(const std::string &content, const std::vector<std::string> &variables)
 {
@@ -173,113 +351,10 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
 
   //no variables passed => no setting actions
   if (variables.empty()) {
-    if (cmd == "bb-connect") {
-      if (blackboard_) {
-	logger_->log_warn(name, "Already connected to blackboard");
-	return {};
-      }
-
-      std::string  host = "localhost";
-      unsigned int port = 1910;
-      if (params.size() > 1)  host = params[1];
-      if (params.size() > 2)  port = std::stoul(params[2]);
-      if (port > 65535) {
-	logger_->log_error(name, "Invalid port %u (> 65535)", port);
-	return {};
-      }
-      logger_->log_info(name, "Connecting to remote blackboard %s:%u", host.c_str(), port);
-      try {
-	blackboard_ = std::make_shared<RemoteBlackBoard>(host.c_str(), port);
-      } catch (Exception &e) {
-	logger_->log_error(name, "Failed to connect to blackboard: %s", e.what_no_backtrace());
-      }
-
-
-    } else if (cmd == "bb-disconnect") {
-      if (blackboard_) {
-	for (auto iface : interfaces_) {
-	  blackboard_->close(iface.second);
-	}
-	interfaces_.clear();
-      }
-      blackboard_.reset();
-    } else if (cmd == "bb-open") {
-      if (! blackboard_) {
-	logger_->log_error(name, "Blackboard is not connected, cannot open interfaces");
-	return {};
-      }
-      if (params.size() != 4) {
-	logger_->log_error(name, "bb-open usage: bb-open <READ|WRITE> <type> <ID>,"
-			   "invalid call '%s'", content.c_str());
-	return {};
-      }
-      try {
-	Interface *iface;
-	if (params[1] == "READ") {
-	  iface = blackboard_->open_for_reading(params[2].c_str(), params[3].c_str());
-	} else {
-	  iface = blackboard_->open_for_writing(params[2].c_str(), params[3].c_str());
-	}
-	interfaces_[iface->uid()] = iface;
-      } catch (Exception &e) {
- 	logger_->log_error(name, "Failed to open interface %s::%s (%s): %s",
-			   params[2].c_str(), params[3].c_str(), params[1].c_str(),
-			   e.what_no_backtrace());
-      }
-    } else if (cmd == "bb-close") {
-      if (! blackboard_) {
-	logger_->log_error(name, "Blackboard is not connected, cannot open interfaces");
-	return {};
-      }
-      if (params.size() != 2) {
-	logger_->log_error(name, "bb-close usage: bb-close <UID>,"
-			   "invalid call '%s'", content.c_str());
-	return {};
-      }
-
-      std::string &uid = params[1];
-      if (interfaces_.find(uid) == interfaces_.end()) {
-	logger_->log_error(name, "bb-close: interface %s has not been opened", uid.c_str());
-	return {};
-      }
-
-      blackboard_->close(interfaces_[uid]);
-      interfaces_.erase(uid);
-
-    } else if (cmd == "bb-read") {
-      if (! blackboard_) {
-	logger_->log_error(name, "Blackboard is not connected, cannot read interface");
-	return {};
-      }
-      if (params.size() != 2) {
-	logger_->log_error(name, "bb-read usage: bb-read <UID>,"
-			   "invalid call '%s'", content.c_str());
-	return {};
-      }
-
-      std::string &uid = params[1];
-      if (interfaces_.find(uid) == interfaces_.end()) {
-	logger_->log_error(name, "bb-read: interface %s has not been opened", uid.c_str());
-	return {};
-      }
-
-      if (interfaces_[uid]->is_writer()) {
-	logger_->log_warn(name, "bb-read: interface %s is opened for writing,"
-			  " reading makes no sense", uid.c_str());
-	return {};
-      }
-
-      interfaces_[uid]->read();
-
-    } else if (cmd == "bb-read-all") {
-      if (! blackboard_) {
-	logger_->log_error(name, "Blackboard is not connected, cannot read interface");
-	return {};
-      }
-      for (auto &i : interfaces_) {
-	if (! i.second->is_writer())  i.second->read();
-      }
-
+    if (cmd.find("bb-") == 0) {
+      return process_bb_cmd(name, cmd, params, content);
+    } else if (cmd.find("pb-") == 0) {
+      return process_pb_cmd(name, cmd, params, content);
     } else if (cmd == "log") {
       if (params.size() < 3) {
 	logger_->log_error(name, "log usage: log <debug|info|warn|error> <msg>+"
@@ -333,6 +408,7 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
       // 16: after the first space between "skill-exec-wait" and the skill string
       std::string skill_string = content.substr(16);
       std::string status = skill_exec(skill_string, /* wait */ true);
+      logger_->log_info(name, "Skill execution finished with state %s", status.c_str());
 
       for (const std::string &var : variables) {
 	if (var == "$status") {

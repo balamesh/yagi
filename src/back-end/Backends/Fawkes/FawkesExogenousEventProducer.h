@@ -1,12 +1,13 @@
 
 /***************************************************************************
- *  FawkesBackend.h - Fawkes backend for YAGI
+ *  FawkesExogenousEventProducer.h - Fawkes exogenous event producer
  *
- *  Created: Thu Feb 19 17:45:31 2015
+ *  Created: Tue Feb 24 11:20:17 2015
  *  Copyright  2015  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
-/* Redistribution and use in source and binary forms, with or without
+/*
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
@@ -30,16 +31,19 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FAWKESBACKEND_H
-#define FAWKESBACKEND_H
+#ifndef FAWKESEXOGENOUSEVENTPRODUCER_H_
+#define FAWKESEXOGENOUSEVENTPRODUCER_H_
 
-#include "../../Backend.h"
+#include "../../ExogenousEvents/IExogenousEventProducer.h"
+
+#include <memory>
+
+namespace yagi_protobuf {
+  class YAGIProtobuf;
+}
 
 namespace fawkes {
   class Logger;
-}
-namespace yagi_protobuf {
-  class YAGIProtobuf;
 }
 
 namespace yagi {
@@ -48,30 +52,23 @@ namespace execution {
 }}
 #endif
 
-class FawkesSignalHandler;
-class FawkesExogenousEventProducer;
-
-class FawkesBackend: public Backend
+class FawkesExogenousEventProducer : public IExogenousEventProducer
 {
- protected:
-  void creatSignalHandler() override;
-  void createExogenousEventProducer() override;
-
  public:
-  FawkesBackend();
+  FawkesExogenousEventProducer(std::shared_ptr<fawkes::Logger> logger,
+			       std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb);
+  ~FawkesExogenousEventProducer();
+
+  bool eventAvailable() override;
+  std::vector<std::pair<std::string, std::unordered_map<std::string, std::string>>> getEvent() override;
 
  private:
-  std::shared_ptr<FawkesSignalHandler>          fawkes_signal_handler_;
-  std::shared_ptr<FawkesExogenousEventProducer> fawkes_exo_prod_;
-
   std::shared_ptr<fawkes::Logger>               logger_;
   std::shared_ptr<yagi_protobuf::YAGIProtobuf>  pb_;
+  bool exp_info_processed_;
 };
-
-
-PLUMA_INHERIT_PROVIDER(FawkesBackend, Backend)
 
 } /* namespace execution */
 } /* namespace yagi */
 
-#endif // FAWKESBACKEND_H
+#endif /* FAWKESEXOGENOUSEVENTPRODUCER_H_ */

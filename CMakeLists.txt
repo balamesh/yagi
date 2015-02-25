@@ -58,12 +58,20 @@ add_library(AsraelBackend SHARED
 target_link_libraries(AsraelBackend pluma signal_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
 endif()
 
-find_package(Fawkes COMPONENTS core blackboard interface navgraph SkillerInterface)
+find_package(Fawkes COMPONENTS core blackboard interface navgraph protobuf_comm SkillerInterface)
 if (Fawkes_FOUND)
   add_library(FawkesBackend SHARED
     src/back-end/Backends/Fawkes/Connector.cpp
     src/back-end/Backends/Fawkes/FawkesBackend.cpp
-    src/back-end/Backends/Fawkes/FawkesSignalHandler.cpp)
+    src/back-end/Backends/Fawkes/FawkesSignalHandler.cpp
+    src/back-end/Backends/Fawkes/FawkesExogenousEventProducer.cpp
+    src/back-end/Backends/Fawkes/yagi_protobuf.cpp)
+
+  # This is necessary due to some hacks regarding LLSF processing
+  # in the FawkesBackend. This should go away once YAGI message
+  # processing has been upgrade.
+  list(APPEND Fawkes_LIBRARIES "llsf_msgs")
+
   set_target_properties(FawkesBackend PROPERTIES
     INCLUDE_DIRECTORIES "${PLUMA_INCLUDE_DIR};${Fawkes_INCLUDE_DIRS}"
     COMPILE_FLAGS "${Fawkes_CFLAGS}"

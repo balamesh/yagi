@@ -35,6 +35,7 @@
 
 #include "../../Signals/IYAGISignalHandler.h"
 
+#include <thread>
 #include <mutex>
 #include <memory>
 #include <map>
@@ -43,6 +44,15 @@ namespace fawkes {
   class BlackBoard;
   class Logger;
   class Interface;
+}
+
+namespace yagi_protobuf {
+  class YAGIProtobuf;
+}
+
+// LLSF Hack
+namespace llsf_msgs {
+  class MachineReport;
 }
 
 namespace yagi {
@@ -54,7 +64,7 @@ namespace execution {
 class FawkesSignalHandler: public IYAGISignalHandler
 {
  public:
-  FawkesSignalHandler();
+  FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger, std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb);
   virtual ~FawkesSignalHandler();
 
   std::unordered_map<std::string, std::string>
@@ -63,12 +73,25 @@ class FawkesSignalHandler: public IYAGISignalHandler
 
  private:
   std::string skill_exec(const std::string &skill_string, bool wait);
+  std::unordered_map<std::string, std::string>
+    process_bb_cmd(const char *name,
+		   const std::string &cmd, const std::vector<std::string> &params,
+		   const std::string &content);
+
+  std::unordered_map<std::string, std::string>
+    process_pb_cmd(const char *name,
+		   const std::string &cmd, const std::vector<std::string> &params,
+		   const std::string &content);
 
  private:
-  std::mutex                                 signal_mutex_;
-  std::shared_ptr<fawkes::BlackBoard>        blackboard_;
-  std::shared_ptr<fawkes::Logger>            logger_;
-  std::map<std::string, fawkes::Interface *> interfaces_;
+  std::mutex                                   signal_mutex_;
+  std::shared_ptr<fawkes::BlackBoard>          blackboard_;
+  std::shared_ptr<fawkes::Logger>              logger_;
+  std::map<std::string, fawkes::Interface *>   interfaces_;
+  std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb_;
+  std::shared_ptr<llsf_msgs::MachineReport>    pb_llsf_mr_;
+  bool                                         pb_llsf_beacon_thread_quit_;
+  std::thread                                  pb_llsf_beacon_thread_;
 };
 
 } /* namespace execution */

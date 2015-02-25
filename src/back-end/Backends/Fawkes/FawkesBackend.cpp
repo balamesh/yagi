@@ -32,7 +32,11 @@
 
 #include "FawkesBackend.h"
 #include "FawkesSignalHandler.h"
-//include "FileExogenousEventProducer.h"
+#include "FawkesExogenousEventProducer.h"
+#include "yagi_protobuf.h"
+
+// Fawkes includes
+#include <logging/console.h>
 
 namespace yagi {
 namespace execution {
@@ -41,19 +45,40 @@ namespace execution {
 #endif
 FawkesBackend::FawkesBackend()
 {
-  std::cout << "FawkesBackend constructed ..." << std::endl;
+  logger_ = std::make_shared<fawkes::ConsoleLogger>();
+
+  std::vector<std::string> proto_paths = { BASEDIR"/src/libs/llsf_msgs" };
+  pb_ = std::make_shared<yagi_protobuf::YAGIProtobuf>(proto_paths);
+
+  long int peer_public  = pb_->yagi_pb_peer_create_local("127.0.0.1", 4421, 4411);
+  long int peer_private = pb_->yagi_pb_peer_create_local_crypto("127.0.0.1", 4471, 4451,
+								"aachengraz",
+								"aes-128-cbc");  
+
+  pb_->set_peer_name("public", peer_public);
+  pb_->set_peer_name("private", peer_private);
+
+  logger_->log_info("FawkesBackend", "Initialization complete");
 }
 
 void FawkesBackend::creatSignalHandler()
 {
-  std::cout << "FawkesBackend signal handler created ..." << std::endl;
-  signal_handler_ = std::make_shared<FawkesSignalHandler>();
+  fawkes_signal_handler_ = std::make_shared<FawkesSignalHandler>(logger_, pb_);
+  signal_handler_ = std::dynamic_pointer_cast<IYAGISignalHandler>(fawkes_signal_handler_);
+  if (! fawkes_signal_handler_ || ! signal_handler_) {
+    throw std::runtime_error("Could not create FawkesSignalHandler");
+  }
+  logger_->log_info("FawkesBackend", "Signal handler created");
 }
 
 void FawkesBackend::createExogenousEventProducer()
 {
-  std::cout << "FawkesBackend exogenous events producer created ..." << std::endl;
-  //exogenious_event_producer_ = std::make_shared<FileExogenousEventProducer>();
+  fawkes_exo_prod_ = std::make_shared<FawkesExogenousEventProducer>(logger_, pb_);
+  exogenious_event_producer_ = std::dynamic_pointer_cast<IExogenousEventProducer>(fawkes_exo_prod_);
+  if (! fawkes_exo_prod_ || ! exogenious_event_producer_) {
+    throw std::runtime_error("Could not create FawkesExogenousEventProducer");
+  }
+  logger_->log_info("FawkesBackend", "Exogenous event producer created");
 }
 
 } /* namespace execution */
