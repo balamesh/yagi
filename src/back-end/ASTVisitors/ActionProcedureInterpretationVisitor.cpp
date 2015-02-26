@@ -1428,7 +1428,41 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
 {
   auto fluentName = pick.getSetExpr()->accept(*this).get<std::string>();
-  auto set = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
+  auto complete_set = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
+
+  //TODO make it more perfoming through usage of db query
+  //pick a value for each unbound variable in varTuple, leave the bound variables as they are
+  // get the already assigned elements
+  auto varTuple = pick.getTuple()->accept(*this).get<std::vector<std::string>>();
+  std::vector<std::pair<size_t, std::string>> assigned_elements;
+    for (size_t i = 0; i != varTuple.size(); i++)
+    {
+      if (getVarTable()->variableExists(varTuple[i])
+          && getVarTable()->isVariableInitialized(varTuple[i]))
+        assigned_elements.push_back(std::pair<size_t, std::string>(i, getVarTable()->getVariableValue(varTuple[i])));
+    }
+
+  std::vector<std::vector<std::string>> set;
+  // use only tuples complient with the assigned elements
+  for(const auto& tuple : complete_set)
+  {
+      if(tuple.size() != varTuple.size())
+        throw std::runtime_error("size of tuple for luent " + fluentName + " does not match varible tuple size in pick");
+    bool keep_tuple = true;
+    for(const auto& assigned_element : assigned_elements)
+    {
+        if(tuple[assigned_element.first] != assigned_element.second)
+        {
+            keep_tuple = false;
+            break;
+        }
+    }
+    if(keep_tuple)
+        set.push_back(tuple);
+  }
+
+  if(set.empty())
+      return Any { false };
 
   if (!isSearch_)
   {
@@ -1692,6 +1726,12 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
     auto argMap = std::get<1>(exoEventData);
     auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName,
         argMap.size());
+
+    if(exoEventProg == nullptr)
+    {
+        std::cout << "[WARNING]: ignore exogen event with name: " << exoEventName << " as it is not defined " << std::endl;
+        continue;
+    }
 
     varTable_->addScope();
 

@@ -61,7 +61,7 @@ add_library(CinCoutBackend SHARED
  ../src/back-end/Backends/CinCout/CinCoutBackend.cpp
  ../src/back-end/Backends/CinCout/CoutCinSignalHandler.cpp
  ../src/back-end/Backends/CinCout/FileExogenousEventProducer.cpp)
-target_link_libraries(CinCoutBackend pluma signal_interface exogenous_event_interface)
+target_link_libraries(CinCoutBackend pluma signal_interface exogenous_event_interface readline)
 
 # Asrael plugin
 find_library(ASRAEL_C++ asrael-c++ /usr/local/lib)
@@ -73,7 +73,7 @@ add_library(AsraelBackend SHARED
  ../src/back-end/Backends/Asrael/Connector.cpp
  ../src/back-end/Backends/Asrael/AsraelBackend.cpp
  ../src/back-end/Backends/Asrael/AsraelSignalHandler.cpp)
-target_link_libraries(AsraelBackend pluma signal_interface exogenous_event_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++})
+target_link_libraries(AsraelBackend pluma signal_interface exogenous_event_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++} readline)
 endif()
 # ======================================================================
 # end Plugin section
