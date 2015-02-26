@@ -1727,6 +1727,12 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
     auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName,
         argMap.size());
 
+    if(exoEventProg == nullptr)
+    {
+        std::cout << "[WARNING]: ignore exogen event with name: " << exoEventName << " as it is not defined " << std::endl;
+        continue;
+    }
+
     varTable_->addScope();
 
     std::vector<std::string> paramList;
