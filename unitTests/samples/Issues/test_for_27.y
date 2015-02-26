@@ -26,3 +26,13 @@ proc proc2()
 		end pick
 	end search
 end proc
+
+proc1();
+proc1();
+proc1();
+proc1();
+
+proc2();
+proc2();
+proc2();
+proc2();
