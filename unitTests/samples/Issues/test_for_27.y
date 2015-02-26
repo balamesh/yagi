@@ -36,3 +36,33 @@ proc2();
 proc2();
 proc2();
 proc2();
+
+pick <$n> from number such
+	pick <$n, $b> from link such
+		dummy($b);
+	end pick
+end pick
+
+pick <$n> from number such
+	pick <$n, $b> from link such
+		dummy($b);
+	end pick
+end pick
+
+pick <$n> from number such
+	pick <$n, $b> from link such
+		dummy($b);
+	end pick
+end pick
+
+pick <$n> from number such
+	pick <$n, $b> from link such
+		dummy($b);
+	end pick
+end pick
+
+pick <$n> from number such
+	pick <$n, $b> from link such
+		dummy($b);
+	end pick
+end pick
