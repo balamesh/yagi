@@ -5,6 +5,8 @@
 #include <Pluma/Pluma.hpp>
 #include <memory>
 #include <iostream>
+#include <mutex>
+#include <condition_variable>
 
 namespace yagi {
 namespace execution {
@@ -12,6 +14,8 @@ namespace execution {
 class BackendFactory final
 {
     std::shared_ptr<Backend> backend_ = nullptr;
+    std::mutex the_lock_;
+    std::condition_variable lock_notifier_;
 
     pluma::Pluma pluma_;
     BackendFactory()
@@ -28,6 +32,7 @@ public:
 
     void initBackend(std::string backend_str)
     {
+        std::unique_lock<std::mutex> lock(the_lock_);
         std::cout << "initializing backend " << backend_str << std::endl;
 
         pluma_.load("./", "lib" + backend_str);
@@ -42,6 +47,7 @@ public:
         }
 
         backend_ = std::shared_ptr<Backend>(providers[0]->create());
+        lock_notifier_.notify_all();
     }
 
     static BackendFactory & getInstance()
@@ -52,9 +58,11 @@ public:
 
     std::shared_ptr<Backend> getBackend()
     {
-        if (backend_ == nullptr)
+        std::unique_lock<std::mutex> lock(the_lock_);
+        while (backend_ == nullptr)
         {
-		//FIXME make it thread safe
+            std::cout << "[WARNING]: wait till backend is initlized" << std::endl;
+            lock_notifier_.wait(lock);
         }
         return backend_;
     }
