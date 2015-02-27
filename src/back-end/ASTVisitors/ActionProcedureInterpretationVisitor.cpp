@@ -1437,9 +1437,14 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   std::vector<std::pair<size_t, std::string>> assigned_elements;
     for (size_t i = 0; i != varTuple.size(); i++)
     {
-      if (getVarTable()->variableExists(varTuple[i])
-          && getVarTable()->isVariableInitialized(varTuple[i]))
-        assigned_elements.push_back(std::pair<size_t, std::string>(i, getVarTable()->getVariableValue(varTuple[i])));
+        if(varTuple[i][0] == '$') // TODO make this clean with classes (indicate for a variable)
+        {
+          if (getVarTable()->variableExists(varTuple[i])
+              && getVarTable()->isVariableInitialized(varTuple[i]))
+            assigned_elements.push_back(std::pair<size_t, std::string>(i, getVarTable()->getVariableValue(varTuple[i])));
+        }
+        else
+            assigned_elements.push_back(std::pair<size_t, std::string>(i, varTuple[i]));
     }
 
   std::vector<std::vector<std::string>> set;
@@ -1462,7 +1467,15 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
   }
 
   if(set.empty())
+  {
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+      {
+        std::cout << ">>>> " << msgPrefix_ << "can't pick a value for value " << fluentName << "..."
+            << std::endl;
+      }
       return Any { false };
+  }
 
   if (!isSearch_)
   {

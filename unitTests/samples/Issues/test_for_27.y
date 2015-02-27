@@ -66,3 +66,37 @@ pick <$n> from number such
 		dummy($b);
 	end pick
 end pick
+
+
+$c = "1";
+pick <$c, $b> from link such
+	dummy($b);
+end pick
+
+pick <$c, $b> from link such
+	dummy($b);
+end pick
+
+pick <$c, $b> from link such
+	dummy($b);
+end pick
+
+pick <$c,  $b> from link such
+	dummy($b);
+end pick
+
+pick <"1", $b> from link such
+	dummy($b);
+end pick
+
+pick <"1", $b> from link such
+	dummy($b);
+end pick
+
+pick <"1", $b> from link such
+	dummy($b);
+end pick
+
+pick <"1", $b> from link such
+	dummy($b);
+end pick
