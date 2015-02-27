@@ -491,6 +491,28 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
       procExecRetVal = true;
     }
   }
+  else if(ExecutableElementsContainer::getInstance().actionNameExists(actionOrProcName))
+  {
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+      {
+        std::cout << ">>>> " << msgPrefix_ << " action " << actionOrProcName << " is used wrong possibilies are : " << std::endl;
+        for(const auto& action_decl : ExecutableElementsContainer::getInstance().actionDeclerations(actionOrProcName))
+            std::cout << ">>>> " << msgPrefix_ << " " << action_decl.name_ << " with arrity " << action_decl.arity_ << std::endl;
+        std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the action " << "..."  << std::endl;
+      }
+  }
+  else if(ExecutableElementsContainer::getInstance().procNameExists(actionOrProcName))
+  {
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+      {
+        std::cout << ">>>> " << msgPrefix_ << " procedure " << actionOrProcName << " is used wrong possibilies are : " << std::endl;
+        for(const auto& proc_decl : ExecutableElementsContainer::getInstance().procDeclerations(actionOrProcName))
+            std::cout << ">>>> " << msgPrefix_ << " " << proc_decl.name_ << " with arrity " << proc_decl.arity_ << std::endl;
+       std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the procedure " << "..."  << std::endl;
+      }
+  }
 
   varTable_->removeScope();
 

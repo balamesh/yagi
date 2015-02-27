@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <map>
 #include <string>
+#include <unordered_set>
 
 #include "../common/ASTNodeTypes/Declarations/ActionDecl/NodeActionDecl.h"
 #include "../common/ASTNodeTypes/Declarations/ProcDecl/NodeProcDecl.h"
@@ -59,8 +60,11 @@ class ExecutableElementsContainer
       ~ExecutableElementsContainer();
 
       std::unordered_map<ExecElementKey, std::shared_ptr<NodeActionDecl>> actions_;
+      std::unordered_map<std::string, std::unordered_set<ExecElementKey>> action_names_;
       std::unordered_map<ExecElementKey, std::shared_ptr<NodeProcDecl>> procedures_;
+      std::unordered_map<std::string, std::unordered_set<ExecElementKey>> procedure_names_;
       std::unordered_map<ExecElementKey, std::shared_ptr<NodeExogenousEventDecl>> exoEvents_;
+      std::unordered_map<std::string, std::unordered_set<ExecElementKey>> exoEvents_names_;
 
     public:
       static ExecutableElementsContainer& getInstance()
@@ -72,15 +76,21 @@ class ExecutableElementsContainer
       void addOrReplaceAction(const NodeActionDecl& actionDecl);
       std::shared_ptr<NodeActionDecl> getAction(const std::string& actionName, int arity);
       bool actionExists(const std::string& actionName, int arity);
+      bool actionNameExists(const std::string& actionName);
+      std::unordered_set<ExecElementKey> actionDeclerations(const std::string& actionName);
 
       void addOrReplaceProcedure(const NodeProcDecl& procDecl);
       std::shared_ptr<NodeProcDecl> getProcedure(const std::string& procName, int arity);
       bool procExists(const std::string& procName, int arity);
+      bool procNameExists(const std::string& actionName);
+      std::unordered_set<ExecElementKey> procDeclerations(const std::string& actionName);
 
       void addOrReplaceExoEvent(const NodeExogenousEventDecl& exoEventDecl);
       std::shared_ptr<NodeExogenousEventDecl> getExoEvent(const std::string& exoEventName,
           int arity);
       bool exoEventExists(const std::string& exoEventName, int arity);
+      bool exoEventNameExists(const std::string& actionName);
+      std::unordered_set<ExecElementKey> exoEventDeclerations(const std::string& actionName);
   };
 
   } /* namespace execution */
