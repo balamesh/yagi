@@ -63,7 +63,6 @@ FawkesSignalHandler::FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger,
   pb_llsf_beacon_thread_quit_ = false;
   pb_llsf_beacon_thread_ =
     std::thread([this](){
-	logger_->log_info("BeaconThread", "*** UP ***");
 	while (! pb_llsf_beacon_thread_quit_) {
 	  static unsigned long int seq = 0;
 	  fawkes::Time now;
@@ -75,12 +74,9 @@ FawkesSignalHandler::FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger,
 	  beacon->set_team_name("YAGI");
 	  beacon->set_peer_name("R-1");
 	  beacon->set_team_color(llsf_msgs::CYAN);
-	  logger_->log_info("BeaconThread", "Sending beacon signal");
 	  pb_->yagi_pb_broadcast(pb_->get_peer_name("private"), &beacon);
-	  logger_->log_info("BeaconThread", "Sleeping");
 	  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
-	logger_->log_info("BeaconThread", "*** DOWN ***");
       });
 }
 

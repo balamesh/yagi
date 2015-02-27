@@ -39,6 +39,8 @@
 
 // See comment in getEvent() why these are necessary
 #include <llsf_msgs/ExplorationInfo.pb.h>
+#include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/GameState.pb.h>
 
 namespace yagi {
 namespace execution {
@@ -93,9 +95,17 @@ FawkesExogenousEventProducer::getEvent()
   }
   */
 
-  logger_->log_info("FawkesExo", "Processed? %s", exp_info_processed_ ? "YES" : "NO");
   for (const yagi_protobuf::YAGIProtobuf::MessageData &m : messages) {
     logger_->log_debug("FawkesExo", "Processing message of type %s", m.msg->GetTypeName().c_str());
+
+    std::shared_ptr<llsf_msgs::GameState> gs =
+      std::dynamic_pointer_cast<llsf_msgs::GameState>(m.msg);
+    if (gs) {
+      std::unordered_map<std::string, std::string> variables;
+      variables["$state"] = llsf_msgs::GameState::State_Name(gs->state());
+      variables["$phase"] = llsf_msgs::GameState::Phase_Name(gs->phase());
+      events.push_back(std::make_pair("game_state", variables));
+    }
 
     std::shared_ptr<llsf_msgs::ExplorationInfo> expi =
       std::dynamic_pointer_cast<llsf_msgs::ExplorationInfo>(m.msg);
@@ -119,6 +129,30 @@ FawkesExogenousEventProducer::getEvent()
 	variables["$yellow"]  = llsf_msgs::LightState_Name(exp_signal.lights(1).state());
 	variables["$green"]  = llsf_msgs::LightState_Name(exp_signal.lights(2).state());
 	events.push_back(std::make_pair("exploration_type", variables));
+      }
+    }
+
+    static bool machine_info_processed_ = false;
+    if (! machine_info_processed_) {
+      std::shared_ptr<llsf_msgs::MachineInfo> maci =
+	std::dynamic_pointer_cast<llsf_msgs::MachineInfo>(m.msg);
+      if (maci) {
+	logger_->log_warn("FawkesExo", "Processing Machine info, got %i machines",
+			  maci->machines_size());
+	machine_info_processed_ = true;
+	for (int i = 0; i < maci->machines_size(); ++i) {
+	  const llsf_msgs::Machine &machine = maci->machines(i);
+	  if (machine.team_color() == llsf_msgs::CYAN) {
+	    std::unordered_map<std::string, std::string> variables;
+	    logger_->log_info("FawkesExo", "Announcing machine %s of type %s",
+			      machine.name().c_str(), machine.type().c_str());
+	    variables["$name"] = machine.name();
+	    variables["$type"] = machine.type();
+	    events.push_back(std::make_pair("machine_type", variables));
+	  } else {
+	    logger_->log_warn("FawkesExo", "Machine not of type CYAN");
+	  }
+	}
       }
     }
   }
