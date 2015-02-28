@@ -44,6 +44,7 @@ add_library(CinCoutBackend SHARED
  src/back-end/Backends/CinCout/CoutCinSignalHandler.cpp
  src/back-end/Backends/CinCout/FileExogenousEventProducer.cpp)
 target_link_libraries(CinCoutBackend pluma signal_interface exogenous_event_interface readline)
+install(TARGETS CinCoutBackend DESTINATION lib)
 
 # Asrael plugin
 find_library(ASRAEL_C++ asrael-c++ /usr/local/lib)
@@ -56,6 +57,7 @@ add_library(AsraelBackend SHARED
  src/back-end/Backends/Asrael/AsraelBackend.cpp
  src/back-end/Backends/Asrael/AsraelSignalHandler.cpp)
 target_link_libraries(AsraelBackend pluma signal_interface exogenous_event_interface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++} readline)
+install(TARGETS AsraelBackend DESTINATION lib)
 endif()
 # ======================================================================
 # end Plugin section
@@ -165,12 +167,34 @@ src/utils/CommandLineArgsContainer.cpp
 src/utils/StringManipulationHelper.h
 )
 
-add_executable(yagi
-src/front-end/YAGIMain.cpp
+add_library(yagi-lang
 ${yagi-front-end}
 ${yagi-back-end}
 ${yagi-common}
 ${yagi-utils}
 )
+target_link_libraries(yagi-lang ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES} pluma signal_interface exogenous_event_interface)
 
-target_link_libraries(yagi ${ANTLR_LIBRARIES} readline ncurses ${SQLITE_LIBRARIES} pluma signal_interface exogenous_event_interface)
+add_library(yagi-interpreter
+src/front-end/YAGIInterpreter.cpp
+)
+target_link_libraries(yagi-interpreter yagi-lang)
+
+add_executable(yagi
+src/front-end/YAGIMain.cpp
+)
+
+target_link_libraries(yagi yagi-interpreter)
+
+# install yagi libs and executable
+install(TARGETS yagi-lang yagi-interpreter DESTINATION lib)
+install(TARGETS yagi DESTINATION bin)
+
+# install include files used for interpreter
+install(FILES src/front-end/cppInterfaceClasses/CToCppBridge.h DESTINATION include/yagi/front-end/cppInterfaceClasses)
+install(FILES src/front-end/astClasses/YAGICallbackConnector.h DESTINATION include/yagi/front-end/astClasses)
+install(FILES src/front-end/YAGIInterpreter.h DESTINATION include/yagi/front-end)
+install(FILES src/back-end/BackendFactory.h src/back-end/Backend.h DESTINATION include/yagi/back-end)
+install(FILES src/back-end/ExogenousEvents/IExogenousEventProducer.h DESTINATION include/yagi/back-end/ExogenousEvents)
+install(FILES src/back-end/Signals/IYAGISignalHandler.h src/back-end/Backend.h DESTINATION include/yagi/back-end/Signals)
+install(FILES src/utils/CommandLineArgsContainer.h DESTINATION include/yagi/utils)

@@ -35,7 +35,14 @@ public:
         std::unique_lock<std::mutex> lock(the_lock_);
         std::cout << "initializing backend " << backend_str << std::endl;
 
-        pluma_.load("./", "lib" + backend_str);
+        if(!pluma_.load("./", "lib" + backend_str)) // use local version
+        {
+            if(!pluma_.load("/usr/local/lib", "lib" + backend_str)) // use installed version local
+            {
+                if(!pluma_.load("/usr/lib", "lib" + backend_str)) // use installed local
+                    std::runtime_error("can't load plugin with name " + backend_str);
+            }
+        }
 
         std::vector<BackendProvider*> providers;
         pluma_.getProviders(providers);
