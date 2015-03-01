@@ -11,4 +11,12 @@ target_link_libraries(pluma dl)
 add_subdirectory(example)
 
 install(TARGETS pluma DESTINATION lib)
-install(FILES include/Pluma/Connector.hpp include/Pluma/Pluma.hpp DESTINATION include/Pluma)
+install(FILES
+ include/Pluma/Connector.hpp
+ include/Pluma/Pluma.hpp
+ include/Pluma/Config.hpp
+ include/Pluma/Provider.hpp
+ include/Pluma/PluginManager.hpp
+ include/Pluma/Host.hpp
+ include/Pluma/Pluma.inl
+ DESTINATION include/Pluma)

@@ -10,8 +10,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "IExogenousEventConsumer.h"
-
 namespace yagi {
 namespace execution {
 
