@@ -316,9 +316,9 @@ FawkesSignalHandler::process_pb_cmd(const char *name,
     long int private_peer = pb_->get_peer_name("private");
     // send a view time to make sure it arrives even with simulated
     // packet drop
-    for (unsigned int i = 0; i < 10; ++i) {
+    for (unsigned int i = 0; i < 3; ++i) {
       pb_->yagi_pb_broadcast(private_peer, &pb_llsf_mr_);
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
   }
 
