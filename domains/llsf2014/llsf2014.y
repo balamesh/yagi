@@ -44,6 +44,12 @@ fluent light_state[{"ON", "OFF", "BLINKING", "UNKNOWN"}]
 		  [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
 light_state = {<"UNKNOWN","UNKNOWN","UNKNOWN">};
 
+fluent state[{"INIT", "WAIT_START", "RUNNING", "PAUSED"}];
+state = {<"INIT">};
+fluent phase[{"PRE_GAME", "SETUP", "EXPLORATION", "PRODUCTION", "POST_GAME"}];
+phase = {<"PRE_GAME">};
+
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -130,6 +136,11 @@ end action
 //exogenous-event protobuf_msg ($endpoint_host, $endpoint_port, $component_id, $msg_type, $ptr, $client_type, $client_id)
 //end exigenous-event
 
+exogenous-event game_state ($state, $phase)
+  state = {<$state>};
+  phase = {<$phase>};
+end exogenous-event
+
 exogenous-event exploration_machine ($machine)
   expl_machines += {<$machine>};
 end exogenous-event
@@ -164,11 +175,14 @@ proc exploration()
   while not (exists <$M> in expl_machines) do
     sleep("1000");
   end while
-  while exists <$M> in expl_machines do
-    pick <$M> from expl_machines such
-      explore($M);
-    end pick
+  while phase == {<"EXPLORATION">} do
+    if (exists <$M> in expl_machines) then
+      pick <$M> from expl_machines such
+        explore($M);
+      end pick
+    end if
   end while
+  log("error", "Exploration finished");
 end proc
 
 
