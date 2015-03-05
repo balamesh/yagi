@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_subdirectory(Pluma-1.1)
-include_directories(Pluma-1.1/include)
+get_filename_component(PLUMA_INCLUDE_DIR "Pluma-1.1/include" ABSOLUTE)
+include_directories(${PLUMA_INCLUDE_DIR})
 
 find_package(ANTLR REQUIRED)
 
@@ -62,6 +63,35 @@ add_library(AsraelBackend SHARED
 target_link_libraries(AsraelBackend pluma yagiSignalInterface yagiExogenousEventInterface ${ASRAEL_C++} ${LIB_XML_RPC++} ${LIB_XML_RPC_CLIENT++} readline)
 install(TARGETS AsraelBackend DESTINATION lib)
 endif()
+
+find_package(Fawkes COMPONENTS core blackboard interface navgraph protobuf_comm SkillerInterface)
+if (Fawkes_FOUND)
+  add_library(FawkesBackend SHARED
+    src/back-end/Backends/Fawkes/Connector.cpp
+    src/back-end/Backends/Fawkes/FawkesBackend.cpp
+    src/back-end/Backends/Fawkes/FawkesSignalHandler.cpp
+    src/back-end/Backends/Fawkes/FawkesExogenousEventProducer.cpp
+    src/back-end/Backends/Fawkes/yagi_protobuf.cpp)
+
+  # This is necessary due to some hacks regarding LLSF processing
+  # in the FawkesBackend. This should go away once YAGI message
+  # processing has been upgrade.
+  list(APPEND Fawkes_LIBRARIES "llsf_msgs")
+
+  set_target_properties(FawkesBackend PROPERTIES
+    INCLUDE_DIRECTORIES "${PLUMA_INCLUDE_DIR};${Fawkes_INCLUDE_DIRS}"
+    COMPILE_FLAGS "${Fawkes_CFLAGS}"
+    LINK_FLAGS "${Fawkes_LFLAGS}"
+    LINK_LIBRARIES "${Fawkes_LIBRARIES}"
+    INSTALL_RPATH "${Fawkes_LIBRARY_DIRS}"
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE)
+  message(STATUS "Building Fawkes backend plugin")
+else()
+  message(STATUS "Fawkes not found, cannot build Fawkes plugin")
+endif()
+
+
 # ======================================================================
 # end Plugin section
 # ======================================================================

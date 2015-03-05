@@ -28,7 +28,7 @@ ExoEventNotifier::ExoEventNotifier() : sleep_duration_(100)
 ExoEventNotifier::~ExoEventNotifier()
 {
   stopListen_ = true;
-  t.join();
+  if (t.joinable()) t.join();
 }
 
 bool ExoEventNotifier::isConsumerRegistered(IExogenousEventConsumer* consumer)
@@ -81,10 +81,16 @@ void ExoEventNotifier::unRegisterEventConsumer(IExogenousEventConsumer* consumer
 
 void ExoEventNotifier::waitForExoEventData()
 {
-  t = std::thread([&]()
+  std::shared_ptr<IExogenousEventProducer> event_producer =
+    BackendFactory::getInstance().getBackend()->getExogenousEventProducer();
+  if (! event_producer) {
+    return;
+  }
+
+  t = std::thread([event_producer, this]()
   {
 
-      BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->initialize();
+    event_producer->initialize();
 
     while (true)
     {
@@ -100,9 +106,10 @@ void ExoEventNotifier::waitForExoEventData()
           break;
         }
 
-        if(BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->eventAvailable())
+        if(event_producer->eventAvailable())
         {
-            std::vector<std::pair<std::string, std::unordered_map<std::string, std::string> > > events = BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->getEvent();
+            std::vector<std::pair<std::string, std::unordered_map<std::string, std::string> > > events =
+	      event_producer->getEvent();
 
             for(const auto& e : events)
             {
@@ -114,8 +121,7 @@ void ExoEventNotifier::waitForExoEventData()
         }
     }
 
-    BackendFactory::getInstance().getBackend()->getExogenousEventProducer()->finalize();
-
+    event_producer->finalize();
   });
 }
 
