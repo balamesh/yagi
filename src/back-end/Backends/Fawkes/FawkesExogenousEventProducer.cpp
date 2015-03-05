@@ -96,7 +96,7 @@ FawkesExogenousEventProducer::getEvent()
   */
 
   for (const yagi_protobuf::YAGIProtobuf::MessageData &m : messages) {
-    logger_->log_debug("FawkesExo", "Processing message of type %s", m.msg->GetTypeName().c_str());
+    //logger_->log_debug("FawkesExo", "Processing message of type %s", m.msg->GetTypeName().c_str());
 
     std::shared_ptr<llsf_msgs::GameState> gs =
       std::dynamic_pointer_cast<llsf_msgs::GameState>(m.msg);
@@ -157,7 +157,19 @@ FawkesExogenousEventProducer::getEvent()
     }
   }
 
-  logger_->log_info("FawkesExo", "Returning %zu events", events.size());
+  {
+    std::list<std::string> event_strings;
+    for (const auto &e : events) {
+      if (e.first == "game_state") continue; // too noisy
+      std::list<std::string> var_strings;
+      for (const auto &v : e.second) {
+	var_strings.push_back(v.first + "=" + v.second);
+      }
+      logger_->log_info("[FawkesExo]", "Event: %s(%s)", e.first.c_str(),
+			fawkes::str_join(var_strings, ", ").c_str());
+    }
+  }
+  //logger_->log_info("FawkesExo", "Returning %zu events", events.size());
 
   return events;
 }

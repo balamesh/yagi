@@ -343,7 +343,7 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
   std::string &cmd = params.front();
 
   std::lock_guard<std::mutex> lock(signal_mutex_);
-  logger_->log_debug(name, "received: %s", content.c_str());
+  //logger_->log_debug(name, "received: %s", content.c_str());
 
   //no variables passed => no setting actions
   if (variables.empty()) {
@@ -368,12 +368,12 @@ FawkesSignalHandler::signal(const std::string &content, const std::vector<std::s
       } else if (params[1] == "error") {
 	level = Logger::LL_ERROR;
       } else {
-	logger_->log_warn(name, "Unknown log level '%s', using info", params[1].c_str());
+	logger_->log_warn("[YAGI]", "Unknown log level '%s', using info", params[1].c_str());
       }
 
       // 5: after the first space between "log" and the level
       std::string msg = content.substr(content.find(' ', 5));
-      logger_->log(level, name, "%s", msg.c_str());
+      logger_->log(level, "[YAGI]", "%s", msg.c_str());
 
     } else if (cmd == "skill-exec") {
       // it's a skill call
