@@ -111,7 +111,7 @@ precondition:
 effect:
   skill_status = {<$status>};
 signal:
-  "skill-exec-wait ppgoto{place='" + $place + "'}";
+  "skill-exec-wait drive_to{place='Exp" + $place + "'}";
 end action
 
 proc init()
