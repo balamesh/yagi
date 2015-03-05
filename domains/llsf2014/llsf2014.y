@@ -89,7 +89,7 @@ signal:
   "log " + $level + " " + $msg;
 end action
 
-action sleep($time_ms)
+action wait($time_ms)
 precondition:
   true;
 signal:
@@ -164,7 +164,7 @@ proc explore($M)
   goto($M);
   // give vision some time to read signal, in real life we would
   // wait for the visibility history to be acceptable
-  sleep("2000");
+  //wait("2000");
   mark_explored($M);
   blackboard_read("RobotinoLightInterface::/machine-signal/best");
   read_light();
@@ -173,7 +173,7 @@ end proc
 
 proc exploration()
   while not (exists <$M> in expl_machines) do
-    sleep("1000");
+    wait("1000");
   end while
   while phase == {<"EXPLORATION">} do
     if (exists <$M> in expl_machines) then
