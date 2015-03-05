@@ -17,6 +17,7 @@
 namespace yagi {
 namespace execution {
 
+//TODO make VariableTable without usage of BARRIER_SYMBOL
 class VariableTable
 {
   private:

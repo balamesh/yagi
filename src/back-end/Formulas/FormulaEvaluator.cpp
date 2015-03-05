@@ -131,13 +131,13 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
       SQLGenerator::getInstance().getSqlStringSelectAll(setExprFluentName));
 
   bool truthVal = false;
-  varTable_->addScope();
 
   switch (quantifier)
   {
     case Quantifier::exists:
       for (size_t i = 0; i != set.size(); i++)
       {
+        varTable_->addScope();
         //get binding for i-th tuple in the set
         for (size_t j = 0; j != tuple.size(); j++)
         {
@@ -150,6 +150,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
           truthVal = suchFormula->accept(*ctx_).get<bool>();
           if (truthVal)
           {
+            varTable_->removeScope();
             break;
           }
         }
@@ -159,6 +160,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
           //element in the set, i.e. we enter this loop at least once
           truthVal = true;
         }
+        varTable_->removeScope();
       }
     break;
 
@@ -166,6 +168,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
       truthVal = true;
       for (size_t i = 0; i != set.size(); i++)
       {
+        varTable_->addScope();
         //get binding for i-th tuple in the set
         for (size_t j = 0; j != tuple.size(); j++)
         {
@@ -178,6 +181,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
           truthVal = truthVal && suchFormula->accept(*ctx_).get<bool>();
           if (!truthVal)
           {
+            varTable_->removeScope();
             break;
           }
         }
@@ -187,6 +191,7 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
           //element in the set, i.e. we enter this loop at least once
           truthVal = true;
         }
+        varTable_->removeScope();
       }
     break;
 
@@ -202,8 +207,6 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
         << " in " << yagi::fluentDBDataToString(set) << std::endl;
     std::cout << "[Result] " << truthVal << std::endl;
   }
-
-  varTable_->removeScope();
 
 //Cleanup shadow fluent in case it is one
   if (isShadowFluent(setExprFluentName, *db_))
