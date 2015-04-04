@@ -1,8 +1,9 @@
-/*
- * NodeQuantifiedFormula.cpp
+/**
+ * @file   NodeQuantifiedFormula.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 30, 2014
- *      Author: cmaier
+ * AST node for quantified formulas
  */
 
 #include "NodeQuantifiedFormula.h"

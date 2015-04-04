@@ -1,8 +1,9 @@
-/*
- * NodeFormulaConnective.cpp
+/**
+ * @file   NodeFormulaConnective.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 30, 2014
- *      Author: cmaier
+ * AST node for formula connectives
  */
 
 #include "NodeFormulaConnective.h"

@@ -1,8 +1,9 @@
-/*
- * NodeFluentDecl.cpp
+/**
+ * @file   NodeFluentDecl.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Apr 24, 2014
- *      Author: cmaier
+ * AST node for fluent declarations.
  */
 
 #include "NodeFluentDecl.h"

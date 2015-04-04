@@ -1,8 +1,9 @@
-/*
- * NodeSetExpression.cpp
+/**
+ * @file   NodeSetExpression.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 27, 2014
- *      Author: cmaier
+ * AST node for set expressions
  */
 
 #include "NodeSetExpression.h"

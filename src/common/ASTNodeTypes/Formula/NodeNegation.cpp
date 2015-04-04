@@ -1,8 +1,9 @@
-/*
- * NodeNegation.cpp
+/**
+ * @file   NodeNegation.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 30, 2014
- *      Author: cmaier
+ * AST node for formula negations
  */
 
 #include "NodeNegation.h"

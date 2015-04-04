@@ -1,8 +1,9 @@
-/*
- * NodeFactDecl.cpp
+/**
+ * @file   NodeFactDecl.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 23, 2014
- *      Author: cmaier
+ * AST node for fact declarations.
  */
 
 #include "NodeFactDecl.h"

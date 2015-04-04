@@ -1,8 +1,9 @@
-/*
- * NodeIDSet.cpp
+/**
+ * @file   NodeDomainStringElements.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Apr 24, 2014
- *      Author: cmaier
+ * AST node for the domain of finite number of string elements
  */
 
 #include "NodeDomainStringElements.h"

@@ -1,8 +1,9 @@
-/*
- * NodeDomainString.cpp
+/**
+ * @file   NodeDomainString.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 22, 2014
- *      Author: cmaier
+ * AST node for the domain of string (Kleene closure over alphabet, potentially countably infinite)
  */
 
 #include "NodeDomainString.h"

@@ -1,8 +1,9 @@
-/*
- * NodeFormulaBase.h
+/**
+ * @file   NodeFormulaBase.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 28, 2014
- *      Author: cmaier
+ * AST node for base formula
  */
 
 #ifndef NODEFORMULABASE_H_
@@ -10,10 +11,20 @@
 
 #include "../ASTNodeBase.h"
 
+/**
+ * AST node class for base formula
+ */
 class NodeFormulaBase: public ASTNodeBase<>
 {
   public:
+    /**
+     * Default ctor
+     */
     NodeFormulaBase();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodeFormulaBase();
 };
 

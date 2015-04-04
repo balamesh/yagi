@@ -1,8 +1,9 @@
-/*
- * NodeCompoundFormula.cpp
+/**
+ * @file   NodeCompoundFormula.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 30, 2014
- *      Author: cmaier
+ * AST node for compound formulas
  */
 
 #include "NodeCompoundFormula.h"

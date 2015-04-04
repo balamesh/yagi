@@ -1,8 +1,9 @@
-/*
- * NodeDomainString.h
+/**
+ * @file   NodeDomainString.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 22, 2014
- *      Author: cmaier
+ * AST node for the domain of string (Kleene closure over alphabet, potentially countably infinite)
  */
 
 #ifndef NODEDOMAINSTRING_H_
@@ -10,11 +11,22 @@
 
 #include "NodeDomainBase.h"
 
+/**
+ * AST node class for the domain of string
+ */
 class NodeDomainString: public NodeDomainBase
 {
   public:
     DEFINE_VISITABLE()
+
+    /**
+     * Default ctor
+     */
     NodeDomainString();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodeDomainString();
 };
 

@@ -1,8 +1,9 @@
-/*
- * NodeFormula.cpp
+/**
+ * @file   NodeAtom.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 23, 2014
- *      Author: cmaier
+ * AST node for atoms
  */
 
 #include "NodeAtom.h"

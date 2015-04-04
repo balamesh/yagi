@@ -1,8 +1,9 @@
-/*
- * NodeDomainBase.h
+/**
+ * @file   NodeDomainBase.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 22, 2014
- *      Author: cmaier
+ * AST node for the domain base type.
  */
 
 #ifndef NODEDOMAINBASE_H_
@@ -10,6 +11,9 @@
 
 #include "../ASTNodeBase.h"
 
+/**
+ * AST node class for the domain base type.
+ */
 class NodeDomainBase: public ASTNodeBase<>
 {
 

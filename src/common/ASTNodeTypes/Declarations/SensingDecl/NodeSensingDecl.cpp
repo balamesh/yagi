@@ -1,8 +1,9 @@
-/*
- * NodeSensingDecl.cpp
+/**
+ * @file   NodeSensingDecl.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 7, 2014
- *      Author: cmaier
+ * AST node for sensing declarations.
  */
 
 #include "NodeSensingDecl.h"
