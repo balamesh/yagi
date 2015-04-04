@@ -1,8 +1,9 @@
-/*
- * VariableAssignment.cpp
+/**
+ * @file   NodeVariableAssignment.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 26, 2014
- *      Author: cmaier
+ * AST node for YAGI assignments to variables
  */
 
 #include "NodeVariableAssignment.h"

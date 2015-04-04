@@ -1,8 +1,9 @@
-/*
- * NodeFluentQuery.cpp
+/**
+ * @file   NodeFluentQuery.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 7, 2014
- *      Author: cmaier
+ * AST node for a fluent query
  */
 
 #include "NodeFluentQuery.h"

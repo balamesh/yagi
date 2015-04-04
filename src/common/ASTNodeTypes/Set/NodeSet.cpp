@@ -1,8 +1,9 @@
-/*
- * NodeSet.cpp
+/**
+ * @file   NodeSet.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 28, 2014
- *      Author: cmaier
+ * AST node for a set of tuples
  */
 
 #include "NodeSet.h"

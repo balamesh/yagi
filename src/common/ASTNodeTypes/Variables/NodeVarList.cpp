@@ -1,8 +1,9 @@
-/*
- * NodeVarList.cpp
+/**
+ * @file   NodeVarList.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 23, 2014
- *      Author: cmaier
+ * AST node for YAGI variable lists
  */
 
 #include "NodeVarList.h"

@@ -1,8 +1,9 @@
-/*
- * NodeWhileLoop.cpp
+/**
+ * @file   NodeWhileLoop.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for YAGI while-loops
  */
 
 #include "NodeWhileLoop.h"

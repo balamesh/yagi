@@ -1,8 +1,9 @@
-/*
- * NodeSitCalcActionExecution.cpp
+/**
+ * @file   NodeSitCalcActionExecution.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Aug 6, 2014
- *      Author: cmaier
+ * AST node for a sit calc simple action execution
  */
 
 #include "NodeSitCalcActionExecution.h"

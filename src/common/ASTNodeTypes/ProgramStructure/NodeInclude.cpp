@@ -1,8 +1,9 @@
-/*
- * NodeInclude.cpp
+/**
+ * @file   NodeInclude.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Dec 12, 2014
- *      Author: cmaier
+ * AST node for the include statement
  */
 
 #include "NodeInclude.h"

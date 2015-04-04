@@ -1,8 +1,9 @@
-/*
- * NodeTuple.cpp
+/**
+ * @file   NodeTuple.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 28, 2014
- *      Author: cmaier
+ * AST node for YAGI tuples
  */
 
 #include "NodeTuple.h"

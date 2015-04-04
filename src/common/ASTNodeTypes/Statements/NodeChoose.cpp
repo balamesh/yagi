@@ -1,8 +1,9 @@
-/*
- * NodeChoose.cpp
+/**
+ * @file   NodeChoose.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for the choose statement
  */
 
 #include "NodeChoose.h"

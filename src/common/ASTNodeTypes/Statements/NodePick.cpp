@@ -1,8 +1,9 @@
-/*
- * NodePick.cpp
+/**
+ * @file   NodePick.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for a YAGI pick-statement
  */
 
 #include "NodePick.h"

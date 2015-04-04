@@ -1,8 +1,9 @@
-/*
- * NodeAssignmentOperator.cpp
+/**
+ * @file   NodeAssignmentOperator.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: May 27, 2014
- *      Author: cmaier
+ * AST node for assignment operators
  */
 
 #include "NodeAssignmentOperator.h"

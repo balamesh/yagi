@@ -1,8 +1,9 @@
-/*
- * NodeInclude.h
+/**
+ * @file   NodeInclude.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Dec 12, 2014
- *      Author: cmaier
+ * AST node for the include statement
  */
 
 #ifndef NODEINCLUDE_H_
@@ -11,21 +12,43 @@
 #include <string>
 #include "../ASTNodeBase.h"
 
+/**
+ * AST node class for the include statement
+ */
 class NodeInclude: public ASTNodeBase<>
 {
   private:
+    /**
+     * The YAGI file to be included
+     */
     std::string includeFileName_;
 
   public:
     DEFINE_VISITABLE()
+
+    /**
+     * Default ctor
+     */
     NodeInclude();
+
+    /**
+     * Default dtor
+     */
     virtual ~NodeInclude();
 
+    /**
+     * Getter for the include filename
+     * @return The YAGI file to be included
+     */
     const std::string& getIncludeFileName() const
     {
       return includeFileName_;
     }
 
+    /**
+     * Setter for the include file name
+     * @param includeFileName The YAGI file to be included
+     */
     void setIncludeFileName(const std::string& includeFileName)
     {
       //strip trailing and leading " if neccessary

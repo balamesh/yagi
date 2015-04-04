@@ -1,8 +1,9 @@
-/*
- * NodeBlock.cpp
+/**
+ * @file   NodeBlock.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jun 4, 2014
- *      Author: cmaier
+ * AST node for a block of statements
  */
 
 #include "NodeBlock.h"

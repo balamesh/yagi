@@ -1,8 +1,9 @@
-/*
- * NodeSearch.cpp
+/**
+ * @file   NodeSearch.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jun 5, 2014
- *      Author: cmaier
+ * AST node for a YAGI search statement
  */
 
 #include "NodeSearch.h"
