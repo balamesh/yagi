@@ -1,8 +1,10 @@
-/*
- * RewritingVisitor.cpp
+/**
+ * @file   RewritingVisitor.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 24, 2014
- *      Author: cmaier
+ * Responsible for performing code rewriting for a YAGI program, e.g. pattern matching
+ * gets rewritten into nested for-loops according to the specified YAGI semantics.
  */
 
 #include "RewritingVisitor.h"

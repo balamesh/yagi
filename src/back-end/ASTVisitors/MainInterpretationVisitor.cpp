@@ -1,8 +1,13 @@
-/*
- * MainInterpretationVisitor.cpp
+/**
+ * @file   MainInterpretationVisitor.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 9, 2014
- *      Author: cmaier
+ * Responsible for executing a YAGI program, i.e. the main interpretation visitor is
+ * directly invoked from the GUI, i.e. it is the main entry point of the execution of a YAGI program.
+ * It either redirects execution to a ActionProcedureInterpretation visitor instance or executes
+ * directly if the execution semantics differ from the semantics of the ActionProcedureInterpretation
+ * implementation
  */
 
 #include "MainInterpretationVisitor.h"

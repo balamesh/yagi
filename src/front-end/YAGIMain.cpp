@@ -37,7 +37,8 @@ int main(int argc, char * argv[])
     exit(EXIT_FAILURE);
   }
 
-  yagi::execution::BackendFactory::getInstance().initBackend(yagi::container::CommandLineArgsContainer::getInstance().getBackendPlugin());
+  yagi::execution::BackendFactory::getInstance().initBackend(
+      yagi::container::CommandLineArgsContainer::getInstance().getBackendPlugin());
 
   rl_bind_keyseq("\\C-n", YAGIInterpreter::addMultilineCommand);
 
@@ -48,7 +49,8 @@ int main(int argc, char * argv[])
   //if a filename was passed run its content directly
   if (!yagi::container::CommandLineArgsContainer::getInstance().getInputFileName().empty())
   {
-    YAGIInterpreter::execute(yagi::container::CommandLineArgsContainer::getInstance().getInputFileName(), true);
+    YAGIInterpreter::execute(
+        yagi::container::CommandLineArgsContainer::getInstance().getInputFileName(), true);
 
     if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
     {

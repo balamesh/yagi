@@ -1,9 +1,9 @@
 /**
- * @file   YAGIMain.cpp
+ * @file   YAGIInterpreter.h
  * @author Christopher Maier (cmaier@student.tugraz.at)
  * @date   January 2015
  *
- * The main entry point of the YAGI interpreter commandline.
+ * YAGIInterpreter main functions
  */
 
 #include <string>
