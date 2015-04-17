@@ -1,8 +1,9 @@
-/*
- * FormulaEvaluator.cpp
+/**
+ * @file   FormulaEvaluator.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 17, 2014
- *      Author: cmaier
+ * Responsible for evaluating YAGI formulas, more precisely logic sentences
  */
 
 #include "FormulaEvaluator.h"

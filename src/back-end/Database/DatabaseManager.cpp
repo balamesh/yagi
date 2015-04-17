@@ -1,8 +1,9 @@
-/*
- * DatabaseManager.cpp
+/**
+ * @file   DatabaseManager.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 14, 2014
- *      Author: cmaier
+ * Manages various database connection instances.
  */
 
 #include "DatabaseManager.h"
@@ -86,7 +87,6 @@ std::shared_ptr<DatabaseConnectorBase> DatabaseManager::getCloneWithNewName(
     auto newDB = sqliteDBToClone->backupDb(nullptr);
     databases_[newDbName] = std::make_shared<DataBaseConcreteType>(newDbName, newDB);
     return databases_[newDbName];
-
 
     return nullptr;
   }

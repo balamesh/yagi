@@ -1,9 +1,11 @@
-/*
- * DBHelper.cpp
+/**
+ * @file   DatabaseManager.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Aug 4, 2014
- *      Author: cmaier
+ * Some database helper functions
  */
+
 #include "DBHelper.h"
 
 #include "../Database/DatabaseManager.h"

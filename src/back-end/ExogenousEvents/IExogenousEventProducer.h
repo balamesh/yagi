@@ -1,8 +1,9 @@
-/*
- * IExogenousEventProducer.h
+/**
+ * @file   IExogenousEventProducer.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Aug 18, 2014
- *      Author: cmaier
+ * Basic description of an exogenous event producer
  */
 
 #ifndef IEXOGENOUSEVENTPRODUCER_H_
@@ -13,10 +14,20 @@
 namespace yagi {
 namespace execution {
 
+/**
+ * Abstract class for exogenous event producers
+ */
 class IExogenousEventProducer
 {
   public:
+    /**
+     * Default ctor
+     */
     IExogenousEventProducer();
+
+    /**
+     * Default dtor
+     */
     virtual ~IExogenousEventProducer();
 
     /*!

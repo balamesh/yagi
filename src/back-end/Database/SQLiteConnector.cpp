@@ -1,8 +1,9 @@
-/*
- * SQLiteConnector.cpp
+/**
+ * @file   SQLiteConnector.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 9, 2014
- *      Author: cmaier
+ * Specific connector for SQLite databases
  */
 
 #include "SQLiteConnector.h"

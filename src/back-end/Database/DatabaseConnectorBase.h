@@ -1,8 +1,9 @@
-/*
- * IDataBaseConnection.h
+/**
+ * @file   DatabaseConnectorBase.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 14, 2014
- *      Author: cmaier
+ * Basic functionality of a database connector.
  */
 
 #ifndef DATABASECONNECTORBASE_H_
@@ -14,36 +15,77 @@
 namespace yagi {
 namespace database {
 
+/**
+ * Abstract class that represents that basis for a database connection
+ */
 class DatabaseConnectorBase
 {
   private:
   protected:
+    /**
+     * Name of the db
+     */
     std::string dbName_;
+
+    /**
+     * True if connected, false otherwise
+     */
     bool connected_;
   public:
+
+    /**
+     * Ctor
+     * @param dbName Name of the db to connect to
+     */
     DatabaseConnectorBase(const std::string& dbName) :
         dbName_(dbName)
     {
       connected_ = false;
     }
     ;
+
+    /**
+     * Default dtor
+     */
     virtual ~DatabaseConnectorBase()
     {
     }
     ;
 
+    /**
+     * Getter for db name
+     * @return The name of the db
+     */
     const std::string& getDbName() const
     {
       return dbName_;
     }
 
+    /**
+     * Getter for db connected flag
+     * @return True if connected, false otherwise
+     */
     bool isConnected() const
     {
       return connected_;
     }
 
+    /**
+     * Connect to the database
+     */
     virtual void connect() = 0;
+
+    /**
+     * Execute a non-query against the database
+     * @param sqlStatement The SQL statement to execute
+     */
     virtual void executeNonQuery(const std::string& sqlStatement) const = 0;
+
+    /**
+     * Execute a query against the database
+     * @param selectSqlStmt The SQL statement to execute
+     * @return The result of the query
+     */
     virtual std::vector<std::vector<std::string>> executeQuery(
         const std::string& selectSqlStmt) const = 0;
 };

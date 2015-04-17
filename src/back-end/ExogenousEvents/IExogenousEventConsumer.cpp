@@ -1,8 +1,9 @@
-/*
- * IExogenousEventConsumer.cpp
+/**
+ * @file   IExogenousEventConsumer.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Aug 18, 2014
- *      Author: cmaier
+ * Basic description of an exogenous event consumer
  */
 
 #include "IExogenousEventConsumer.h"

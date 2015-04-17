@@ -1,8 +1,9 @@
-/*
- * ExoEventNotifier.cpp
+/**
+ * @file   ExoEventNotifier.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Aug 26, 2014
- *      Author: cmaier
+ * Notifies registered subscribers if exogenous events occured.
  */
 
 #include "ExoEventNotifier.h"

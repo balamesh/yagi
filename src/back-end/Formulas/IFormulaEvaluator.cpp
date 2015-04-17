@@ -1,8 +1,9 @@
-/*
- * IFormulaEvaluator.cpp
+/**
+ * @file   IFormulaEvaluator.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 17, 2014
- *      Author: cmaier
+ * Basic structure for evaluating YAGI formulas, more precisely logic sentences
  */
 
 #include "IFormulaEvaluator.h"
