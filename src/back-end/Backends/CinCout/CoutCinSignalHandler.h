@@ -1,8 +1,9 @@
-/*
- * PrintOutSignalReceiver.h
+/**
+ * @file   CoutCinSignalHandler.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 23, 2014
- *      Author: cmaier
+ * Simple signal handler implementation that uses cin/cout.
  */
 
 #ifndef COUTCINSIGNALHANDLER_H_
@@ -15,12 +16,28 @@
 namespace yagi {
 namespace execution {
 
+/**
+ * Responsible for displaying YAGI signals via cout and reading data via cin
+ */
 class CoutCinSignalHandler: public IYAGISignalHandler
 {
   public:
+    /**
+     * Default ctor
+     */
     CoutCinSignalHandler();
+
+    /**
+     * Default dtor
+     */
     virtual ~CoutCinSignalHandler();
 
+    /**
+     * Processes a YAGI signal
+     * @param content The signaled content
+     * @param variables The involved variables in case of 'setting'
+     * @return The 'setting' values in case it was a setting action signal
+     */
     std::unordered_map<std::string, std::string> signal(const std::string& content,
         const std::vector<std::string>& variables) override;
 };

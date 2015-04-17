@@ -1,8 +1,9 @@
-/*
- * PrintOutSignalReceiver.cpp
+/**
+ * @file   CoutCinSignalHandler.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 23, 2014
- *      Author: cmaier
+ * Simple signal handler implementation that uses cin/cout.
  */
 
 #include "CoutCinSignalHandler.h"

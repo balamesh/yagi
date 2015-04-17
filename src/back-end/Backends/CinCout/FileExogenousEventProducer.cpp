@@ -1,3 +1,11 @@
+/**
+ * @file   FileExogenousEventProducer.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
+ *
+ * Implements exogenous events via a simple file watch approach.
+ */
+
 #include "FileExogenousEventProducer.h"
 #include <fstream>
 #include <iostream>
