@@ -1,8 +1,9 @@
-/*
- * VariableTable.cpp
+/**
+ * @file   VariableTable.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 21, 2014
- *      Author: cmaier
+ * Implements a variable table
  */
 
 #include "VariableTable.h"

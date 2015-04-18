@@ -1,8 +1,9 @@
-/*
- * IYAGISignalHandler.cpp
+/**
+ * @file   IYAGISignalHandler.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 23, 2014
- *      Author: cmaier
+ * Basic functionality of a YAGI signal handler
  */
 
 #include "IYAGISignalHandler.h"

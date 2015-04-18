@@ -1,8 +1,9 @@
-/*
- * BfsDataContainer.cpp
+/**
+ * @file   BfsDataContainer.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Nov 26, 2014
- *      Author: cmaier
+ * Stores data generated during the search procedure
  */
 
 #include "BfsDataContainer.h"

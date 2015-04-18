@@ -1,8 +1,10 @@
-/*
- * VariableTableManager.cpp
+/**
+ * @file   VariableTableManager.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 21, 2014
- *      Author: cmaier
+ * Manages different variable table instances, similar to DatabaseManager class
+ * XXX Maybe templatize DBManager and VarTableManager to Manager<T>
  */
 
 #include "VariableTableManager.h"

@@ -1,8 +1,9 @@
-/*
- * SQLGenerator.cpp
+/**
+ * @file   SQLGenerator.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 15, 2014
- *      Author: cmaier
+ * Responsible for building SQL queries
  */
 
 #include "SQLGenerator.h"

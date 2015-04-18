@@ -1,8 +1,9 @@
-/*
- * TreeHelper.cpp
+/**
+ * @file   TreeHelper.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 23, 2014
- *      Author: cmaier
+ * Helper functions for the AST
  */
 
 #include "TreeHelper.h"
