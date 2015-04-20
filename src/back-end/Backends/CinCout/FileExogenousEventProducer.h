@@ -1,3 +1,29 @@
+/**
+ * @file   FileExogenousEventProducer.h
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
+ *
+ * Implements exogenous events via a simple file watch approach.
+ */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
+
 #ifndef IFILEEXOGENOUSEVENTPRODUCER_H_
 #define IFILEEXOGENOUSEVENTPRODUCER_H_
 
@@ -7,21 +33,58 @@
 namespace yagi {
 namespace execution {
 
-class FileExogenousEventProducer : public IExogenousEventProducer
+/**
+ * Incorporates exogenous events via watching a file for changes
+ */
+class FileExogenousEventProducer: public IExogenousEventProducer
 {
-        const std::string fileName = "exoEventData.txt";
+    /**
+     * The name of the file to watch
+     */
+    const std::string fileName = "exoEventData.txt";
 
-        std::vector<std::tuple<std::string, std::string, std::string>> splitFileLines(
-            std::vector<std::string> lines);
+    /**
+     * Splits the lines in the file
+     * @param lines The lines from the file
+     * @return The split data from the file
+     */
+    std::vector<std::tuple<std::string, std::string, std::string>> splitFileLines(
+        std::vector<std::string> lines);
 
-        std::vector<std::string> readLinesFromFile();
+    /**
+     * Reads a textfile
+     * @return The lines read
+     */
+    std::vector<std::string> readLinesFromFile();
 
-        bool file_exists_;
-        std::chrono::time_point<std::chrono::system_clock> time_point_file_found_;
-public:
-        FileExogenousEventProducer();
+    /**
+     * True if file already exists, false otherwise
+     */
+    bool file_exists_;
+
+    /**
+     * Time point where file has been found
+     */
+    std::chrono::time_point<std::chrono::system_clock> time_point_file_found_;
+  public:
+
+    /**
+     * Default ctor
+     */
+    FileExogenousEventProducer();
+
+    /**
+     * New event available?
+     * @return
+     */
     bool eventAvailable() override;
-    std::vector<std::pair<std::string, std::unordered_map<std::string, std::string> > > getEvent() override;
+
+    /**
+     * Get event + data
+     * @return Event + data
+     */
+    std::vector<std::pair<std::string, std::unordered_map<std::string, std::string> > > getEvent()
+        override;
 };
 
 } /* namespace execution */

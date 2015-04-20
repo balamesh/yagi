@@ -1,10 +1,28 @@
 /**
- * @file   YAGIMain.cpp
+ * @file   YAGIInterpreter.cpp
  * @author Christopher Maier (cmaier@student.tugraz.at)
  * @date   January 2015
  *
- * The main entry point of the YAGI interpreter commandline.
+ * YAGIInterpreter main functions
  */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
 
 #include "YAGIInterpreter.h"
 
@@ -47,10 +65,6 @@ using std::ofstream;
 using namespace yagi::formula;
 using namespace yagi::execution;
 
-/**
- * Callback method for readline that handles multine YAGI code.
- * @return success
- */
 int YAGIInterpreter::addMultilineCommand(int, int)
 {
   printf("\n.......");
@@ -58,11 +72,6 @@ int YAGIInterpreter::addMultilineCommand(int, int)
   return 0;
 }
 
-/**
- * Parses command line args using TCLAP.
- * @param argc Number of args
- * @param argv Arguments
- */
 void YAGIInterpreter::parseCommandLineArgs(int argc, char* argv[])
 {
   TCLAP::CmdLine cmd("YAGI Interpreter Shell", ' ', "1.0");
@@ -105,22 +114,11 @@ void YAGIInterpreter::parseCommandLineArgs(int argc, char* argv[])
       useThisBackEnd.getValue());
 }
 
-/**
- * Checks if an exit command has been entered
- * @param line The line that should be checked
- * @return true If exit, else otherwise
- */
 bool YAGIInterpreter::isExit(const std::string& line)
 {
   return (line == "exit"); //todo: trim etc. to make it more robust
 }
 
-/**
- * Checks if a string is prefix of another string
- * @param potentialPrefix The potential prefix
- * @param text The text to check
- * @return True If prefix, false otherwise
- */
 bool YAGIInterpreter::isPrefixOf(const std::string& potentialPrefix, const std::string& text)
 {
   auto res = std::mismatch(std::begin(potentialPrefix), std::end(potentialPrefix),
@@ -129,12 +127,6 @@ bool YAGIInterpreter::isPrefixOf(const std::string& potentialPrefix, const std::
   return (res.first == std::end(potentialPrefix));
 }
 
-/**
- * Checks if a string is a suffix of another string
- * @param potentialSuffix Potential suffix string
- * @param text Text to be checked
- * @return true If suffix, false otherwise
- */
 bool YAGIInterpreter::isSuffixOf(const std::string& potentialSuffix, const std::string& text)
 {
   auto res = std::mismatch(potentialSuffix.rbegin(), potentialSuffix.rend(), text.rbegin());
@@ -142,11 +134,6 @@ bool YAGIInterpreter::isSuffixOf(const std::string& potentialSuffix, const std::
   return (res.first == potentialSuffix.rend());
 }
 
-/**
- * Checks if the input command is a 'load from file' command
- * @param line Input command to check
- * @return true If it is 'import' command, false otherwise
- */
 bool YAGIInterpreter::isFromFile(const std::string& line)
 {
   std::string tmp { line };
@@ -156,12 +143,6 @@ bool YAGIInterpreter::isFromFile(const std::string& line)
       && isSuffixOf(std::string { ");" }, trim(tmp));
 }
 
-/**
- * Executes a YAGI program.
- * @param line The program to execute
- * @param isFileName Flag that indicates whether or not it line is a filename
- * @return True if execution successful, false otherwise
- */
 bool YAGIInterpreter::execute(const std::string& line, bool isFileName)
 {
   std::cout << "(working...)" << std::endl << std::flush;
@@ -257,7 +238,8 @@ bool YAGIInterpreter::execute(const std::string& line, bool isFileName)
   bool success = true;
   for (const auto& stmt : stmts)
   {
-    if (!success) return true;
+    if (!success)
+      return true;
 
     if (yagi::container::CommandLineArgsContainer::getInstance().getShowDebugMessages())
     {
@@ -361,11 +343,6 @@ bool YAGIInterpreter::execute(const std::string& line, bool isFileName)
   return true;
 }
 
-/**
- * Parses the filename from an import command
- * @param importCmd The import command string
- * @return The filename
- */
 std::string YAGIInterpreter::parseFileName(const std::string& importCmd)
 {
   int first = importCmd.find_first_of('\"');
@@ -374,9 +351,6 @@ std::string YAGIInterpreter::parseFileName(const std::string& importCmd)
   return importCmd.substr(first + 1, last - first - 1);
 }
 
-/**
- * Displays the YAGI welcome message.
- */
 void YAGIInterpreter::displayWelcome()
 {
   std::cout << "***********************************************************" << std::endl;

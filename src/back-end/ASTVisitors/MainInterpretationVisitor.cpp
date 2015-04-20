@@ -1,9 +1,32 @@
-/*
- * MainInterpretationVisitor.cpp
+/**
+ * @file   MainInterpretationVisitor.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 9, 2014
- *      Author: cmaier
+ * Responsible for executing a YAGI program, i.e. the main interpretation visitor is
+ * directly invoked from the GUI, i.e. it is the main entry point of the execution of a YAGI program.
+ * It either redirects execution to a ActionProcedureInterpretation visitor instance or executes
+ * directly if the execution semantics differ from the semantics of the ActionProcedureInterpretation
+ * implementation
  */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
 
 #include "MainInterpretationVisitor.h"
 

@@ -1,9 +1,28 @@
-/*
- * ExecutableElementsContainer.cpp
+/**
+ * @file   ExecutableElementsContainer.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 17, 2014
- *      Author: cmaier
+ * Stores everything that is executable in YAGI, i.e actions, procedures and exo. events
  */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
 
 #include "ExecutableElementsContainer.h"
 
@@ -30,13 +49,13 @@ void ExecutableElementsContainer::addOrReplaceAction(const NodeActionDecl& actio
 
   actions_[k] = std::make_shared<NodeActionDecl>(actionDecl);
 
-  if(action_names_.find(k.name_) != action_names_.end())
-      action_names_[k.name_].insert(k);
+  if (action_names_.find(k.name_) != action_names_.end())
+    action_names_[k.name_].insert(k);
   else
   {
-      std::unordered_set<ExecElementKey> mapped_k;
-      mapped_k.insert(k);
-      action_names_[k.name_] = mapped_k;
+    std::unordered_set<ExecElementKey> mapped_k;
+    mapped_k.insert(k);
+    action_names_[k.name_] = mapped_k;
   }
 }
 
@@ -66,13 +85,13 @@ void ExecutableElementsContainer::addOrReplaceProcedure(const NodeProcDecl& proc
 
   procedures_[k] = std::make_shared<NodeProcDecl>(procDecl);
 
-  if(procedure_names_.find(k.name_) != procedure_names_.end())
-      procedure_names_[k.name_].insert(k);
+  if (procedure_names_.find(k.name_) != procedure_names_.end())
+    procedure_names_[k.name_].insert(k);
   else
   {
-      std::unordered_set<ExecElementKey> mapped_k;
-      mapped_k.insert(k);
-      procedure_names_[k.name_] = mapped_k;
+    std::unordered_set<ExecElementKey> mapped_k;
+    mapped_k.insert(k);
+    procedure_names_[k.name_] = mapped_k;
   }
 }
 
@@ -103,13 +122,13 @@ void ExecutableElementsContainer::addOrReplaceExoEvent(const NodeExogenousEventD
 
   exoEvents_[k] = std::make_shared<NodeExogenousEventDecl>(exoEventDecl);
 
-  if(exoEvents_names_.find(k.name_) != exoEvents_names_.end())
-      exoEvents_names_[k.name_].insert(k);
+  if (exoEvents_names_.find(k.name_) != exoEvents_names_.end())
+    exoEvents_names_[k.name_].insert(k);
   else
   {
-      std::unordered_set<ExecElementKey> mapped_k;
-      mapped_k.insert(k);
-      exoEvents_names_[k.name_] = mapped_k;
+    std::unordered_set<ExecElementKey> mapped_k;
+    mapped_k.insert(k);
+    exoEvents_names_[k.name_] = mapped_k;
   }
 }
 
@@ -174,41 +193,44 @@ bool ExecutableElementsContainer::procExists(const std::string& procName, int ar
 
 bool ExecutableElementsContainer::actionNameExists(const std::string& actionName)
 {
-    return action_names_.find(actionName) != action_names_.end();
+  return action_names_.find(actionName) != action_names_.end();
 }
 
-std::unordered_set<ExecElementKey> ExecutableElementsContainer::actionDeclerations(const std::string& actionName)
+std::unordered_set<ExecElementKey> ExecutableElementsContainer::actionDeclerations(
+    const std::string& actionName)
 {
-    if(action_names_.find(actionName) != action_names_.end())
-        return action_names_[actionName];
+  if (action_names_.find(actionName) != action_names_.end())
+    return action_names_[actionName];
 
-    return std::unordered_set<ExecElementKey>();
+  return std::unordered_set<ExecElementKey>();
 }
 
 bool ExecutableElementsContainer::procNameExists(const std::string& actionName)
 {
-    return procedure_names_.find(actionName) != procedure_names_.end();
+  return procedure_names_.find(actionName) != procedure_names_.end();
 }
 
-std::unordered_set<ExecElementKey> ExecutableElementsContainer::procDeclerations(const std::string& actionName)
+std::unordered_set<ExecElementKey> ExecutableElementsContainer::procDeclerations(
+    const std::string& actionName)
 {
-    if(procedure_names_.find(actionName) != procedure_names_.end())
-        return procedure_names_[actionName];
+  if (procedure_names_.find(actionName) != procedure_names_.end())
+    return procedure_names_[actionName];
 
-    return std::unordered_set<ExecElementKey>();
+  return std::unordered_set<ExecElementKey>();
 }
 
 bool ExecutableElementsContainer::exoEventNameExists(const std::string& actionName)
 {
-    return exoEvents_names_.find(actionName) != exoEvents_names_.end();
+  return exoEvents_names_.find(actionName) != exoEvents_names_.end();
 }
 
-std::unordered_set<ExecElementKey> ExecutableElementsContainer::exoEventDeclerations(const std::string& actionName)
+std::unordered_set<ExecElementKey> ExecutableElementsContainer::exoEventDeclerations(
+    const std::string& actionName)
 {
-    if(exoEvents_names_.find(actionName) != exoEvents_names_.end())
-        return exoEvents_names_[actionName];
+  if (exoEvents_names_.find(actionName) != exoEvents_names_.end())
+    return exoEvents_names_[actionName];
 
-    return std::unordered_set<ExecElementKey>();
+  return std::unordered_set<ExecElementKey>();
 }
 
 } /* namespace execution */

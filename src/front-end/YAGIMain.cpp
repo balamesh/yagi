@@ -6,6 +6,24 @@
  * The main entry point of the YAGI interpreter commandline.
  */
 
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
+
 #include "YAGIInterpreter.h"
 
 #include <iostream>
@@ -37,7 +55,8 @@ int main(int argc, char * argv[])
     exit(EXIT_FAILURE);
   }
 
-  yagi::execution::BackendFactory::getInstance().initBackend(yagi::container::CommandLineArgsContainer::getInstance().getBackendPlugin());
+  yagi::execution::BackendFactory::getInstance().initBackend(
+      yagi::container::CommandLineArgsContainer::getInstance().getBackendPlugin());
 
   rl_bind_keyseq("\\C-n", YAGIInterpreter::addMultilineCommand);
 
@@ -48,7 +67,8 @@ int main(int argc, char * argv[])
   //if a filename was passed run its content directly
   if (!yagi::container::CommandLineArgsContainer::getInstance().getInputFileName().empty())
   {
-    YAGIInterpreter::execute(yagi::container::CommandLineArgsContainer::getInstance().getInputFileName(), true);
+    YAGIInterpreter::execute(
+        yagi::container::CommandLineArgsContainer::getInstance().getInputFileName(), true);
 
     if (yagi::container::CommandLineArgsContainer::getInstance().measurePerformance())
     {

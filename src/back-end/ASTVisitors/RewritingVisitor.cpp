@@ -1,9 +1,29 @@
-/*
- * RewritingVisitor.cpp
+/**
+ * @file   RewritingVisitor.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 24, 2014
- *      Author: cmaier
+ * Responsible for performing code rewriting for a YAGI program, e.g. pattern matching
+ * gets rewritten into nested for-loops according to the specified YAGI semantics.
  */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
 
 #include "RewritingVisitor.h"
 #include "../../utils/DateTimeHelper.h"

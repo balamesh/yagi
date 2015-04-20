@@ -1,9 +1,29 @@
-/*
- * ActionProcedureInterpretationVisitor.cpp
+/**
+ * @file   ActionProcedureInterpretationVisitor.cpp
+ * @author Christopher Maier (cmaier.business@gmail.com)
+ * @date   April 2015
  *
- *  Created on: Jul 19, 2014
- *      Author: cmaierN
+ * Responsible for executing a YAGI program, i.e. traversing the AST via the implemented
+ * visitor methods and executing the appropriate actions.
  */
+
+/*
+ This file is part of YAGI.
+
+ YAGI is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3.0 of the License, or (at your option) any later version.
+
+ YAGI is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with YAGI.
+*/
+
 
 #include "ActionProcedureInterpretationVisitor.h"
 
@@ -48,7 +68,7 @@ std::shared_ptr<std::vector<std::shared_ptr<BfsDataContainer>>>ActionProcedureIn
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false), msgPrefix_("")
+    false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
   ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
@@ -57,7 +77,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor() :
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
     std::shared_ptr<DatabaseConnectorBase> db) :
     formulaEvaluator_(nullptr), db_(db), signalReceiver_(nullptr), varTable_(nullptr), isSearch_(
-        false), msgPrefix_("")
+    false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
   ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
@@ -86,7 +106,7 @@ ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(
 
 ActionProcedureInterpretationVisitor::ActionProcedureInterpretationVisitor(VariableTable& varTable) :
     formulaEvaluator_(nullptr), db_(nullptr), signalReceiver_(nullptr), varTable_(&varTable), isSearch_(
-        false), msgPrefix_("")
+    false), msgPrefix_("")
 {
   this->exoEventConsumerName_ = name_;
   ExoEventNotifier::getInstance().registerEventConsumerIfNotRegistered(this);
@@ -342,7 +362,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSearch& search)
   auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
   ActionProcedureInterpretationVisitor v(formulaEvaluator, tempDB,
-      BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, "<searchMain>");
+      BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true,
+      "<searchMain>");
 
   bool searchResult = false;
 
@@ -491,27 +512,35 @@ Any ActionProcedureInterpretationVisitor::visit(NodeProcExecution& procExec)
       procExecRetVal = true;
     }
   }
-  else if(ExecutableElementsContainer::getInstance().actionNameExists(actionOrProcName))
+  else if (ExecutableElementsContainer::getInstance().actionNameExists(actionOrProcName))
   {
-      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
-          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
-      {
-        std::cout << ">>>> " << msgPrefix_ << " action " << actionOrProcName << " is used wrong possibilies are : " << std::endl;
-        for(const auto& action_decl : ExecutableElementsContainer::getInstance().actionDeclerations(actionOrProcName))
-            std::cout << ">>>> " << msgPrefix_ << " " << action_decl.name_ << " with arrity " << action_decl.arity_ << std::endl;
-        std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the action " << "..."  << std::endl;
-      }
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+    {
+      std::cout << ">>>> " << msgPrefix_ << " action " << actionOrProcName
+          << " is used wrong possibilies are : " << std::endl;
+      for (const auto& action_decl : ExecutableElementsContainer::getInstance().actionDeclerations(
+          actionOrProcName))
+        std::cout << ">>>> " << msgPrefix_ << " " << action_decl.name_ << " with arrity "
+            << action_decl.arity_ << std::endl;
+      std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the action " << "..."
+          << std::endl;
+    }
   }
-  else if(ExecutableElementsContainer::getInstance().procNameExists(actionOrProcName))
+  else if (ExecutableElementsContainer::getInstance().procNameExists(actionOrProcName))
   {
-      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
-          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
-      {
-        std::cout << ">>>> " << msgPrefix_ << " procedure " << actionOrProcName << " is used wrong possibilies are : " << std::endl;
-        for(const auto& proc_decl : ExecutableElementsContainer::getInstance().procDeclerations(actionOrProcName))
-            std::cout << ">>>> " << msgPrefix_ << " " << proc_decl.name_ << " with arrity " << proc_decl.arity_ << std::endl;
-       std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the procedure " << "..."  << std::endl;
-      }
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+    {
+      std::cout << ">>>> " << msgPrefix_ << " procedure " << actionOrProcName
+          << " is used wrong possibilies are : " << std::endl;
+      for (const auto& proc_decl : ExecutableElementsContainer::getInstance().procDeclerations(
+          actionOrProcName))
+        std::cout << ">>>> " << msgPrefix_ << " " << proc_decl.name_ << " with arrity "
+            << proc_decl.arity_ << std::endl;
+      std::cout << ">>>> " << msgPrefix_ << "[WARNING] will not execute the procedure " << "..."
+          << std::endl;
+    }
   }
 
   varTable_->removeScope();
@@ -587,7 +616,7 @@ std::shared_ptr<NodeForLoop> ActionProcedureInterpretationVisitor::buildAssignme
   newSetExpr->setLhs(std::make_shared<NodeID>(rhsFluentName));
   loop->setSetExpr(newSetExpr);
 
-  ///Deduce variable tuple for for-loop from (shadow) fluent
+  //Deduce variable tuple for for-loop from (shadow) fluent
   auto tupleCount = db_->executeQuery(
       SQLGenerator::getInstance().getSqlStringNumberOfColumnsInTable(rhsFluentName)).size();
 
@@ -974,7 +1003,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
             bfsStatesQueue->at(0)->getState().get());
 
         ActionProcedureInterpretationVisitor v(formulaEvaluator, bfsStatesQueue->at(0)->getState(),
-            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, "test");
+            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true,
+            "test");
 
         v.choices_ = bfsStatesQueue->at(0)->getChoices();
 
@@ -1137,8 +1167,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
 
       std::cout
           << "SitCalc action precondition does not hold! Arity mismatch! Unable to continue, possibly invalid situation!\n"
-          << errorMsg
-          << std::endl;
+          << errorMsg << std::endl;
       std::terminate();
     }
 
@@ -1155,10 +1184,10 @@ Any ActionProcedureInterpretationVisitor::visit(NodeSitCalcActionExecution& sitC
       errorMsg += "Fluent Name: '" + fluentName + "' ";
       errorMsg += "Parameters: " + tupleToString(argList);
 
-      std::cout
-          << "SitCalc action precondition does not hold! Argument: '"<< argList[argIdx] << "' at position " << argIdx << " is not specified within the domain! Unable to continue, possibly invalid situation!\n"
-          << errorMsg
-          << std::endl;
+      std::cout << "SitCalc action precondition does not hold! Argument: '" << argList[argIdx]
+          << "' at position " << argIdx
+          << " is not specified within the domain! Unable to continue, possibly invalid situation!\n"
+          << errorMsg << std::endl;
       std::terminate();
     }
   }
@@ -1296,7 +1325,8 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
       {
         std::lock_guard<std::mutex> lk(chooseVisitorMutex);
         v = std::make_shared<ActionProcedureInterpretationVisitor>(formulaEvaluator, tempDB,
-            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true, name);
+            BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true,
+            name);
       }
 
       v->choices_ = this->choices_;
@@ -1450,53 +1480,56 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
 Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
 {
   auto fluentName = pick.getSetExpr()->accept(*this).get<std::string>();
-  auto complete_set = db_->executeQuery(SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
+  auto complete_set = db_->executeQuery(
+      SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
 
   //TODO make it more perfoming through usage of db query
   //pick a value for each unbound variable in varTuple, leave the bound variables as they are
   // get the already assigned elements
   auto varTuple = pick.getTuple()->accept(*this).get<std::vector<std::string>>();
   std::vector<std::pair<size_t, std::string>> assigned_elements;
-    for (size_t i = 0; i != varTuple.size(); i++)
+  for (size_t i = 0; i != varTuple.size(); i++)
+  {
+    if (varTuple[i][0] == '$') // TODO make this clean with classes (indicate for a variable)
     {
-        if(varTuple[i][0] == '$') // TODO make this clean with classes (indicate for a variable)
-        {
-          if (getVarTable()->variableExists(varTuple[i])
-              && getVarTable()->isVariableInitialized(varTuple[i]))
-            assigned_elements.push_back(std::pair<size_t, std::string>(i, getVarTable()->getVariableValue(varTuple[i])));
-        }
-        else
-            assigned_elements.push_back(std::pair<size_t, std::string>(i, varTuple[i]));
+      if (getVarTable()->variableExists(varTuple[i])
+          && getVarTable()->isVariableInitialized(varTuple[i]))
+        assigned_elements.push_back(
+            std::pair<size_t, std::string>(i, getVarTable()->getVariableValue(varTuple[i])));
     }
+    else
+      assigned_elements.push_back(std::pair<size_t, std::string>(i, varTuple[i]));
+  }
 
   std::vector<std::vector<std::string>> set;
   // use only tuples complient with the assigned elements
-  for(const auto& tuple : complete_set)
+  for (const auto& tuple : complete_set)
   {
-      if(tuple.size() != varTuple.size())
-        throw std::runtime_error("size of tuple for luent " + fluentName + " does not match varible tuple size in pick");
+    if (tuple.size() != varTuple.size())
+      throw std::runtime_error(
+          "size of tuple for luent " + fluentName + " does not match varible tuple size in pick");
     bool keep_tuple = true;
-    for(const auto& assigned_element : assigned_elements)
+    for (const auto& assigned_element : assigned_elements)
     {
-        if(tuple[assigned_element.first] != assigned_element.second)
-        {
-            keep_tuple = false;
-            break;
-        }
+      if (tuple[assigned_element.first] != assigned_element.second)
+      {
+        keep_tuple = false;
+        break;
+      }
     }
-    if(keep_tuple)
-        set.push_back(tuple);
+    if (keep_tuple)
+      set.push_back(tuple);
   }
 
-  if(set.empty())
+  if (set.empty())
   {
-      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
-          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
-      {
-        std::cout << ">>>> " << msgPrefix_ << "can't pick a value for value " << fluentName << "..."
-            << std::endl;
-      }
-      return Any { false };
+    if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+        || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+    {
+      std::cout << ">>>> " << msgPrefix_ << "can't pick a value for value " << fluentName << "..."
+          << std::endl;
+    }
+    return Any { false };
   }
 
   if (!isSearch_)
@@ -1762,10 +1795,11 @@ void ActionProcedureInterpretationVisitor::applyExoEventData()
     auto exoEventProg = ExecutableElementsContainer::getInstance().getExoEvent(exoEventName,
         argMap.size());
 
-    if(exoEventProg == nullptr)
+    if (exoEventProg == nullptr)
     {
-        std::cout << "[WARNING]: ignore exogen event with name: " << exoEventName << " as it is not defined " << std::endl;
-        continue;
+      std::cout << "[WARNING]: ignore exogen event with name: " << exoEventName
+          << " as it is not defined " << std::endl;
+      continue;
     }
 
     varTable_->addScope();
