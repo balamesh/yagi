@@ -91,6 +91,15 @@ else()
   message(STATUS "Fawkes not found, cannot build Fawkes plugin")
 endif()
 
+# Wumpus plugin
+add_library(WumpusBackend SHARED
+src/back-end/Backends/Wumpus/Connector.cpp
+src/back-end/Backends/Wumpus/WumpusBackend.cpp
+src/back-end/Backends/Wumpus/WumpusSignalHandler.cpp
+src/back-end/Backends/Wumpus/WumpusExogenousEventProducer.cpp)
+target_link_libraries(WumpusBackend pluma yagiSignalInterface yagiExogenousEventInterface boost_system)
+install(TARGETS WumpusBackend DESTINATION lib)
+
 
 # ======================================================================
 # end Plugin section
