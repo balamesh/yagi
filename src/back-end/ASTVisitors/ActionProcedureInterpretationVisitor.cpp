@@ -961,11 +961,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
           std::string reproduceStateVarTableName = "reproduceStateVarTable"
               + std::to_string(getNowTicks());
           auto reproduceStateDB = DatabaseManager::getInstance().getCloneWithNewName(
-              DatabaseManager::getInstance().MAIN_DB_NAME,
+                  db_->getDbName(),
               "reproduceStateDB_" + std::to_string(getNowTicks()));
 
           auto& reproduceStateVarTable = VariableTableManager::getInstance().getCloneWithNewName(
-              VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, reproduceStateVarTableName);
+                  varTable_->getName(), reproduceStateVarTableName);
 
           auto reproduceStateFormulaEvaluator = std::make_shared<FormulaEvaluator>(
               &reproduceStateVarTable, reproduceStateDB.get());
@@ -997,7 +997,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
 
         std::string tempVarTableName = "tempVarTable_" + std::to_string(getNowTicks());
         auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
-            VariableTableManager::getInstance().MAIN_VAR_TABLE_ID, tempVarTableName);
+                varTable_->getName(), tempVarTableName);
 
         auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable,
             bfsStatesQueue->at(0)->getState().get());
@@ -1581,6 +1581,11 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
       std::string tempVarTableName = name + "VarTable_" + std::to_string(getNowTicks());
       auto& tempVarTable = VariableTableManager::getInstance().getCloneWithNewName(
           varTable_->getName(), tempVarTableName);
+      if(set[idx].size() != varTuple.size())
+        throw std::runtime_error("size of picked tuple does not corespond to size of variables");
+
+      for(size_t i = 0; i < set[idx].size(); ++i)
+        tempVarTable.addVariable(varTuple[i], set[idx][i]);
 
       auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable, tempDB.get());
 
