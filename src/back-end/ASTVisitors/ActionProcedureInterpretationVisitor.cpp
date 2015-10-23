@@ -1002,9 +1002,16 @@ Any ActionProcedureInterpretationVisitor::visit(NodeWhileLoop& whileLoop)
         auto formulaEvaluator = std::make_shared<FormulaEvaluator>(&tempVarTable,
             bfsStatesQueue->at(0)->getState().get());
 
+//        std::cout << "use name for search " << name_ << std::endl;
+        std::string name_to_use = name_;
+        if(bfsStatesQueue->size() > 1)
+        	name_to_use  = "test";
+
+//        std::cout << "name used for inner execution for search " << name_to_use << std::endl;
+
         ActionProcedureInterpretationVisitor v(formulaEvaluator, bfsStatesQueue->at(0)->getState(),
             BackendFactory::getInstance().getBackend()->getSignalHandler(), tempVarTable, true,
-            "test");
+			name_to_use);
 
         v.choices_ = bfsStatesQueue->at(0)->getChoices();
 
