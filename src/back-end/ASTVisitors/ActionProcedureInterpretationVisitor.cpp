@@ -1432,27 +1432,29 @@ Any ActionProcedureInterpretationVisitor::visit(NodeChoose& choose)
     Any rc;
     if (found)
     {
-      for (size_t i = 0; i < results.size(); i++)
-      {
-        if (results[i] == 1)
-        {
-          if (std::get<0>(threads[i])->children_.size() == 0)
+//      for (size_t i = 0; i < results.size(); i++)
+//      {
+//        if (results[i] == 1)
+//        {
+          if (std::get<0>(threads[successIndex])->children_.size() == 0)
           {
             auto container = std::make_shared<BfsDataContainer>();
             container->setState(
                 DatabaseManager::getInstance().getCloneWithNewName(
-                    std::get<0>(threads[i])->getDb()->getDbName(),
+                    std::get<0>(threads[successIndex])->getDb()->getDbName(),
                     "DB_" + std::to_string(getNowTicks())));
 
-            for (const auto& choice : std::get<0>(threads[i])->choices_)
+            for (const auto& choice : std::get<0>(threads[successIndex])->choices_)
             {
               container->addChoice(choice);
             }
 
             bfsStatesQueue->push_back(container);
           }
-        }
-      }
+//        }
+//      }
+
+      this->choices_ = std::get<0>(threads[successIndex])->choices_;
 
       if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
           || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
@@ -1678,26 +1680,42 @@ Any ActionProcedureInterpretationVisitor::visit(NodePick& pick)
     Any rc;
     if (found)
     {
-      for (size_t i = 0; i < results.size(); i++)
-      {
-        if (results[i] == 1)
-        {
-          if (std::get<0>(threads[i])->children_.size() == 0)
+//      for (size_t i = 0; i < results.size(); i++)
+//      {
+//        if (results[i] == 1)
+//        {
+          if (std::get<0>(threads[successIndex])->children_.size() == 0)
           {
             auto container = std::make_shared<BfsDataContainer>();
             container->setState(
                 DatabaseManager::getInstance().getCloneWithNewName(
-                    std::get<0>(threads[i])->getDb()->getDbName(),
+                    std::get<0>(threads[successIndex])->getDb()->getDbName(),
                     "DB_" + std::to_string(getNowTicks())));
 
-            for (const auto& choice : std::get<0>(threads[i])->choices_)
+            for (const auto& choice : std::get<0>(threads[successIndex])->choices_)
             {
               container->addChoice(choice);
             }
 
             bfsStatesQueue->push_back(container);
           }
-        }
+//        }
+//      }
+
+	  if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+		  || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+	  {
+		  for (const auto& choice : this->choices_)
+			  std::cout << "have choices before pick " << choice << std::endl;
+	  }
+
+	  this->choices_ = std::get<0>(threads[successIndex])->choices_;
+
+      if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
+          || (!this->isSearch_ && this->name_ != "reproduceStateVisitor"))
+      {
+		  for (const auto& choice : this->choices_)
+			  std::cout << "have choices after pick " << choice << std::endl;
       }
 
       if (CommandLineArgsContainer::getInstance().getShowDebugMessages()
