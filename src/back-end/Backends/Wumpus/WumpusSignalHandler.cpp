@@ -82,17 +82,11 @@ std::unordered_map<std::string, std::string> WumpusSignalHandler::signal(
 
        if (var=="$g" && str.find("G") != std::string::npos)
          retVals[var] = "true";
-       else
-         retVals[var] = "false";
-       if (var=="$s" && str.find("S") != std::string::npos)
+       else if (var=="$s" && str.find("S") != std::string::npos)
          retVals[var] = "true";
-       else
-         retVals[var] = "false";
-       if (var=="$r" && str.find("R") != std::string::npos)
+       else if (var=="$r" && str.find("R") != std::string::npos)
          retVals[var] = "true";
-       else
-         retVals[var] = "false";
-       if (var=="$b" && str.find("B") != std::string::npos)
+       else if (var=="$b" && str.find("B") != std::string::npos)
          retVals[var] = "true";
        else
          retVals[var] = "false";
