@@ -156,11 +156,29 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
     case Quantifier::exists:
       for (size_t i = 0; i != set.size(); i++)
       {
-        varTable_->addScope();
-        //get binding for i-th tuple in the set
+        bool should_skip = false;
         for (size_t j = 0; j != tuple.size(); j++)
         {
-          varTable_->addVariable(tuple[j], set[i][j]);
+          if(varTable_->variableExists(tuple[j]) && varTable_->isVariableInitialized(tuple[j]))
+          {
+            if(varTable_->getVariableValue(tuple[j]) != set[i][j])
+            {
+              should_skip = true;
+              break;
+            }
+          }
+        }
+
+        if(should_skip)
+          continue;
+
+        varTable_->addScope();
+        //get binding for i-th tuple in the set
+        // use already bound variables
+        for (size_t j = 0; j != tuple.size(); j++)
+        {
+          if(!varTable_->variableExists(tuple[j]) || !varTable_->isVariableInitialized(tuple[j]))
+            varTable_->addVariable(tuple[j], set[i][j]);
         }
 
         //evaluate formula, if any
@@ -187,11 +205,25 @@ bool FormulaEvaluator::evaluateQuantifiedFormula(NodeQuantifiedFormula* quantifi
       truthVal = true;
       for (size_t i = 0; i != set.size(); i++)
       {
+        bool should_skip = false;
+        for (size_t j = 0; j != tuple.size(); j++)
+        {
+          if(varTable_->variableExists(tuple[j]) && varTable_->isVariableInitialized(tuple[j]))
+          {
+            if(varTable_->getVariableValue(tuple[j]) != set[i][j])
+            {
+              should_skip = true;
+              break;
+            }
+          }
+        }
+
         varTable_->addScope();
         //get binding for i-th tuple in the set
         for (size_t j = 0; j != tuple.size(); j++)
         {
-          varTable_->addVariable(tuple[j], set[i][j]);
+          if(!varTable_->variableExists(tuple[j]) || !varTable_->isVariableInitialized(tuple[j]))
+            varTable_->addVariable(tuple[j], set[i][j]);
         }
 
         //evaluate formula, if any

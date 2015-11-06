@@ -1079,6 +1079,7 @@ Any ActionProcedureInterpretationVisitor::visit(NodeTest& test)
     std::cout << ">>>> " << msgPrefix_ << "Test condition " << outText << std::endl;
   }
 
+  // std::cout << "test will return any" << std::endl;
   return Any { testHolds };
 }
 
