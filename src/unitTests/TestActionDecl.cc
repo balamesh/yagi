@@ -35,7 +35,7 @@ TEST(ActionDeclTest, actionDeclTest)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ActionDeclTest/actionDeclTest.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ActionDeclTest/actionDeclTest.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();

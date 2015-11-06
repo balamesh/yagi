@@ -37,7 +37,7 @@ using yagi::execution::RewritingVisitor;
 namespace yagi {
 namespace unitTestHelper {
 
-ASTReturnType tryParse(const std::string& file)
+ASTReturnType tryParseFile(const std::string &file)
 {
   try
   {
@@ -55,6 +55,75 @@ ASTReturnType tryParse(const std::string& file)
 
   EXPECT_TRUE(false);
   return nullptr;
+}
+
+ASTReturnType tryParseText(const std::string &file)
+{
+  try
+  {
+    auto ast = ANTLRParser::parseYAGICodeFromText(file);
+    EXPECT_NE(ast, nullptr);
+
+    return ast;
+  }
+  catch (std::runtime_error& error)
+  {
+    std::cout << "[INTERNAL ERROR]: " << error.what() << std::endl;
+    EXPECT_TRUE(false);
+    return nullptr;
+  }
+
+  EXPECT_TRUE(false);
+  return nullptr;
+}
+
+bool executeTest(ASTReturnType ast)
+{
+  //Invalid YAGI code...
+  EXPECT_NE(ast, nullptr);
+
+  auto prog = std::dynamic_pointer_cast<NodeProgram>(ast);
+  if (!prog)
+    throw std::runtime_error("AST root is no program!");
+
+  bool result = true;
+
+  auto stmts = prog->getProgram();
+  for (const auto& stmt : stmts)
+  {
+    TypeCheckVisitor typeCheck;
+    stmt->accept(typeCheck);
+
+    if (typeCheck.hasTypeError())
+    {
+      std::string errorText = "";
+      auto errors = typeCheck.getErrorTexts();
+      for (const auto& error : errors)
+      {
+        errorText += "[ERROR] " + error + "\n";
+      }
+
+      std::cout << errorText << std::endl;
+      return false;
+    }
+
+    RewritingVisitor rewriter;
+    auto newStmt = stmt->accept(rewriter);
+
+    MainInterpretationVisitor interpreter;
+    auto rewrittenStmt = newStmt ? newStmt.get<std::shared_ptr<NodeForLoop>>() : nullptr;
+
+    if (rewrittenStmt)
+    {
+      result = rewrittenStmt->accept(interpreter).get<bool>();
+    }
+    else
+    {
+      result = stmt->accept(interpreter).get<bool>();
+    }
+  }
+
+  return result;
 }
 
 bool execute(ASTReturnType ast)

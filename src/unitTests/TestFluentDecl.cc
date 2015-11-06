@@ -38,7 +38,7 @@ TEST(FluentDeclTest, fluentUserDomain)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/FluentDeclTest/fluentUserDomain.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/FluentDeclTest/fluentUserDomain.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -86,7 +86,7 @@ TEST(FluentDeclTest, fluentStringDomain)
   try
   {
 
-    auto ast = yagi::unitTestHelper::tryParse("samples/FluentDeclTest/fluentStringDomain.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/FluentDeclTest/fluentStringDomain.y");
 
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
@@ -121,7 +121,7 @@ TEST(FluentDeclTest, fluentStringDomain)
  */
 TEST(FluentDeclTest, fluentZeroArity)
 {
-  auto ast = yagi::unitTestHelper::tryParse("samples/FluentDeclTest/fluentZeroArity.y");
+  auto ast = yagi::unitTestHelper::tryParseFile("samples/FluentDeclTest/fluentZeroArity.y");
 
   ASSERT_THROW(
   {

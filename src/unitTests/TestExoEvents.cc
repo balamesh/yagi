@@ -44,7 +44,7 @@ TEST(ExoEventTest, exoEventTest)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ExogenousEventsTest/exoEventTest1.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ExogenousEventsTest/exoEventTest1.y");
     auto t1 = std::thread([&]()
     {
       yagi::unitTestHelper::execute(ast);
