@@ -49,8 +49,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 find_package(Sqlite REQUIRED)
 include_directories( ${SQLITE_INCLUDE_DIR} )
 
-add_library(signal_interface ../src/back-end/Signals/IYAGISignalHandler.cpp)
-add_library(exogenous_event_interface ../src/back-end/ExogenousEvents/IExogenousEventProducer.cpp)
+add_library(signal_interface SHARED ../src/back-end/Signals/IYAGISignalHandler.cpp)
+add_library(exogenous_event_interface SHARED ../src/back-end/ExogenousEvents/IExogenousEventProducer.cpp)
 
 # ======================================================================
 # begin Plugin section
@@ -195,6 +195,7 @@ add_executable(yagi-unitTests
 ../src/unitTests/TestElevator.cc
 ../src/unitTests/TestExpr.cc
 ../src/unitTests/TestExoEvents.cc
+../src/unitTests/TestIssues.cc
 ${yagi-front-end}
 ${yagi-back-end}
 ${yagi-common}

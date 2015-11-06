@@ -38,12 +38,22 @@ namespace unitTestHelper {
 /**
  * Tries to parse YAGI code.
  */
-ASTReturnType tryParse(const std::string& file);
+ASTReturnType tryParseFile(const std::string &file);
+
+/**
+ * Tries to parse YAGI code.
+ */
+ASTReturnType tryParseText(const std::string &file);
 
 /**
  * Executes YAGI code and returns true if execution succeeds
  */
 bool execute(ASTReturnType ast);
+
+/**
+ * Executes YAGI code and returns true if execution of the statement is true
+ */
+bool executeTest(ASTReturnType ast);
 
 } //end namespaces
 }

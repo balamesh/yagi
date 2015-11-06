@@ -39,7 +39,7 @@ TEST(ElevatorTest, elevator)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ElevatorTest/elevator.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ElevatorTest/elevator.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -78,7 +78,7 @@ TEST(ElevatorTest, elevatorSearch1)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ElevatorTest/elevatorSearch1.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ElevatorTest/elevatorSearch1.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -117,7 +117,7 @@ TEST(ElevatorTest, elevatorSearch2)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ElevatorTest/elevatorSearch2.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ElevatorTest/elevatorSearch2.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
@@ -156,7 +156,7 @@ TEST(ElevatorTest, elevatorSearch3)
 {
   try
   {
-    auto ast = yagi::unitTestHelper::tryParse("samples/ElevatorTest/elevatorSearch3.y");
+    auto ast = yagi::unitTestHelper::tryParseFile("samples/ElevatorTest/elevatorSearch3.y");
     EXPECT_TRUE(yagi::unitTestHelper::execute(ast));
 
     ASTBuilder::getInstance().reset();
