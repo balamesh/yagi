@@ -136,7 +136,7 @@ Any MainInterpretationVisitor::visit(NodeFluentQuery& fluentQuery)
 
   if (!db->executeQuery(SQLGenerator::getInstance().getSqlStringExistsTable(fluentName)).size())
   {
-    // std::cout << ">>>> Fluent/Fact '" + fluentName + "' does not exist!" << std::endl;
+    std::cout << ">>>> Fluent/Fact '" + fluentName + "' does not exist!" << std::endl;
   }
   else
   {
@@ -144,7 +144,7 @@ Any MainInterpretationVisitor::visit(NodeFluentQuery& fluentQuery)
         SQLGenerator::getInstance().getSqlStringSelectAll(fluentName));
     auto str = yagi::fluentDBDataToString(fluentState);
 
-    // std::cout << ">>>> " << fluentName << " = " << str << std::endl;
+    std::cout << ">>>> " << fluentName << " = " << str << std::endl;
   }
 
   return Any { };
