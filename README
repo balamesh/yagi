@@ -1,3 +1,5 @@
+This project is a fork based on the YAGI-Project hosted on http://yagi.ist.tugraz.at/.
+
 - To build YAGI, do the following:
 
 1. Download 'libantlr3c-3.4.tar.gz' from http://www.antlr3.org/download/C/
