@@ -50,6 +50,8 @@ end action
 
 proc init()
   blackboard_connect("localhost", "1921");
+  blackboard_open_reading("RobotinoLightInterface", "/machine-signal/best");
+  blackboard_open_reading("ZoneInterface", "/explore-zone/info");
 end proc
 
 proc main()
