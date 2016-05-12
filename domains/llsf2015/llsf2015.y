@@ -29,3 +29,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+fluent blackboard_connected[{"true", "false"}];
+blackboard_connected = {<"false">};
+
+action blackboard_connect($host, $port)
+precondition:
+  blackboard_connected == {<"false">};
+effect:
+  blackboard_connected = {<"true">};
+signal:
+  "bb-connect " + $host + " " + $port;
+end action
+
+proc init()
+  blackboard_connect("localhost", "1921");
+end proc
+
+proc main()
+  init();
+end proc
+
+main();
