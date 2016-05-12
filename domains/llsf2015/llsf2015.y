@@ -41,6 +41,13 @@ signal:
   "bb-connect " + $host + " " + $port;
 end action
 
+action blackboard_open_reading($type, $id)
+precondition:
+  blackboard_connected == {<"true">};
+signal:
+  "bb-open READ " + $type + " " + $id;
+end action
+
 proc init()
   blackboard_connect("localhost", "1921");
 end proc
