@@ -104,6 +104,14 @@ fact mps_non_light_sides[{"1", "17", "33", "177", "65", "82", "97", "113", "129"
 // Simply add all available elements
 mps_non_light_sides += {<_>};
 
+// Current game state
+fluent state[{"INIT", "WAIT_START", "RUNNING", "PAUSED"}];
+state = {<"INIT">};
+
+// Current game phase
+fluent phase[{"PRE_GAME", "SETUP", "EXPLORATION", "PRODUCTION", "POST_GAME"}];
+phase = {<"PRE_GAME">};
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -146,6 +154,11 @@ effect:
 signal:
   "bb-get ZoneInterface::/explore-zone/info";
 end action
+
+exogenous-event game_state ($state, $phase)
+  state = {<$state>};
+  phase = {<$phase>};
+end exogenous-event
 
 exogenous-event exploration_zone ($zone)
   expl_zones += {<$zone>};
