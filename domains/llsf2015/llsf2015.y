@@ -294,6 +294,8 @@ proc exploration()
   while phase == {<"EXPLORATION">} do
     if (exists <$Z> in expl_zones) then
        // we can be sure that there will be a delivery station in Z4 and a base station in Z9
+       explore("Z4");
+       explore("Z9");
        pick <$Z> from expl_zones such
          explore($Z);
        end pick
