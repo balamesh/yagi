@@ -64,7 +64,9 @@ namespace execution {
 class FawkesSignalHandler: public IYAGISignalHandler
 {
  public:
-  FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger, std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb);
+  FawkesSignalHandler(std::shared_ptr<fawkes::Logger> logger,
+                      std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb,
+                      std::unordered_map<std::string, std::string >* lightspecs_to_types);
   virtual ~FawkesSignalHandler();
 
   std::unordered_map<std::string, std::string>
@@ -92,6 +94,7 @@ class FawkesSignalHandler: public IYAGISignalHandler
   std::shared_ptr<llsf_msgs::MachineReport>    pb_llsf_mr_;
   bool                                         pb_llsf_beacon_thread_quit_;
   std::thread                                  pb_llsf_beacon_thread_;
+  std::unordered_map<std::string, std::string >* lightspecs_to_types_;
 };
 
 } /* namespace execution */
