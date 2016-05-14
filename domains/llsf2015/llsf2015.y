@@ -78,6 +78,8 @@ tags_of_machines += {<"M-BS","162">};
 tags_of_machines += {<"M-DS","49">};
 tags_of_machines += {<"M-DS","50">};
 
+fluent skill_status[{"S_INACTIVE", "S_RUNNING", "S_FINAL", "S_FAILED"}];
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -92,6 +94,15 @@ precondition:
   blackboard_connected == {<"true">};
 signal:
   "bb-open READ " + $type + " " + $id;
+end action
+
+action skill_status_query() external ($status)
+precondition:
+  true;
+effect:
+  skill_status = {<$status>};
+signal:
+  "bb-get SkillerInterface::Skiller";
 end action
 
 exogenous-event exploration_zone ($zone)
