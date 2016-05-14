@@ -4,6 +4,7 @@
  *
  *  Created: Thu Feb 19 17:45:31 2015
  *  Copyright  2015  Tim Niemueller [www.niemueller.de]
+ *             2016  Nicolas Limpert
  ****************************************************************************/
 
 /* Redistribution and use in source and binary forms, with or without
@@ -63,6 +64,10 @@ class FawkesBackend: public Backend
  private:
   std::shared_ptr<FawkesSignalHandler>          fawkes_signal_handler_;
   std::shared_ptr<FawkesExogenousEventProducer> fawkes_exo_prod_;
+  // YAGI cannot hold arbitrary strings in fluents or facts.
+  // We have to keep the types of machines according to LightSpec here.
+  std::unordered_map<std::string, std::string >* lightspecs_to_types_;
+
 
   std::shared_ptr<fawkes::Logger>               logger_;
   std::shared_ptr<yagi_protobuf::YAGIProtobuf>  pb_;

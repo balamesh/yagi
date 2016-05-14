@@ -3,6 +3,7 @@
  *
  *  Created: Thu Feb 19 17:46:53 2015
  *  Copyright  2015  Tim Niemueller [www.niemueller.de]
+ *             2016  Nicolas Limpert
  ****************************************************************************/
 
 /*
@@ -57,6 +58,8 @@ FawkesBackend::FawkesBackend()
 
   pb_->set_peer_name("public", peer_public);
   pb_->set_peer_name("private", peer_private);
+
+  lightspecs_to_types_ = new std::unordered_map<std::string, std::string >();
 
   logger_->log_info("FawkesBackend", "Initialization complete");
 }
