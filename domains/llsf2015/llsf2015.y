@@ -185,6 +185,15 @@ signal:
   "skill-exec-wait relgoto{x=1.5, ori=math.pi}";
 end action
 
+action goto($place) external ($status)
+precondition:
+  true;
+effect:
+  skill_status = {<$status>};
+signal:
+  "skill-exec-wait drive_to{place='Exp" + $place + "'}";
+end action
+
 exogenous-event game_state ($state, $phase)
   state = {<$state>};
   phase = {<$phase>};
