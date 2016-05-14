@@ -85,6 +85,13 @@ fluent light_state[{"ON", "OFF", "BLINKING", "UNKNOWN"}]
                   [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
 light_state = {<"UNKNOWN","UNKNOWN","UNKNOWN">};
 
+fluent light_state_of_machine[{"C-BS", "C-DS", "C-RS1", "C-RS2", "C-CS1", "C-CS2",
+                          "M-BS", "M-DS", "M-RS1", "M-RS2", "M-CS1", "M-CS2"}]
+                             [{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+                             [{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+                             [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
+
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
