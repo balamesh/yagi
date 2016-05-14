@@ -49,8 +49,9 @@ namespace execution {
 #endif
 
 FawkesExogenousEventProducer::FawkesExogenousEventProducer(std::shared_ptr<fawkes::Logger> logger,
-							   std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb)
-  : logger_(logger), pb_(pb)
+							   std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb,
+                                                           std::unordered_map<std::string, std::string >* lightspecs_to_types)
+  : logger_(logger), pb_(pb), lightspecs_to_types_(lightspecs_to_types)
 {
   exp_info_processed_ = false;
 }

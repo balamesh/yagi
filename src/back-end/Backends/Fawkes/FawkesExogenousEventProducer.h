@@ -56,7 +56,8 @@ class FawkesExogenousEventProducer : public IExogenousEventProducer
 {
  public:
   FawkesExogenousEventProducer(std::shared_ptr<fawkes::Logger> logger,
-			       std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb);
+			       std::shared_ptr<yagi_protobuf::YAGIProtobuf> pb,
+                               std::unordered_map<std::string, std::string >* lightspecs_to_types_);
   ~FawkesExogenousEventProducer();
 
   bool eventAvailable() override;
@@ -66,6 +67,7 @@ class FawkesExogenousEventProducer : public IExogenousEventProducer
   std::shared_ptr<fawkes::Logger>               logger_;
   std::shared_ptr<yagi_protobuf::YAGIProtobuf>  pb_;
   bool exp_info_processed_;
+  std::unordered_map<std::string, std::string >* lightspecs_to_types_;
 };
 
 } /* namespace execution */
