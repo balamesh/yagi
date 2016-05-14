@@ -80,6 +80,11 @@ tags_of_machines += {<"M-DS","50">};
 
 fluent skill_status[{"S_INACTIVE", "S_RUNNING", "S_FINAL", "S_FAILED"}];
 
+fluent light_state[{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+                  [{"ON", "OFF", "BLINKING", "UNKNOWN"}]
+                  [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
+light_state = {<"UNKNOWN","UNKNOWN","UNKNOWN">};
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -103,6 +108,15 @@ effect:
   skill_status = {<$status>};
 signal:
   "bb-get SkillerInterface::Skiller";
+end action
+
+action read_light() external ($red, $yellow, $green)
+precondition:
+  true;
+effect:
+  light_state = {<$red, $yellow, $green>};
+signal:
+  "bb-get RobotinoLightInterface::/machine-signal/best";
 end action
 
 exogenous-event exploration_zone ($zone)
