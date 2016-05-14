@@ -151,6 +151,13 @@ signal:
   "log " + $level + " " + $msg;
 end action
 
+action wait($time_ms)
+precondition:
+  true;
+signal:
+  "sleep " + $time_ms;
+end action
+
 action read_light() external ($red, $yellow, $green)
 precondition:
   true;
