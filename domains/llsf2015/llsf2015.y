@@ -217,6 +217,15 @@ exogenous-event exploration_zone ($zone)
   expl_zones += {<$zone>};
 end exogenous-event
 
+action drive_into_field() external ($status)
+precondition:
+  true;
+effect:
+  skill_status = {<$status>};
+signal:
+  "skill-exec-wait drive_into_field{wait=1, team='CYAN'}";
+end action
+
 proc init()
   blackboard_connect("localhost", "1921");
   blackboard_open_reading("RobotinoLightInterface", "/machine-signal/best");
