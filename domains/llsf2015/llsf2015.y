@@ -128,6 +128,13 @@ signal:
   "bb-open READ " + $type + " " + $id;
 end action
 
+action blackboard_read($interface)
+precondition:
+  true;
+signal:
+  "bb-read " + $interface;
+end action
+
 action skill_status_query() external ($status)
 precondition:
   true;
