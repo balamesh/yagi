@@ -284,8 +284,27 @@ proc explore($Z)
   mark_explored($Z);
 end proc
 
+proc exploration()
+  while not (exists <$Z> in expl_zones) do
+    log("error", "Still no expl_zones");
+    wait("1000");
+  end while
+
+  drive_into_field();
+  while phase == {<"EXPLORATION">} do
+    if (exists <$Z> in expl_zones) then
+       // we can be sure that there will be a delivery station in Z4 and a base station in Z9
+       pick <$Z> from expl_zones such
+         explore($Z);
+       end pick
+    end if
+  end while
+  log("error", "Exploration finished");
+end proc
+
 proc main()
   init();
+  exploration();
 end proc
 
 main();
