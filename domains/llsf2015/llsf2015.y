@@ -144,6 +144,13 @@ signal:
   "bb-get SkillerInterface::Skiller";
 end action
 
+action log($level, $msg)
+precondition:
+  true;
+signal:
+  "log " + $level + " " + $msg;
+end action
+
 action read_light() external ($red, $yellow, $green)
 precondition:
   true;
