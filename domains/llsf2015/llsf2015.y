@@ -203,6 +203,11 @@ signal:
   "skill-exec-wait explore_zone_wrapped{zone='" + $Z + "', team='CYAN'}";
 end action
 
+action report_machine($Z, $M, $red, $yellow, $green)
+signal:
+  "pb-send-report " + $Z + " " + $M + " " + $red + " " + $yellow + " " + $green;
+end action
+
 exogenous-event game_state ($state, $phase)
   state = {<$state>};
   phase = {<$phase>};
