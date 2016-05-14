@@ -92,6 +92,11 @@ fluent light_state_of_machine[{"C-BS", "C-DS", "C-RS1", "C-RS2", "C-CS1", "C-CS2
                              [{"ON", "OFF", "BLINKING", "UNKNOWN"}];
 
 
+// Fluent written by executing the skill "explore_zone"
+fluent explore_state[{"UNKNOWN", "MAYBE", "NO", "YES"}]
+                    [{"-1", "0", "65","1","17","33","177","66","2","18","34","178","161","97","113","129","145","162","98","114","130","146", "81", "82", "49", "50"}];
+explore_state = {<"UNKNOWN","-1">};
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -124,6 +129,15 @@ effect:
   light_state = {<$red, $yellow, $green>};
 signal:
   "bb-get RobotinoLightInterface::/machine-signal/best";
+end action
+
+action read_explore_zone() external ($search_state, $tag_id)
+precondition:
+  true;
+effect:
+  explore_state = {<$search_state, $tag_id>};
+signal:
+  "bb-get ZoneInterface::/explore-zone/info";
 end action
 
 exogenous-event exploration_zone ($zone)
