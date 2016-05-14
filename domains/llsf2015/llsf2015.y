@@ -235,6 +235,15 @@ signal:
   "skill-exec-wait mps_align{x=0.5}";
 end action
 
+action mark_explored($Z)
+precondition:
+  true;
+effect:
+  expl_zones -= {<$Z>};
+//signal:
+//  "";
+end action
+
 proc init()
   blackboard_connect("localhost", "1921");
   blackboard_open_reading("RobotinoLightInterface", "/machine-signal/best");
