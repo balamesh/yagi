@@ -226,6 +226,15 @@ signal:
   "skill-exec-wait drive_into_field{wait=1, team='CYAN'}";
 end action
 
+action mps_align() external ($status)
+precondition:
+  true;
+effect:
+  skill_status = {<$status>};
+signal:
+  "skill-exec-wait mps_align{x=0.5}";
+end action
+
 proc init()
   blackboard_connect("localhost", "1921");
   blackboard_open_reading("RobotinoLightInterface", "/machine-signal/best");
