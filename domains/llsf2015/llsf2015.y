@@ -176,6 +176,15 @@ signal:
   "bb-get ZoneInterface::/explore-zone/info";
 end action
 
+action move_to_output($tag_id) external ($mps_tag, $status)
+precondition:
+  <$tag_id> in mps_non_light_sides;
+effect:
+  skill_status = {<$status>};
+signal:
+  "skill-exec-wait relgoto{x=1.5, ori=math.pi}";
+end action
+
 exogenous-event game_state ($state, $phase)
   state = {<$state>};
   phase = {<$phase>};
