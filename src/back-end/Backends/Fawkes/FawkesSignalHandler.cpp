@@ -309,7 +309,14 @@ FawkesSignalHandler::process_pb_cmd(const char *name,
       pb_llsf_mr_ = std::make_shared<llsf_msgs::MachineReport>();
       pb_llsf_mr_->set_team_color(llsf_msgs::CYAN);
     }
-    logger_->log_info("[Fawkes|pb_cmd]", "Reporting %s as %s", params[1].c_str(), params[2].c_str());
+    std::stringstream ss;
+    ss << params[3] << params[4] << params[5];
+    std::string type_of_machine = lightspecs_to_types_->at(ss.str().c_str());
+
+    if (type_of_machine.empty()) {
+      logger_->log_warn("[Fawkes|pb_cmd]", "Association of light_specs to types unsuccessfull. Given colorvalues are: red: %i, yellow: %i, green: %i", params[3], params[4], params[5]);
+    }
+
     llsf_msgs::MachineReportEntry *entry = pb_llsf_mr_->add_machines();
     entry->set_name(params[1]);
     entry->set_type(params[2]);
