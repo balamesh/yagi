@@ -318,8 +318,13 @@ FawkesSignalHandler::process_pb_cmd(const char *name,
     }
 
     llsf_msgs::MachineReportEntry *entry = pb_llsf_mr_->add_machines();
-    entry->set_name(params[1]);
-    entry->set_type(params[2]);
+    llsf_msgs::Zone the_zone;
+    llsf_msgs::Zone_Parse(params[1], &the_zone);
+    logger_->log_info("[Fawkes|pb_cmd]", "Reporting machine %s in zone %s with type %s", params[2].c_str(), params[1].c_str(), type_of_machine.c_str());
+
+    entry->set_name(params[2]);
+    entry->set_type(type_of_machine);
+    entry->set_zone(the_zone);
 
     long int private_peer = pb_->get_peer_name("private");
     // send a view time to make sure it arrives even with simulated
