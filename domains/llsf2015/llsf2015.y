@@ -32,6 +32,9 @@
 fluent blackboard_connected[{"true", "false"}];
 blackboard_connected = {<"false">};
 
+fluent expl_zones[{"Z1","Z2","Z3","Z4","Z5","Z6","Z7","Z8","Z9","Z10","Z11","Z12", "Z13",
+                      "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24"}];
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
@@ -47,6 +50,10 @@ precondition:
 signal:
   "bb-open READ " + $type + " " + $id;
 end action
+
+exogenous-event exploration_zone ($zone)
+  expl_zones += {<$zone>};
+end exogenous-event
 
 proc init()
   blackboard_connect("localhost", "1921");
