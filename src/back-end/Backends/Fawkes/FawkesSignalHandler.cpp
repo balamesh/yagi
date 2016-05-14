@@ -302,8 +302,8 @@ FawkesSignalHandler::process_pb_cmd(const char *name,
   // this is a hack until YAGI can handle user pointers or at least
   // free string domains for fluents or assignable variables in procs
   if (cmd == "pb-send-report") {
-    if (params.size() != 3) {
-      logger_->log_warn("[Fawkes|pb_cmd]", "Wrong number of arguments, usage: pb-send-report <M> <T>");
+    if (params.size() != 6) {
+      logger_->log_warn("[Fawkes|pb_cmd]", "Wrong number of arguments, usage: pb-send-report <Z> <M> <red> <yellow> <green>");
     }
     if (! pb_llsf_mr_) {
       pb_llsf_mr_ = std::make_shared<llsf_msgs::MachineReport>();
