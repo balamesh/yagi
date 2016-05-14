@@ -250,6 +250,40 @@ proc init()
   blackboard_open_reading("ZoneInterface", "/explore-zone/info");
 end proc
 
+proc explore($Z)
+  explore_zone($Z);
+  blackboard_read("ZoneInterface::/explore-zone/info");
+  read_explore_zone();
+
+  pick <$search_state,$tag_id> from explore_state such
+    // make sure that given tag_id is a valid mps-tag
+    if ($tag_id != "-1") then
+       pick <$M, $tag_id> from tags_of_machines such
+          $current_machine = $M;
+          log("info",$current_machine);
+          if ($search_state == "YES") then
+             mps_align();
+             if ( <$tag_id> in mps_non_light_sides ) then
+                move_to_output($tag_id);
+                mps_align();
+             end if
+             // give vision some time to read signal, in real life we would
+             // wait for the visibility history to be acceptable
+             wait("2000");
+             blackboard_read("RobotinoLightInterface::/machine-signal/best");
+             read_light();
+             pick <$red,$yellow,$green> from light_state such
+                light_state_of_machine = {<$current_machine, $red, $yellow, $green>};
+                report_machine($Z, $current_machine, $red, $yellow, $green);
+             end pick
+          end if
+       end pick
+    end if
+  end pick
+
+  mark_explored($Z);
+end proc
+
 proc main()
   init();
 end proc
