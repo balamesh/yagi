@@ -38,6 +38,13 @@ fluent expl_zones[{"Z1","Z2","Z3","Z4","Z5","Z6","Z7","Z8","Z9","Z10","Z11","Z12
 fluent current_machine[{"C-BS", "C-DS", "C-RS1", "C-RS2", "C-CS1", "C-CS2",
                  "M-BS", "M-DS", "M-RS1", "M-RS2", "M-CS1", "M-CS2"}];
 
+// Not used - might be useful in order to map certain stations to their respective zones.
+// Probably useful for the Production Phase.
+fluent machines_in_zones[{"C-BS", "C-DS", "C-RS1", "C-RS2", "C-CS1", "C-CS2",
+                          "M-BS", "M-DS", "M-RS1", "M-RS2", "M-CS1", "M-CS2"}]
+                        [{"Z1","Z2","Z3","Z4","Z5","Z6","Z7","Z8","Z9","Z10","Z11","Z12", "Z13",
+                          "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24"}];
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
