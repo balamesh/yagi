@@ -97,6 +97,13 @@ fluent explore_state[{"UNKNOWN", "MAYBE", "NO", "YES"}]
                     [{"-1", "0", "65","1","17","33","177","66","2","18","34","178","161","97","113","129","145","162","98","114","130","146", "81", "82", "49", "50"}];
 explore_state = {<"UNKNOWN","-1">};
 
+// This fact is used to know whether the currently seen tag is on the side which we need for the light signal vision.
+// We have to make sure to be on the correct side to watch the particular light side.
+// Note that the delivery station actually only has one input side and has to be detected from that side.
+fact mps_non_light_sides[{"1", "17", "33", "177", "65", "82", "97", "113", "129", "145", "161", "50"}];
+// Simply add all available elements
+mps_non_light_sides += {<_>};
+
 action blackboard_connect($host, $port)
 precondition:
   blackboard_connected == {<"false">};
