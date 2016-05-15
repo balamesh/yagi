@@ -66,7 +66,7 @@ FawkesBackend::FawkesBackend()
 
 void FawkesBackend::creatSignalHandler()
 {
-  fawkes_signal_handler_ = std::make_shared<FawkesSignalHandler>(logger_, pb_);
+  fawkes_signal_handler_ = std::make_shared<FawkesSignalHandler>(logger_, pb_, lightspecs_to_types_);
   signal_handler_ = std::dynamic_pointer_cast<IYAGISignalHandler>(fawkes_signal_handler_);
   if (! fawkes_signal_handler_ || ! signal_handler_) {
     throw std::runtime_error("Could not create FawkesSignalHandler");
@@ -76,7 +76,7 @@ void FawkesBackend::creatSignalHandler()
 
 void FawkesBackend::createExogenousEventProducer()
 {
-  fawkes_exo_prod_ = std::make_shared<FawkesExogenousEventProducer>(logger_, pb_);
+  fawkes_exo_prod_ = std::make_shared<FawkesExogenousEventProducer>(logger_, pb_, lightspecs_to_types_);
   exogenious_event_producer_ = std::dynamic_pointer_cast<IExogenousEventProducer>(fawkes_exo_prod_);
   if (! fawkes_exo_prod_ || ! exogenious_event_producer_) {
     throw std::runtime_error("Could not create FawkesExogenousEventProducer");
