@@ -112,13 +112,15 @@ FawkesExogenousEventProducer::getEvent()
       std::dynamic_pointer_cast<llsf_msgs::ExplorationInfo>(m.msg);
     if (expi && ! exp_info_processed_) {
       exp_info_processed_ = true;
-      for (int i = 0; i < expi->machines_size(); ++i) {
-	const llsf_msgs::ExplorationMachine &machine = expi->machines(i);
-	if (machine.team_color() == llsf_msgs::CYAN) {
+      for (int i = 0; i < expi->zones_size(); ++i) {
+	const llsf_msgs::ExplorationZone &zone = expi->zones(i);
+        logger_->log_warn("FawkesExo", "Processing Exploration Zone %i: Team: %i, %i", i,
+                          zone.team_color(), zone.zone());
+	if (zone.team_color() == llsf_msgs::CYAN) {
 	  // It is an exploration info message
 	  std::unordered_map<std::string, std::string> variables;
-	  variables["$machine"] = machine.name();
-	  events.push_back(std::make_pair("exploration_machine", variables));
+	  variables["$zone"] = "Z" + std::to_string(zone.zone());
+	  events.push_back(std::make_pair("exploration_zone", variables));
 	}
       }
 
