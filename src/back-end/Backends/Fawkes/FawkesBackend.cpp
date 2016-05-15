@@ -53,7 +53,7 @@ FawkesBackend::FawkesBackend()
 
   long int peer_public  = pb_->yagi_pb_peer_create_local("127.0.0.1", 4421, 4411);
   long int peer_private = pb_->yagi_pb_peer_create_local_crypto("127.0.0.1", 4471, 4451,
-								"aachengraz",
+								"randomkey",
 								"aes-128-cbc");  
 
   pb_->set_peer_name("public", peer_public);
