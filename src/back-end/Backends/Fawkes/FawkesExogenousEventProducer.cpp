@@ -127,6 +127,15 @@ FawkesExogenousEventProducer::getEvent()
       for (int i = 0; i < expi->signals_size(); ++i) {
 	const llsf_msgs::ExplorationSignal &exp_signal = expi->signals(i);
 	std::unordered_map<std::string, std::string> variables;
+
+        // LightSpecs are supposed to be stored in types_to_lightspecs_ in the order <RED><YELLOW><GREEN> e.g. "ONOFFON"
+        std::string cur_light_specs;
+        cur_light_specs += llsf_msgs::LightState_Name(exp_signal.lights(llsf_msgs::LightColor::RED).state());
+        cur_light_specs += llsf_msgs::LightState_Name(exp_signal.lights(llsf_msgs::LightColor::YELLOW).state());
+        cur_light_specs += llsf_msgs::LightState_Name(exp_signal.lights(llsf_msgs::LightColor::GREEN).state());
+
+        (*lightspecs_to_types_)[cur_light_specs] = exp_signal.type();
+        logger_->log_warn("FawkesExo", "number of types_to_lightspecs: %i", lightspecs_to_types_->size());
 	variables["$type"] = exp_signal.type();
 	variables["$red"]  = llsf_msgs::LightState_Name(exp_signal.lights(0).state());
 	variables["$yellow"]  = llsf_msgs::LightState_Name(exp_signal.lights(1).state());
